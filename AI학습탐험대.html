@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 학습 탐험대 🚀</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes slideIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ping2 { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.float-anim { animation: float 3s ease-in-out infinite; }
+.slide-in { animation: slideIn 0.4s ease forwards; }
+.ping2 { animation: ping2 0.6s ease; }
+
+.section-page { display:none; }
+.section-page.active { display:block; }
+
+.treasure-card { transition: all 0.3s; cursor:pointer; }
+.treasure-card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 20px 40px rgba(0,0,0,0.15); }
+
+.fruit-item { transition: all 0.3s; border:2px solid #e5e7eb; border-radius:12px; padding:12px; text-align:center; }
+.fruit-item.labeled-apple { border-color:#ef4444; background:#fef2f2; }
+.fruit-item.labeled-pear { border-color:#f59e0b; background:#fffbeb; }
+
+.creature-btn { cursor:pointer; font-size:2rem; padding:8px; border-radius:50%; border:3px solid transparent; transition:all 0.3s; display:inline-flex; align-items:center; justify-content:center; }
+.creature-btn:hover { transform:scale(1.2); }
+.creature-btn.g1 { border-color:#3b82f6; background:#dbeafe; }
+.creature-btn.g2 { border-color:#10b981; background:#d1fae5; }
+.creature-btn.g3 { border-color:#f59e0b; background:#fef3c7; }
+
+.maze-cell { width:54px; height:54px; border:1px solid #cbd5e1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; transition:background 0.25s; background:#f8fafc; }
+.maze-cell.wall { background:#334155; }
+.maze-cell.energy { background:#fde68a; }
+.maze-cell.visited { background:#ddd6fe; }
+.maze-cell.current { background:#818cf8; }
+.maze-cell.goal { background:#86efac; }
+.maze-cell.best-path { background:#a5f3fc; }
+
+.quiz-opt { cursor:pointer; transition:all 0.25s; border:2px solid #e5e7eb; border-radius:12px; padding:12px 16px; text-align:left; width:100%; font-size:0.95rem; font-weight:500; color:#374151; background:#f9fafb; }
+.quiz-opt:hover:not(.done) { border-color:#6366f1; background:#eef2ff; }
+.quiz-opt.correct { border-color:#10b981; background:#d1fae5; color:#065f46; }
+.quiz-opt.wrong { border-color:#ef4444; background:#fef2f2; color:#991b1b; }
+.quiz-opt.done { cursor:not-allowed; }
+
+.def-popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:200; width:min(340px,90vw); background:#1e1b4b; color:white; border-radius:16px; padding:24px; box-shadow:0 25px 60px rgba(0,0,0,0.4); }
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:190; }
+.overlay.show, .def-popup.show { display:block; }
+
+.progress-bar { height:10px; border-radius:5px; background:linear-gradient(90deg,#818cf8,#6366f1); transition:width 0.5s; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+<!-- Overlay & Popups -->
+<div class="overlay" id="overlay" onclick="closePopup()"></div>
+
+<div class="def-popup" id="popup-supervised">
+  <button onclick="closePopup()" class="absolute top-3 right-4 text-white/60 hover:text-white text-xl">✕</button>
+  <div class="text-2xl mb-3">🏷️ 지도학습</div>
+  <p class="text-sm leading-relaxed text-white/90 mb-3"><strong class="text-yellow-300">정의:</strong> 입력 데이터와 정답(레이블)을 함께 학습하여 새로운 데이터의 결과를 예측하거나 분류하는 방식</p>
+  <div class="bg-white/10 rounded-lg p-3 text-sm">
+    <p class="font-bold text-yellow-300 mb-1">📚 주요 사례</p>
+    <p class="text-white/80">스팸 메일 분류 · 날씨 예측 · 질병 진단</p>
+  </div>
+</div>
+
+<div class="def-popup" id="popup-unsupervised">
+  <button onclick="closePopup()" class="absolute top-3 right-4 text-white/60 hover:text-white text-xl">✕</button>
+  <div class="text-2xl mb-3">🔍 비지도학습</div>
+  <p class="text-sm leading-relaxed text-white/90 mb-3"><strong class="text-yellow-300">정의:</strong> 정답 없이 데이터 자체의 패턴이나 구조를 분석하여 비슷한 것끼리 묶는(군집화) 방식</p>
+  <div class="bg-white/10 rounded-lg p-3 text-sm">
+    <p class="font-bold text-yellow-300 mb-1">📚 주요 사례</p>
+    <p class="text-white/80">고객 세분화 마케팅 · 사진 자동 분류 · 도서 추천</p>
+  </div>
+</div>
+
+<div class="def-popup" id="popup-reinforcement">
+  <button onclick="closePopup()" class="absolute top-3 right-4 text-white/60 hover:text-white text-xl">✕</button>
+  <div class="text-2xl mb-3">🎮 강화학습</div>
+  <p class="text-sm leading-relaxed text-white/90 mb-3"><strong class="text-yellow-300">정의:</strong> 시행착오를 통해 행동에 대한 '보상'을 최대화하는 방향으로 스스로 학습하는 방식</p>
+  <div class="bg-white/10 rounded-lg p-3 text-sm">
+    <p class="font-bold text-yellow-300 mb-1">📚 주요 사례</p>
+    <p class="text-white/80">로봇의 자율 주행(걷기) · 알파고 · 게임 캐릭터 학습</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <button onclick="showPage('home')" class="flex items-center gap-2 font-bold text-xl hover:opacity-80 transition">
+      <span>🚀</span><span>AI 학습 탐험대</span>
+    </button>
+    <div class="flex gap-1 flex-wrap text-sm">
+      <button onclick="showPage('supervised')" class="px-3 py-1.5 rounded-lg hover:bg-white hover:text-indigo-600 transition font-medium">🏷️ 지도학습</button>
+      <button onclick="showPage('unsupervised')" class="px-3 py-1.5 rounded-lg hover:bg-white hover:text-indigo-600 transition font-medium">🔍 비지도학습</button>
+      <button onclick="showPage('reinforcement')" class="px-3 py-1.5 rounded-lg hover:bg-white hover:text-indigo-600 transition font-medium">🎮 강화학습</button>
+      <button onclick="showPage('quiz')" class="px-3 py-1.5 rounded-lg hover:bg-white hover:text-indigo-600 transition font-medium">✏️ 퀴즈</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== HOME ========== -->
+<div id="page-home" class="section-page active">
+  <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-16 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="text-7xl mb-4 float-anim inline-block">🤖</div>
+      <h1 class="text-4xl md:text-5xl font-black text-indigo-900 mb-4">기계학습의 3가지 보물</h1>
+      <p class="text-lg text-slate-600 mb-6 max-w-xl mx-auto">AI가 스스로 배우는 방법에는 3가지가 있어요!<br>각 보물을 클릭하여 기계학습의 세계를 탐험해 보세요 🗺️</p>
+      <div class="inline-block bg-white rounded-2xl px-6 py-3 shadow-md mb-12 border-2 border-indigo-200">
+        <p class="text-indigo-700 font-medium">💬 "안녕! 나는 AI 로봇 <strong>알비</strong>야. 함께 기계학습을 배워볼까?"</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="treasure-card bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 text-white shadow-xl" onclick="showPage('supervised')">
+          <div class="text-5xl mb-3">🏷️</div>
+          <div class="text-xs font-bold bg-white/20 rounded-full px-3 py-1 mb-3 inline-block">첫 번째 보물</div>
+          <h2 class="text-2xl font-bold mb-1">지도학습</h2>
+          <p class="text-blue-100 text-xs mb-4">Supervised Learning</p>
+          <p class="text-sm leading-relaxed">정답(레이블)을 보며 배우는 학습법! 스팸 분류, 날씨 예측에 활용해요.</p>
+          <div class="mt-4 bg-white/20 rounded-lg p-2 text-xs">🔑 핵심: <strong>레이블(정답) 있음</strong></div>
+        </div>
+        <div class="treasure-card bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl p-6 text-white shadow-xl" onclick="showPage('unsupervised')">
+          <div class="text-5xl mb-3">🔍</div>
+          <div class="text-xs font-bold bg-white/20 rounded-full px-3 py-1 mb-3 inline-block">두 번째 보물</div>
+          <h2 class="text-2xl font-bold mb-1">비지도학습</h2>
+          <p class="text-emerald-100 text-xs mb-4">Unsupervised Learning</p>
+          <p class="text-sm leading-relaxed">정답 없이 스스로 패턴을 찾는 학습법! 고객 세분화, 사진 자동 분류에 활용해요.</p>
+          <div class="mt-4 bg-white/20 rounded-lg p-2 text-xs">🔑 핵심: <strong>레이블(정답) 없음</strong></div>
+        </div>
+        <div class="treasure-card bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl p-6 text-white shadow-xl" onclick="showPage('reinforcement')">
+          <div class="text-5xl mb-3">🎮</div>
+          <div class="text-xs font-bold bg-white/20 rounded-full px-3 py-1 mb-3 inline-block">세 번째 보물</div>
+          <h2 class="text-2xl font-bold mb-1">강화학습</h2>
+          <p class="text-orange-100 text-xs mb-4">Reinforcement Learning</p>
+          <p class="text-sm leading-relaxed">시행착오로 보상을 최대화하는 학습법! 알파고, 자율주행에 활용해요.</p>
+          <div class="mt-4 bg-white/20 rounded-lg p-2 text-xs">🔑 핵심: <strong>보상(Reward) 최대화</strong></div>
+        </div>
+      </div>
+
+      <!-- Compare Table -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-indigo-600 text-white px-6 py-4 text-lg font-bold text-left">📊 3가지 학습 유형 한눈에 비교</div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead><tr class="bg-indigo-50">
+              <th class="py-3 px-5 text-left text-slate-700">구분</th>
+              <th class="py-3 px-5 text-center text-blue-600">🏷️ 지도학습</th>
+              <th class="py-3 px-5 text-center text-emerald-600">🔍 비지도학습</th>
+              <th class="py-3 px-5 text-center text-orange-600">🎮 강화학습</th>
+            </tr></thead>
+            <tbody>
+              <tr class="border-t hover:bg-slate-50">
+                <td class="py-3 px-5 font-medium text-slate-700">레이블(정답)</td>
+                <td class="py-3 px-5 text-center"><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold">있음 ✓</span></td>
+                <td class="py-3 px-5 text-center"><span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold">없음 ✗</span></td>
+                <td class="py-3 px-5 text-center"><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-bold">보상으로 대체</span></td>
+              </tr>
+              <tr class="border-t hover:bg-slate-50">
+                <td class="py-3 px-5 font-medium text-slate-700">학습 방식</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">입력-출력 쌍 학습</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">패턴·구조 발견</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">시행착오 반복</td>
+              </tr>
+              <tr class="border-t hover:bg-slate-50">
+                <td class="py-3 px-5 font-medium text-slate-700">주요 사례</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">스팸 분류, 날씨 예측</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">고객 세분화, 도서 추천</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">알파고, 자율주행 로봇</td>
+              </tr>
+              <tr class="border-t hover:bg-slate-50">
+                <td class="py-3 px-5 font-medium text-slate-700">비유</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">🍎 채점받는 시험</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">🧩 스스로 퍼즐 맞추기</td>
+                <td class="py-3 px-5 text-center text-sm text-slate-600">🎯 게임으로 실력 키우기</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SUPERVISED ========== -->
+<div id="page-supervised" class="section-page">
+  <div class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-3">🏷️</div>
+        <h1 class="text-3xl font-black text-blue-900 mb-3">지도학습 (Supervised Learning)</h1>
+        <button onclick="openPopup('supervised')" class="bg-blue-600 text-white px-5 py-2 rounded-full text-sm hover:bg-blue-700 transition">📖 교과서 정의 보기</button>
+      </div>
+
+      <!-- Concept -->
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <div class="flex gap-4 items-start mb-5">
+          <span class="text-4xl flex-shrink-0">🤖</span>
+          <div class="bg-blue-50 rounded-xl p-4">
+            <p class="text-slate-700 leading-relaxed">지도학습은 선생님이 채점해주는 시험과 같아요! <strong class="text-blue-600">"이건 사과🍎"</strong>, <strong class="text-blue-600">"이건 배🍐"</strong>처럼 정답(레이블)을 알려주며 가르치면, AI가 새 사진도 스스로 분류할 수 있어요.</p>
+          </div>
+        </div>
+        <!-- Label vs No-label visual -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-4">
+            <div class="font-bold text-blue-700 mb-2">✅ 지도학습 데이터 (레이블 있음)</div>
+            <div class="flex gap-2">
+              <div class="bg-white rounded-lg p-2 text-center border flex-1"><div class="text-2xl">🍎</div><div class="text-xs text-red-600 font-bold mt-1">사과</div></div>
+              <div class="bg-white rounded-lg p-2 text-center border flex-1"><div class="text-2xl">🍐</div><div class="text-xs text-amber-600 font-bold mt-1">배</div></div>
+            </div>
+          </div>
+          <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4">
+            <div class="font-bold text-gray-500 mb-2">❌ 비지도학습 데이터 (레이블 없음)</div>
+            <div class="flex gap-2">
+              <div class="bg-white rounded-lg p-2 text-center border border-dashed flex-1"><div class="text-2xl">🍎</div><div class="text-xs text-gray-400 mt-1">???</div></div>
+              <div class="bg-white rounded-lg p-2 text-center border border-dashed flex-1"><div class="text-2xl">🍐</div><div class="text-xs text-gray-400 mt-1">???</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Activity -->
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-lg text-slate-800">🎯 체험: 내가 AI의 선생님!</h3>
+          <span id="sv-progress" class="text-sm text-slate-500 font-medium">레이블: 0/8</span>
+        </div>
+        <p class="text-slate-500 text-sm mb-5">과일을 보고 <strong>사과🍎</strong> 또는 <strong>배🍐</strong> 버튼을 눌러 레이블을 붙여주세요!</p>
+
+        <div id="fruit-grid" class="grid grid-cols-4 gap-3 mb-5"></div>
+
+        <div id="sv-done-msg" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-blue-700 text-sm font-medium">
+          ✅ 레이블링 완료! AI가 패턴을 학습했어요. 이제 새 과일을 예측해볼게요!
+        </div>
+
+        <div id="test-phase" class="hidden">
+          <h4 class="font-bold text-slate-700 mb-3">🔮 AI 예측 결과 (새로운 과일 4개)</h4>
+          <div id="test-grid" class="grid grid-cols-4 gap-3 mb-3"></div>
+          <div id="sv-result-msg" class="bg-green-50 border border-green-200 rounded-xl p-3 text-green-700 text-sm">✅ AI가 여러분이 가르쳐준 레이블 패턴으로 정확히 분류했어요!</div>
+        </div>
+
+        <div class="flex gap-3 flex-wrap mt-4">
+          <button onclick="checkSV()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition">🚀 AI 학습 시작!</button>
+          <button onclick="resetSV()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-lg font-medium hover:bg-slate-300 transition">🔄 다시 하기</button>
+        </div>
+      </div>
+
+      <!-- Cases -->
+      <div class="bg-white rounded-2xl p-6 shadow-md">
+        <h3 class="font-bold text-lg text-slate-800 mb-4">🌍 실생활 활용 사례</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-blue-50 rounded-xl p-4"><div class="text-3xl mb-2">📧</div><h4 class="font-bold text-blue-800 mb-1">스팸 메일 분류</h4><p class="text-sm text-slate-600">수천 개 메일에 '스팸/정상' 레이블을 붙여 학습</p></div>
+          <div class="bg-blue-50 rounded-xl p-4"><div class="text-3xl mb-2">🌤️</div><h4 class="font-bold text-blue-800 mb-1">우리 동네 기온 예측</h4><p class="text-sm text-slate-600">과거 날씨(입력)와 실제 기온(정답)으로 학습</p></div>
+          <div class="bg-blue-50 rounded-xl p-4"><div class="text-3xl mb-2">🏥</div><h4 class="font-bold text-blue-800 mb-1">질병 진단</h4><p class="text-sm text-slate-600">X레이에 '정상/이상' 레이블을 붙여 학습</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== UNSUPERVISED ========== -->
+<div id="page-unsupervised" class="section-page">
+  <div class="bg-gradient-to-br from-emerald-50 to-teal-100 min-h-screen py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-3">🔍</div>
+        <h1 class="text-3xl font-black text-emerald-900 mb-3">비지도학습 (Unsupervised Learning)</h1>
+        <button onclick="openPopup('unsupervised')" class="bg-emerald-600 text-white px-5 py-2 rounded-full text-sm hover:bg-emerald-700 transition">📖 교과서 정의 보기</button>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <div class="flex gap-4 items-start">
+          <span class="text-4xl flex-shrink-0">🤖</span>
+          <div class="bg-emerald-50 rounded-xl p-4">
+            <p class="text-slate-700 leading-relaxed">비지도학습은 정답을 알려주지 않아도 AI가 <strong class="text-emerald-600">비슷한 것끼리 그룹</strong>을 스스로 만들어요. 마치 퍼즐 조각을 모양별로 정리하는 것처럼요! 이를 <strong class="text-emerald-600">군집화(Clustering)</strong>라고 해요. k-평균 군집화(K-Means)가 대표적인 방법이에요.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <h3 class="font-bold text-lg text-slate-800 mb-1">🌊 체험: 해양 생물 군집화</h3>
+
+        <!-- Step 1: Student clusters -->
+        <div id="us-step1">
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 text-sm text-amber-800">
+            💡 <strong>STEP 1.</strong> 생물 카드를 <strong>클릭해 선택(노란색 테두리)</strong>한 뒤, 원하는 <strong>그룹 칸을 클릭</strong>해 배치하세요.
+            그룹에 놓인 카드를 클릭하면 다시 꺼낼 수 있어요. <span class="text-orange-600 font-bold">정해진 정답은 없어요!</span>
+          </div>
+
+          <!-- Selection hint -->
+          <div id="us-hint" class="text-sm font-medium text-indigo-600 mb-2 min-h-[22px]"></div>
+
+          <!-- Creature pool -->
+          <div class="mb-3">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">📦 생물 목록 — 클릭하여 선택</div>
+            <div id="creature-pool" class="flex flex-wrap gap-2 min-h-[90px] p-3 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200"></div>
+          </div>
+
+          <!-- Count -->
+          <div class="text-xs text-slate-400 mb-3">배치 완료: <span id="us-count">0</span> / 10마리</div>
+
+          <!-- 3 zones -->
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div>
+              <div class="text-sm font-bold text-blue-700 mb-1">그룹 1 🔵</div>
+              <div id="us-zone-1" onclick="clickZone(1)"
+                class="min-h-[130px] p-2 flex flex-wrap gap-1 content-start bg-blue-50 border-2 border-blue-200 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all"></div>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-emerald-700 mb-1">그룹 2 🟢</div>
+              <div id="us-zone-2" onclick="clickZone(2)"
+                class="min-h-[130px] p-2 flex flex-wrap gap-1 content-start bg-emerald-50 border-2 border-emerald-200 rounded-xl cursor-pointer hover:border-emerald-500 hover:bg-emerald-100 transition-all"></div>
+            </div>
+            <div>
+              <div class="text-sm font-bold text-amber-700 mb-1">그룹 3 🟡</div>
+              <div id="us-zone-3" onclick="clickZone(3)"
+                class="min-h-[130px] p-2 flex flex-wrap gap-1 content-start bg-amber-50 border-2 border-amber-200 rounded-xl cursor-pointer hover:border-amber-500 hover:bg-amber-100 transition-all"></div>
+            </div>
+          </div>
+
+          <button onclick="runAI()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-emerald-700 transition">🤖 STEP 2: AI 군집화와 비교!</button>
+        </div>
+
+        <!-- Step 2: Comparison -->
+        <div id="us-step2" class="hidden mt-5">
+          <hr class="mb-5 border-slate-200">
+          <h4 class="font-bold text-slate-700 mb-3">🔍 비교: 학생 분류 vs AI 군집화 결과</h4>
+
+          <!-- criterion tabs -->
+          <div class="flex gap-2 mb-4 flex-wrap">
+            <button onclick="showCriterion('biology')" id="btn-biology" class="px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-600 text-white transition">🦴 생물학적 분류</button>
+            <button onclick="showCriterion('size')" id="btn-size" class="px-4 py-1.5 rounded-full text-sm font-bold bg-slate-200 text-slate-600 transition">📏 크기 기준</button>
+            <button onclick="showCriterion('move')" id="btn-move" class="px-4 py-1.5 rounded-full text-sm font-bold bg-slate-200 text-slate-600 transition">🏊 이동 방식 기준</button>
+          </div>
+
+          <!-- AI result panels (switched by criterion) -->
+          <div id="ai-bio" class="ai-criterion-panel">
+            <div class="grid grid-cols-3 gap-2 mb-2 text-sm">
+              <div class="bg-blue-100 rounded-lg p-2"><div class="font-bold text-blue-700 mb-1">군집A — 어류</div><div class="text-lg">🐠 🦈 🐡</div><div class="text-xs text-slate-500 mt-1">척추·아가미·비늘</div></div>
+              <div class="bg-emerald-100 rounded-lg p-2"><div class="font-bold text-emerald-700 mb-1">군집B — 무척추</div><div class="text-lg">🦀 🦞 🐙 🦑</div><div class="text-xs text-slate-500 mt-1">척추 없음·외골격·연체</div></div>
+              <div class="bg-amber-100 rounded-lg p-2"><div class="font-bold text-amber-700 mb-1">군집C — 해양포유류</div><div class="text-lg">🐋 🐬 🦭</div><div class="text-xs text-slate-500 mt-1">온혈·허파호흡·포유</div></div>
+            </div>
+          </div>
+
+          <div id="ai-size" class="ai-criterion-panel hidden">
+            <div class="grid grid-cols-3 gap-2 mb-2 text-sm">
+              <div class="bg-blue-100 rounded-lg p-2"><div class="font-bold text-blue-700 mb-1">군집A — 대형</div><div class="text-lg">🐋 🦈</div><div class="text-xs text-slate-500 mt-1">수 미터 이상</div></div>
+              <div class="bg-emerald-100 rounded-lg p-2"><div class="font-bold text-emerald-700 mb-1">군집B — 중형</div><div class="text-lg">🐬 🦭 🦞 🐙 🦑</div><div class="text-xs text-slate-500 mt-1">수십 cm ~ 1 m</div></div>
+              <div class="bg-amber-100 rounded-lg p-2"><div class="font-bold text-amber-700 mb-1">군집C — 소형</div><div class="text-lg">🐠 🐡 🦀</div><div class="text-xs text-slate-500 mt-1">수 cm ~ 수십 cm</div></div>
+            </div>
+          </div>
+
+          <div id="ai-move" class="ai-criterion-panel hidden">
+            <div class="grid grid-cols-3 gap-2 mb-2 text-sm">
+              <div class="bg-blue-100 rounded-lg p-2"><div class="font-bold text-blue-700 mb-1">군집A — 유영(지느러미)</div><div class="text-lg">🐠 🦈 🐡 🐋 🐬</div><div class="text-xs text-slate-500 mt-1">지느러미로 헤엄</div></div>
+              <div class="bg-emerald-100 rounded-lg p-2"><div class="font-bold text-emerald-700 mb-1">군집B — 보행/기어다님</div><div class="text-lg">🦀 🦞</div><div class="text-xs text-slate-500 mt-1">다리로 걷거나 기어감</div></div>
+              <div class="bg-amber-100 rounded-lg p-2"><div class="font-bold text-amber-700 mb-1">군집C — 제트/복합</div><div class="text-lg">🐙 🦑 🦭</div><div class="text-xs text-slate-500 mt-1">물 뿜기 또는 복합이동</div></div>
+            </div>
+          </div>
+
+          <!-- Comparison score -->
+          <div id="us-compare-msg" class="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-3 text-sm">
+            <div class="font-bold text-purple-700 mb-2">📊 학생 분류와 AI 분류 비교 중...</div>
+            <div id="us-compare-detail" class="text-slate-600"></div>
+          </div>
+
+          <!-- Key insight -->
+          <div class="bg-slate-800 text-white rounded-xl p-4 mt-3 text-sm leading-relaxed">
+            🔑 <strong class="text-yellow-300">비지도학습의 핵심:</strong> 같은 데이터도 <strong>어떤 특징(기준)을 사용하느냐</strong>에 따라 군집화 결과가 달라져요. 위 탭을 클릭하면 AI가 다른 기준으로 분류한 결과를 볼 수 있어요. <span class="text-emerald-300">정해진 정답은 없고, 목적에 맞는 기준을 선택하는 것이 중요합니다!</span>
+          </div>
+
+          <button onclick="resetUS()" class="mt-4 bg-slate-200 text-slate-700 px-6 py-2 rounded-lg font-medium hover:bg-slate-300 transition">🔄 다시 하기</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-md">
+        <h3 class="font-bold text-lg text-slate-800 mb-4">🌍 실생활 활용 사례</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-emerald-50 rounded-xl p-4"><div class="text-3xl mb-2">🛍️</div><h4 class="font-bold text-emerald-800 mb-1">고객 세분화 마케팅</h4><p class="text-sm text-slate-600">구매 패턴이 비슷한 고객끼리 묶어 맞춤 광고 제공</p></div>
+          <div class="bg-emerald-50 rounded-xl p-4"><div class="text-3xl mb-2">♻️</div><h4 class="font-bold text-emerald-800 mb-1">재활용품 분류기</h4><p class="text-sm text-slate-600">특징으로 플라스틱·종이·유리를 자동 분류</p></div>
+          <div class="bg-emerald-50 rounded-xl p-4"><div class="text-3xl mb-2">📚</div><h4 class="font-bold text-emerald-800 mb-1">도서 추천</h4><p class="text-sm text-slate-600">비슷한 책들을 군집화하여 맞춤 추천 제공</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== REINFORCEMENT ========== -->
+<div id="page-reinforcement" class="section-page">
+  <div class="bg-gradient-to-br from-orange-50 to-amber-100 min-h-screen py-10 px-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-3">🎮</div>
+        <h1 class="text-3xl font-black text-orange-900 mb-3">강화학습 (Reinforcement Learning)</h1>
+        <button onclick="openPopup('reinforcement')" class="bg-orange-600 text-white px-5 py-2 rounded-full text-sm hover:bg-orange-700 transition">📖 교과서 정의 보기</button>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <div class="flex gap-4 items-start mb-4">
+          <span class="text-4xl flex-shrink-0">🤖</span>
+          <div class="bg-orange-50 rounded-xl p-4">
+            <p class="text-slate-700 leading-relaxed">강화학습은 게임으로 실력 키우기와 같아요! <strong class="text-orange-600">시행착오</strong>를 반복하면서 에너지 아이템(⚡보상)을 최대한 많이 모으는 방향으로 학습해요. 처음엔 길을 헤매지만 점점 최단 경로를 익혀가게 됩니다!</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-orange-50 rounded-lg p-3 text-center"><div class="text-2xl">🤖</div><div class="font-bold text-orange-700 text-sm mt-1">에이전트</div><div class="text-xs text-slate-500">학습하는 로봇</div></div>
+          <div class="bg-orange-50 rounded-lg p-3 text-center"><div class="text-2xl">🗺️</div><div class="font-bold text-orange-700 text-sm mt-1">환경</div><div class="text-xs text-slate-500">미로 세계</div></div>
+          <div class="bg-orange-50 rounded-lg p-3 text-center"><div class="text-2xl">⚡</div><div class="font-bold text-orange-700 text-sm mt-1">보상</div><div class="text-xs text-slate-500">에너지 아이템</div></div>
+        </div>
+      </div>
+
+      <!-- Maze -->
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg text-slate-800">🗺️ 미로 탈출 학습 시뮬레이션</h3>
+          <div class="flex gap-3 text-sm">
+            <div class="bg-orange-50 rounded-lg px-3 py-1">에피소드: <span id="ep-num" class="font-bold text-orange-600">0</span></div>
+            <div class="bg-yellow-50 rounded-lg px-3 py-1">총점: <span id="ep-score" class="font-bold text-yellow-600">0</span></div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3 text-xs mb-4">
+          <span>🤖 로봇(출발)</span><span>🏆 목표(도착)</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 bg-slate-700 rounded inline-block"></span>벽</span>
+          <span>⚡ 에너지(보상)</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 bg-violet-200 rounded inline-block"></span>탐색 경로</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 bg-cyan-200 rounded inline-block"></span>최적 경로</span>
+        </div>
+        <div id="maze-wrap" class="flex justify-center mb-5"></div>
+
+        <div class="mb-4">
+          <div class="flex justify-between text-sm text-slate-600 mb-1">
+            <span>학습 진행도</span><span id="rl-pct">0%</span>
+          </div>
+          <div class="bg-gray-200 rounded-full h-3"><div id="rl-bar" class="progress-bar" style="width:0%"></div></div>
+        </div>
+        <div id="ep-log" class="bg-slate-50 rounded-xl p-3 h-28 overflow-y-auto text-xs font-mono mb-4">
+          <p class="text-slate-400">학습 시작 버튼을 눌러 로봇이 미로를 탐험하게 해주세요!</p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <button id="rl-start-btn" onclick="startRL()" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-700 transition">🚀 학습 시작!</button>
+          <button onclick="showBest()" class="bg-amber-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-amber-600 transition">🏆 최적 경로 보기</button>
+          <button onclick="resetRL()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-lg font-medium hover:bg-slate-300 transition">🔄 다시 하기</button>
+        </div>
+      </div>
+
+      <!-- Q-Learning Grid Game -->
+      <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
+        <h3 class="font-bold text-lg text-slate-800 mb-1">🎮 체험: 알비의 보물 탐험 게임!</h3>
+        <div class="flex gap-3 items-start mb-4">
+          <span class="text-3xl flex-shrink-0">🤖</span>
+          <div class="bg-orange-50 rounded-xl p-3 text-sm text-slate-700 flex-1">
+            격자에 <strong>💎 보물·🍎 과일·💣 폭탄·⬛ 벽</strong>을 자유롭게 배치한 뒤 학습 시작! 로봇 알비가 <strong class="text-orange-600">보상을 최대화하는 경로</strong>를 스스로 학습해요. 배치를 바꾸면 AI 행동도 완전히 달라져요!
+          </div>
+        </div>
+
+        <div class="flex gap-5 flex-wrap items-start">
+          <!-- Grid -->
+          <div>
+            <div class="text-xs font-bold text-slate-400 mb-1 flex justify-between" style="width:327px">
+              <span>🤖 시작(0,0)</span><span>🏆 목표(5,5) → +100점</span>
+            </div>
+            <div id="game-grid" style="display:grid;grid-template-columns:repeat(6,54px);gap:3px;"></div>
+          </div>
+
+          <!-- Palette + controls -->
+          <div class="flex-1" style="min-width:160px">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">🖌 팔레트 — 클릭하여 선택</div>
+            <div class="space-y-1 mb-4" id="tool-palette">
+              <button data-tool="jewel" onclick="selectTool('jewel')"
+                class="game-tool-btn w-full text-left px-3 py-2 rounded-lg text-sm border-2 border-transparent bg-blue-50 hover:border-blue-400 transition">
+                💎 보물 <span class="text-emerald-600 font-bold float-right">+30점</span></button>
+              <button data-tool="apple" onclick="selectTool('apple')"
+                class="game-tool-btn w-full text-left px-3 py-2 rounded-lg text-sm border-2 border-transparent bg-green-50 hover:border-green-400 transition">
+                🍎 과일 <span class="text-emerald-600 font-bold float-right">+10점</span></button>
+              <button data-tool="bomb" onclick="selectTool('bomb')"
+                class="game-tool-btn w-full text-left px-3 py-2 rounded-lg text-sm border-2 border-transparent bg-red-50 hover:border-red-400 transition">
+                💣 폭탄 <span class="text-red-600 font-bold float-right">-20점</span></button>
+              <button data-tool="wall" onclick="selectTool('wall')"
+                class="game-tool-btn w-full text-left px-3 py-2 rounded-lg text-sm border-2 border-transparent bg-slate-100 hover:border-slate-400 transition">
+                ⬛ 벽 <span class="text-slate-500 text-xs float-right">통과불가</span></button>
+              <button data-tool="empty" onclick="selectTool('empty')"
+                class="game-tool-btn w-full text-left px-3 py-2 rounded-lg text-sm border-2 border-transparent bg-white border border-slate-200 hover:border-slate-400 transition">
+                🔲 지우기</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-slate-50 rounded-xl p-3 mb-3 text-sm space-y-1">
+              <div>에피소드: <span id="game-ep" class="font-bold text-orange-600">0</span><span class="text-slate-400"> / 30</span></div>
+              <div>누적 점수: <span id="game-sc" class="font-bold text-yellow-600">0</span></div>
+            </div>
+
+            <!-- Speed -->
+            <div class="flex gap-1 mb-3">
+              <button id="gspd-slow"   onclick="setGSpeed(280)" class="px-2 py-1 rounded text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300">🐢 느림</button>
+              <button id="gspd-normal" onclick="setGSpeed(120)" class="px-2 py-1 rounded text-xs font-bold bg-indigo-600 text-white">🚶 보통</button>
+              <button id="gspd-fast"   onclick="setGSpeed(30)"  class="px-2 py-1 rounded text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300">⚡ 빠름</button>
+            </div>
+
+            <div class="flex gap-2 flex-wrap">
+              <button id="game-start-btn" onclick="startGame()"
+                class="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-700 transition">🚀 학습 시작!</button>
+              <button onclick="resetGame()"
+                class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-300 transition">🔄 초기화</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Episode log -->
+        <div id="game-log" class="mt-4 bg-slate-50 rounded-xl p-3 h-24 overflow-y-auto text-xs font-mono text-slate-500">
+          격자에 아이템을 배치하고 "학습 시작"을 눌러보세요! 다양하게 배치해서 AI 경로가 어떻게 달라지는지 관찰해보세요.
+        </div>
+
+        <div class="mt-3 bg-slate-800 text-white rounded-xl p-3 text-xs leading-relaxed">
+          🔑 <strong class="text-yellow-300">핵심:</strong> 어디에 보물을 두고 폭탄을 두느냐에 따라 AI가 완전히 다른 경로를 학습해요. <span class="text-emerald-300">보상 설계(Reward Design)가 강화학습의 결과를 결정합니다!</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-md">
+        <h3 class="font-bold text-lg text-slate-800 mb-4">🌍 실생활 활용 사례</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-orange-50 rounded-xl p-4"><div class="text-3xl mb-2">♟️</div><h4 class="font-bold text-orange-800 mb-1">알파고 (AlphaGo)</h4><p class="text-sm text-slate-600">수백만 번 바둑 시행착오로 세계 최강 달성</p></div>
+          <div class="bg-orange-50 rounded-xl p-4"><div class="text-3xl mb-2">🚗</div><h4 class="font-bold text-orange-800 mb-1">자율주행 로봇</h4><p class="text-sm text-slate-600">수천 번 주행 연습으로 장애물 회피 최적화</p></div>
+          <div class="bg-orange-50 rounded-xl p-4"><div class="text-3xl mb-2">🎮</div><h4 class="font-bold text-orange-800 mb-1">게임 캐릭터</h4><p class="text-sm text-slate-600">점수 최대화 방향으로 게임 전략 자동 학습</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== QUIZ ========== -->
+<div id="page-quiz" class="section-page">
+  <div class="bg-gradient-to-br from-purple-50 to-pink-100 min-h-screen py-10 px-4">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-3">✏️</div>
+        <h1 class="text-3xl font-black text-purple-900 mb-2">실력 확인 퀴즈</h1>
+        <p class="text-slate-600">기계학습 3가지 유형을 얼마나 이해했나요?</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 shadow mb-5">
+        <div class="flex justify-between text-sm font-medium mb-2">
+          <span class="text-slate-600">문제 <span id="q-cur">1</span> / <span id="q-tot">8</span></span>
+          <span class="text-purple-600">점수: <span id="q-sc">0</span>점</span>
+        </div>
+        <div class="bg-gray-200 rounded-full h-2"><div id="q-bar" class="h-2 rounded-full bg-purple-500 transition-all" style="width:12.5%"></div></div>
+      </div>
+
+      <div id="q-card" class="bg-white rounded-2xl p-7 shadow-lg mb-5 slide-in">
+        <div id="q-icon" class="text-4xl mb-3"></div>
+        <h3 id="q-text" class="text-lg font-bold text-slate-800 mb-5 leading-relaxed"></h3>
+        <div id="q-opts" class="space-y-3"></div>
+        <div id="q-feedback" class="hidden mt-4 p-4 rounded-xl"></div>
+      </div>
+
+      <div class="flex justify-between">
+        <button id="q-prev" onclick="prevQ()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-lg font-medium hover:bg-slate-300 transition">◀ 이전</button>
+        <button id="q-next" onclick="nextQ()" class="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition">다음 ▶</button>
+      </div>
+
+      <div id="q-result" class="hidden bg-white rounded-2xl p-8 shadow-lg mt-6 text-center">
+        <div class="text-6xl mb-4">🏆</div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">퀴즈 완료!</h2>
+        <p class="text-slate-600 mb-2">최종 점수: <span id="q-final" class="text-4xl font-black text-purple-600"></span> / 8점</p>
+        <div id="q-msg" class="text-lg font-bold my-5"></div>
+        <button onclick="restartQ()" class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition">🔄 다시 도전!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-slate-800 text-white py-8 px-4 text-center">
+  <div class="text-3xl mb-2">🤖</div>
+  <p class="text-slate-400 text-sm">AI 학습 탐험대 · 고등학교 정보 교과 교육용 웹앱</p>
+  <p class="text-slate-500 text-xs mt-1">지도학습 · 비지도학습 · 강화학습</p>
+</footer>
+
+<script>
+// ── Popup ──
+function openPopup(id) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('popup-' + id).classList.add('show');
+}
+function closePopup() {
+  document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.def-popup').forEach(p => p.classList.remove('show'));
+}
+
+// ── Navigation ──
+function showPage(id) {
+  document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (id === 'supervised') initSV();
+  if (id === 'unsupervised') initUS();
+  if (id === 'reinforcement') { initRL(); initGame(); }
+  if (id === 'quiz') initQ();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════
+// SUPERVISED LEARNING
+// ══════════════════════════════
+const FRUITS = [
+  {e:'🍎',l:'사과'},{e:'🍐',l:'배'},{e:'🍎',l:'사과'},{e:'🍐',l:'배'},
+  {e:'🍎',l:'사과'},{e:'🍐',l:'배'},{e:'🍎',l:'사과'},{e:'🍐',l:'배'}
+];
+let svLabels = {};
+
+function initSV() {
+  svLabels = {};
+  document.getElementById('sv-progress').textContent = '레이블: 0/8';
+  document.getElementById('sv-done-msg').classList.add('hidden');
+  document.getElementById('test-phase').classList.add('hidden');
+  renderFruits();
+}
+
+function renderFruits() {
+  const g = document.getElementById('fruit-grid');
+  g.innerHTML = '';
+  FRUITS.forEach((f, i) => {
+    const d = document.createElement('div');
+    d.id = 'fi-' + i;
+    d.className = 'fruit-item';
+    d.innerHTML = `
+      <div class="text-4xl mb-2">${f.e}</div>
+      <div id="fl-${i}" class="text-xs text-slate-400 mb-2">레이블 없음</div>
+      <div class="flex gap-1 justify-center">
+        <button onclick="labelF(${i},'사과')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition">🍎 사과</button>
+        <button onclick="labelF(${i},'배')" class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200 transition">🍐 배</button>
+      </div>`;
+    g.appendChild(d);
+  });
+}
+
+function labelF(i, lbl) {
+  svLabels[i] = lbl;
+  const el = document.getElementById('fi-' + i);
+  const ll = document.getElementById('fl-' + i);
+  ll.textContent = '✅ ' + lbl;
+  if (lbl === '사과') { el.className = 'fruit-item labeled-apple'; ll.className = 'text-xs font-bold text-red-600 mb-2'; }
+  else { el.className = 'fruit-item labeled-pear'; ll.className = 'text-xs font-bold text-amber-600 mb-2'; }
+  document.getElementById('sv-progress').textContent = `레이블: ${Object.keys(svLabels).length}/8`;
+}
+
+function checkSV() {
+  if (Object.keys(svLabels).length < 8) { alert(`아직 ${8 - Object.keys(svLabels).length}개에 레이블이 없어요!`); return; }
+
+  // 사용자가 붙인 레이블로 AI "학습" — 🍎(짝수 인덱스), 🍐(홀수 인덱스)
+  const appleLabel = svLabels[0]; // 사용자가 🍎에 붙인 이름
+  const pearLabel  = svLabels[1]; // 사용자가 🍐에 붙인 이름
+  const isCorrect  = appleLabel === '사과' && pearLabel === '배';
+
+  // 학습 결과 메시지를 레이블 일치 여부에 따라 변경
+  const doneMsg = document.getElementById('sv-done-msg');
+  doneMsg.classList.remove('hidden');
+  if (isCorrect) {
+    doneMsg.className = 'bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 text-blue-700 text-sm font-medium';
+    doneMsg.textContent = '✅ 레이블링 완료! AI가 패턴을 학습했어요. 이제 새 과일을 예측해볼게요!';
+  } else {
+    doneMsg.className = 'bg-amber-50 border border-amber-300 rounded-xl p-3 mb-4 text-amber-800 text-sm font-medium';
+    doneMsg.textContent = `⚠️ 레이블링 완료! 하지만 AI는 여러분이 가르쳐준 대로 학습했어요 — 🍎="${appleLabel}", 🍐="${pearLabel}" 로 예측합니다!`;
+  }
+
+  setTimeout(() => {
+    document.getElementById('test-phase').classList.remove('hidden');
+    const tg = document.getElementById('test-grid');
+    tg.innerHTML = '';
+    // 테스트 과일: AI가 사용자 레이블 기준으로 예측
+    [{e:'🍎', learned: appleLabel}, {e:'🍐', learned: pearLabel},
+     {e:'🍐', learned: pearLabel}, {e:'🍎', learned: appleLabel}].forEach((f, i) => {
+      const correct = (f.e==='🍎' && f.learned==='사과') || (f.e==='🍐' && f.learned==='배');
+      const color   = correct ? 'text-green-600' : 'text-red-500';
+      const d = document.createElement('div');
+      d.className = 'border-2 border-gray-200 rounded-xl p-3 text-center bg-white';
+      d.innerHTML = `
+        <div class="text-4xl mb-2">${f.e}</div>
+        <div class="text-xs text-slate-400 mb-1">새 사진</div>
+        <div id="tp-${i}" class="text-xs font-bold ${color}" style="opacity:0;transition:opacity 0.5s">🤖 ${f.learned}</div>`;
+      tg.appendChild(d);
+      setTimeout(() => { document.getElementById('tp-'+i).style.opacity='1'; }, 400 + i*350);
+    });
+
+    // 결과 설명 문구
+    const resultMsg = document.getElementById('sv-result-msg');
+    if (isCorrect) {
+      resultMsg.className = 'bg-green-50 border border-green-200 rounded-xl p-3 text-green-700 text-sm';
+      resultMsg.textContent = '✅ AI가 올바른 레이블로 학습하여 새 과일을 정확히 분류했어요!';
+    } else {
+      resultMsg.className = 'bg-red-50 border border-red-300 rounded-xl p-3 text-red-700 text-sm';
+      resultMsg.innerHTML = `❌ AI가 <strong>잘못된 레이블</strong>을 그대로 학습했어요! 🍎를 "${appleLabel}", 🍐를 "${pearLabel}"로 예측합니다.<br><br>💡 <strong>핵심 교훈:</strong> 지도학습은 <u>레이블의 품질</u>이 매우 중요해요. 잘못된 정답으로 가르치면 AI도 틀리게 학습합니다!`;
+    }
+  }, 600);
+}
+function resetSV() { initSV(); }
+
+// ══════════════════════════════
+// UNSUPERVISED LEARNING
+// ══════════════════════════════
+const CREATURES = [
+  {e:'🐠', n:'열대어',   t:1, feat:['지느러미','아가미','비늘']},
+  {e:'🦈', n:'상어',     t:1, feat:['연골','지느러미','육식']},
+  {e:'🐡', n:'복어',     t:1, feat:['비늘','독주머니','아가미']},
+  {e:'🦀', n:'게',       t:2, feat:['외골격','집게','다리10개']},
+  {e:'🦞', n:'바닷가재', t:2, feat:['외골격','집게','바닥서식']},
+  {e:'🐙', n:'문어',     t:2, feat:['연체','다리8개','먹물']},
+  {e:'🦑', n:'오징어',   t:2, feat:['연체','다리10개','제트추진']},
+  {e:'🐋', n:'고래',     t:3, feat:['온혈','허파호흡','포유류']},
+  {e:'🐬', n:'돌고래',   t:3, feat:['온혈','지능높음','포유류']},
+  {e:'🦭', n:'물개',     t:3, feat:['온혈','육상이동가능','포유류']},
+];
+
+const AI_CLUSTERS = {
+  biology: {0:1,1:1,2:1,3:2,4:2,5:2,6:2,7:3,8:3,9:3},
+  size:    {0:3,1:1,2:3,3:3,4:2,5:2,6:2,7:1,8:2,9:2},
+  move:    {0:1,1:1,2:1,3:2,4:2,5:3,6:3,7:1,8:1,9:3}
+};
+
+let usSelected = null;  // currently selected creature index (null = none)
+let usZones = {};       // {creatureIndex: zone(0=pool,1-3=group)}
+let currentCriterion = 'biology';
+
+function initUS() {
+  usSelected = null;
+  usZones = Object.fromEntries(CREATURES.map((_,i) => [i, 0]));
+  currentCriterion = 'biology';
+  document.getElementById('us-step1').classList.remove('hidden');
+  document.getElementById('us-step2').classList.add('hidden');
+  renderUS();
+}
+
+function renderUS() {
+  renderPool();
+  renderZones();
+  const placed = Object.values(usZones).filter(z => z > 0).length;
+  document.getElementById('us-count').textContent = placed;
+  const hint = document.getElementById('us-hint');
+  if (usSelected !== null) {
+    hint.textContent = `"${CREATURES[usSelected].n}" ${CREATURES[usSelected].e} 선택됨 → 아래 그룹 칸을 클릭해 배치하세요!`;
+  } else {
+    hint.textContent = placed > 0 ? `${placed}마리 배치 완료. 생물 카드를 클릭하여 선택하세요.` : '';
+  }
+}
+
+function makeCard(i, inZone) {
+  const c = CREATURES[i];
+  const selected = usSelected === i;
+  const div = document.createElement('div');
+  div.style.cssText = 'width:72px;flex-shrink:0;cursor:pointer;';
+  div.className = [
+    'rounded-xl border-2 p-1 text-center transition-all select-none',
+    selected ? 'border-yellow-400 bg-yellow-50 shadow-lg scale-105' :
+    inZone   ? 'border-slate-300 bg-white hover:border-slate-500' :
+               'border-slate-200 bg-white hover:border-indigo-400 hover:shadow'
+  ].join(' ');
+  div.innerHTML = `
+    <div style="font-size:1.8rem">${c.e}</div>
+    <div style="font-size:0.65rem;font-weight:700;color:#374151;margin-top:2px">${c.n}</div>
+    <div style="font-size:0.55rem;color:#9ca3af;line-height:1.3">${c.feat.join('·')}</div>
+    ${inZone ? `<div onclick="returnToPool(event,${i})" style="font-size:0.6rem;color:#ef4444;margin-top:2px;cursor:pointer">✕ 빼기</div>` : ''}
+  `;
+  div.addEventListener('click', e => { if (!inZone) { e.stopPropagation(); selectCreature(i); } });
+  return div;
+}
+
+function renderPool() {
+  const pool = document.getElementById('creature-pool');
+  pool.innerHTML = '';
+  const inPool = CREATURES.filter((_,i) => usZones[i] === 0);
+  if (inPool.length === 0) {
+    pool.innerHTML = '<p style="color:#9ca3af;font-size:0.8rem;align-self:center">모두 배치 완료! 이제 AI와 비교해보세요 👇</p>';
+    return;
+  }
+  CREATURES.forEach((_,i) => { if (usZones[i] === 0) pool.appendChild(makeCard(i, false)); });
+}
+
+function renderZones() {
+  [1,2,3].forEach(z => {
+    const el = document.getElementById('us-zone-' + z);
+    el.innerHTML = '';
+    CREATURES.forEach((_,i) => { if (usZones[i] === z) el.appendChild(makeCard(i, true)); });
+  });
+}
+
+function selectCreature(i) {
+  usSelected = (usSelected === i) ? null : i;
+  renderUS();
+}
+
+function clickZone(z) {
+  if (usSelected === null) return;
+  usZones[usSelected] = z;
+  usSelected = null;
+  renderUS();
+}
+
+function returnToPool(e, i) {
+  e.stopPropagation();
+  usZones[i] = 0;
+  if (usSelected === i) usSelected = null;
+  renderUS();
+}
+
+function runAI() {
+  document.getElementById('us-step1').classList.add('hidden');
+  document.getElementById('us-step2').classList.remove('hidden');
+  showCriterion('biology');
+}
+
+function showCriterion(cr) {
+  currentCriterion = cr;
+  ['biology','size','move'].forEach(c => {
+    const btn = document.getElementById('btn-' + c);
+    if (btn) btn.className = c === cr
+      ? 'px-4 py-1.5 rounded-full text-sm font-bold bg-emerald-600 text-white transition'
+      : 'px-4 py-1.5 rounded-full text-sm font-bold bg-slate-200 text-slate-600 transition';
+  });
+  document.querySelectorAll('.ai-criterion-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById('ai-' + cr);
+  if (panel) panel.classList.remove('hidden');
+  updateCompare(cr);
+}
+
+function updateCompare(cr) {
+  const aiMap = AI_CLUSTERS[cr];
+  const studentGrouped = Object.values(usZones).some(v => v > 0);
+  const detail = document.getElementById('us-compare-detail');
+  if (!studentGrouped) {
+    detail.innerHTML = '학생 분류 결과가 없어요. STEP 1로 돌아가 생물을 배치해보세요!';
+    return;
+  }
+  const crLabels = {
+    biology: ['어류(🐠🦈🐡)', '무척추동물(🦀🦞🐙🦑)', '해양포유류(🐋🐬🦭)'],
+    size:    ['대형(🐋🦈)', '중형(🐬🦭🦞🐙🦑)', '소형(🐠🐡🦀)'],
+    move:    ['유영(🐠🦈🐡🐋🐬)', '보행(🦀🦞)', '제트/복합(🐙🦑🦭)']
+  };
+  let matchCount = 0;
+  for (let g = 1; g <= 3; g++) {
+    const members = CREATURES.filter((_,i) => aiMap[i] === g);
+    const sGroups = [...new Set(members.map((_,j) => usZones[CREATURES.indexOf(members[j])]).filter(v=>v>0))];
+    if (sGroups.length === 1) matchCount++;
+  }
+  const crName = {biology:'생물학적 분류',size:'크기 기준',move:'이동 방식 기준'}[cr];
+  let html = `<strong>AI 기준 (${crName}):</strong><br>`;
+  crLabels[cr].forEach((l,i) => { html += `• 군집${i+1}: ${l}<br>`; });
+  html += '<br>';
+  if (matchCount === 3) html += `<span class="text-emerald-700 font-bold">✅ 학생 분류와 AI 분류가 완전히 일치해요! 같은 특징을 기준으로 분류했네요.</span>`;
+  else if (matchCount >= 1) html += `<span class="text-blue-700 font-bold">🔵 일부 일치! AI와 ${matchCount}/3 군집이 같아요. 다른 탭도 눌러보세요.</span>`;
+  else html += `<span class="text-amber-700 font-bold">⚡ 학생 분류가 AI와 달라요. 틀린 게 아니에요 — <u>비지도학습엔 정답이 없으니까요!</u></span>`;
+  detail.innerHTML = html;
+}
+
+function resetUS() { initUS(); }
+
+// ══════════════════════════════
+// Q-LEARNING GRID GAME (강화학습 체험)
+// ══════════════════════════════
+const GS = 6;
+const GITEMS = {
+  empty: {e:'',    r:0,    bg:'#f8fafc'},
+  jewel: {e:'💎',  r:30,   bg:'#eff6ff'},
+  apple: {e:'🍎',  r:10,   bg:'#f0fdf4'},
+  bomb:  {e:'💣',  r:-20,  bg:'#fef2f2'},
+  wall:  {e:'⬛',  r:null, bg:'#e2e8f0'},
+  goal:  {e:'🏆',  r:100,  bg:'#fefce8'},
+};
+const GDIRS = [[-1,0],[0,1],[1,0],[0,-1]];
+
+let gGrid, gQ, gTool='jewel', gEp=0, gScore=0, gRunning=false, gSpeed=120;
+let gRobotR=0, gRobotC=0, gTrail=[];
+
+function initGame() {
+  gGrid = Array.from({length:GS}, ()=>Array(GS).fill('empty'));
+  gGrid[GS-1][GS-1] = 'goal';
+  // fun default layout
+  [[0,3,'jewel'],[1,5,'apple'],[2,1,'apple'],[2,4,'bomb'],[3,2,'bomb'],[3,4,'jewel'],[4,0,'jewel'],[4,3,'wall'],[1,2,'wall']].forEach(([r,c,t])=>{ gGrid[r][c]=t; });
+  gQ = Array.from({length:GS},()=>Array.from({length:GS},()=>[0,0,0,0]));
+  gEp=0; gScore=0; gRunning=false; gRobotR=0; gRobotC=0; gTrail=[];
+  const ep=document.getElementById('game-ep'), sc=document.getElementById('game-sc');
+  if(ep) ep.textContent='0'; if(sc) sc.textContent='0';
+  const btn=document.getElementById('game-start-btn'); if(btn) btn.disabled=false;
+  const log=document.getElementById('game-log');
+  if(log) log.innerHTML='격자에 아이템을 배치하고 "학습 시작"을 눌러보세요! 다양하게 배치해서 AI 경로가 어떻게 달라지는지 관찰해보세요.';
+  selectTool('jewel');
+  renderGame();
+}
+
+function renderGame() {
+  const container = document.getElementById('game-grid');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let r=0; r<GS; r++) {
+    for (let c=0; c<GS; c++) {
+      const isRobot = (r===gRobotR && c===gRobotC);
+      const isStart = (r===0 && c===0);
+      const isGoal  = (r===GS-1 && c===GS-1);
+      const type    = isGoal ? 'goal' : gGrid[r][c];
+      const item    = GITEMS[type] || GITEMS.empty;
+
+      // Q-value heat overlay
+      const maxQ = Math.max(...gQ[r][c]);
+      const minQ = Math.min(...gQ[r][c]);
+      let bgColor = item.bg;
+      if (type !== 'wall') {
+        if (maxQ > 2)  bgColor = `rgba(34,197,94,${Math.min(maxQ/60,0.55)})`;
+        else if (minQ < -2) bgColor = `rgba(239,68,68,${Math.min(Math.abs(minQ)/40,0.4)})`;
+      }
+
+      const onTrail = gTrail.some(p=>p.r===r&&p.c===c);
+      const border  = isRobot ? '#6366f1' : onTrail ? '#22d3ee' : '#e2e8f0';
+      const shadow  = isRobot ? '0 0 10px #818cf8' : 'none';
+
+      const cell = document.createElement('div');
+      cell.style.cssText = `width:54px;height:54px;border-radius:8px;border:2.5px solid ${border};
+        background:${isRobot?'#c7d2fe':bgColor};display:flex;flex-direction:column;
+        align-items:center;justify-content:center;cursor:${gRunning?'default':'pointer'};
+        font-size:${isRobot?'1.5rem':'1.6rem'};box-shadow:${shadow};
+        transition:background 0.25s,border 0.15s;user-select:none;position:relative;`;
+
+      if (isRobot) {
+        cell.innerHTML = '🤖';
+      } else if (isStart) {
+        cell.innerHTML = `<span style="font-size:0.55rem;color:#6366f1;font-weight:700">START</span>`;
+      } else {
+        cell.innerHTML = item.e || (onTrail ? '<span style="font-size:0.9rem;color:#22d3ee">·</span>' : '');
+      }
+
+      // Q-value mini display (tiny numbers in corner)
+      if (maxQ > 5 && !isRobot && type !== 'wall') {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'position:absolute;bottom:1px;right:3px;font-size:0.45rem;color:#374151;font-weight:700;';
+        badge.textContent = Math.round(maxQ);
+        cell.appendChild(badge);
+      }
+
+      if (!gRunning) cell.onclick = () => clickCell(r, c);
+      container.appendChild(cell);
+    }
+  }
+}
+
+function clickCell(r, c) {
+  if (r===0&&c===0) return; // start
+  if (r===GS-1&&c===GS-1) return; // goal
+  gGrid[r][c] = (gGrid[r][c]===gTool) ? 'empty' : gTool;
+  renderGame();
+}
+
+function selectTool(t) {
+  gTool = t;
+  document.querySelectorAll('.game-tool-btn').forEach(b => {
+    const active = b.dataset.tool === t;
+    b.style.borderColor = active ? '#6366f1' : 'transparent';
+    b.style.transform = active ? 'scale(1.03)' : 'scale(1)';
+    b.style.boxShadow = active ? '0 0 0 2px #c7d2fe' : 'none';
+  });
+}
+
+function setGSpeed(s) {
+  gSpeed = s;
+  const map = {280:'slow',120:'normal',30:'fast'};
+  ['slow','normal','fast'].forEach(k => {
+    const btn = document.getElementById('gspd-'+k);
+    if (!btn) return;
+    const active = map[s]===k;
+    btn.className = active
+      ? 'px-2 py-1 rounded text-xs font-bold bg-indigo-600 text-white'
+      : 'px-2 py-1 rounded text-xs font-bold bg-slate-200 text-slate-600 hover:bg-slate-300';
+  });
+}
+
+function gValid(r,c) { return r>=0&&r<GS&&c>=0&&c<GS&&gGrid[r][c]!=='wall'; }
+
+async function startGame() {
+  if (gRunning) return;
+  gRunning = true;
+  document.getElementById('game-start-btn').disabled = true;
+  const log = document.getElementById('game-log');
+  log.innerHTML = '';
+  gScore = 0; gEp = 0;
+  let epsilon = 0.92;
+  const ALPHA=0.3, GAMMA=0.92;
+
+  for (let ep=1; ep<=30; ep++) {
+    gEp = ep;
+    epsilon = Math.max(0.04, epsilon * 0.88);
+    let r=0, c=0;
+    gTrail = [{r,c}];
+    let epReward=0, steps=0;
+    const collected = new Set();
+
+    while (!(r===GS-1&&c===GS-1) && steps<60) {
+      gRobotR=r; gRobotC=c;
+      renderGame();
+      await sleep(gSpeed);
+
+      // ε-greedy action
+      let a;
+      if (Math.random()<epsilon) a=Math.floor(Math.random()*4);
+      else { const qs=gQ[r][c]; a=qs.indexOf(Math.max(...qs)); }
+
+      const [dr,dc]=GDIRS[a];
+      const nr=r+dr, nc=c+dc;
+      let reward, nr2=r, nc2=c;
+
+      if (!gValid(nr,nc)) {
+        reward = -3; // hit wall/boundary penalty
+      } else {
+        nr2=nr; nc2=nc;
+        const cellKey=nr+','+nc;
+        const ctype=(nr===GS-1&&nc===GS-1)?'goal':gGrid[nr][nc];
+        const baseR = (ctype==='goal') ? 100 : (GITEMS[ctype]?.r||0);
+        reward = collected.has(cellKey) ? (ctype==='goal'?20:0) : baseR;
+        if (!collected.has(cellKey) && baseR!==0) collected.add(cellKey);
+      }
+
+      const maxNextQ = Math.max(...gQ[nr2][nc2]);
+      gQ[r][c][a] += ALPHA * (reward + GAMMA*maxNextQ - gQ[r][c][a]);
+      epReward += reward;
+      r=nr2; c=nc2;
+      gTrail.push({r,c});
+      steps++;
+    }
+
+    gRobotR=r; gRobotC=c;
+    renderGame();
+    gScore += Math.max(0, epReward);
+    document.getElementById('game-ep').textContent = ep;
+    document.getElementById('game-sc').textContent = Math.round(gScore);
+
+    const reached = r===GS-1&&c===GS-1;
+    const li=document.createElement('p');
+    li.className=`${reached?'text-emerald-600 font-bold':'text-slate-500'}`;
+    li.textContent=`에피소드 ${ep}: ${steps}단계 탐색, 보상 ${epReward>0?'+':''}${Math.round(epReward)} ${reached?'🏆 목표 도달!':''}`;
+    log.appendChild(li); log.scrollTop=log.scrollHeight;
+    await sleep(30);
+    gTrail=[];
+  }
+
+  gRunning=false;
+  document.getElementById('game-start-btn').disabled=false;
+  const done=document.createElement('p');
+  done.className='text-purple-600 font-bold mt-1';
+  done.textContent=`✅ 학습 완료! 셀 색상(초록=좋은 경로, 빨강=위험)이 AI가 학습한 Q-값이에요!`;
+  log.appendChild(done); log.scrollTop=log.scrollHeight;
+  renderGame();
+}
+
+function resetGame() { gRunning=false; initGame(); }
+
+// ══════════════════════════════
+// REINFORCEMENT LEARNING
+// ══════════════════════════════
+//  Maze: 0=open, 1=wall, 2=energy
+const M = [
+  [0,0,1,2,0],
+  [0,1,0,0,0],
+  [0,2,0,1,0],
+  [1,0,0,0,1],
+  [2,0,1,0,0]
+];
+const SZ = 5;
+let rlScore = 0, rlEp = 0, rlRunning = false, rlCollected = new Set();
+
+function initRL() {
+  rlScore = 0; rlEp = 0; rlRunning = false; rlCollected = new Set();
+  document.getElementById('ep-num').textContent = '0';
+  document.getElementById('ep-score').textContent = '0';
+  document.getElementById('rl-bar').style.width = '0%';
+  document.getElementById('rl-pct').textContent = '0%';
+  document.getElementById('ep-log').innerHTML = '<p class="text-slate-400">학습 시작 버튼을 눌러 로봇이 미로를 탐험하게 해주세요!</p>';
+  document.getElementById('rl-start-btn').disabled = false;
+  renderMaze(new Set(), null, false);
+}
+
+function renderMaze(visited, cur, bestMode) {
+  const wrap = document.getElementById('maze-wrap');
+  wrap.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.style.cssText = `display:grid;grid-template-columns:repeat(${SZ},54px);gap:3px`;
+  for (let r = 0; r < SZ; r++) {
+    for (let c = 0; c < SZ; c++) {
+      const cell = document.createElement('div');
+      const key = r+','+c;
+      cell.className = 'maze-cell';
+      if (cur && cur.r===r && cur.c===c) {
+        cell.classList.add('current'); cell.textContent = '🤖';
+      } else if (r===4 && c===4) {
+        cell.classList.add('goal'); cell.textContent = '🏆';
+      } else if (M[r][c]===1) {
+        cell.classList.add('wall'); cell.textContent = '';
+      } else if (M[r][c]===2 && !rlCollected.has(key)) {
+        cell.classList.add('energy'); cell.textContent = '⚡';
+      } else if (bestMode && visited.has(key)) {
+        cell.classList.add('best-path'); cell.textContent = '✨';
+      } else if (visited.has(key)) {
+        cell.classList.add('visited');
+      }
+      grid.appendChild(cell);
+    }
+  }
+  wrap.appendChild(grid);
+}
+
+const DIRS4 = [[-1,0],[0,1],[1,0],[0,-1]];
+function valid(r,c) { return r>=0&&r<SZ&&c>=0&&c<SZ&&M[r][c]!==1; }
+
+function bfs(sr,sc,er,ec) {
+  const q = [[{r:sr,c:sc},[{r:sr,c:sc}]]];
+  const vis = new Set([sr+','+sc]);
+  while (q.length) {
+    const [pos,path] = q.shift();
+    if (pos.r===er&&pos.c===ec) return path;
+    for (const [dr,dc] of DIRS4) {
+      const nr=pos.r+dr, nc=pos.c+dc, k=nr+','+nc;
+      if (valid(nr,nc)&&!vis.has(k)) { vis.add(k); q.push([{r:nr,c:nc},[...path,{r:nr,c:nc}]]); }
+    }
+  }
+  return null;
+}
+
+function randomPath() {
+  let pos={r:0,c:0}, path=[{r:0,c:0}], vis=new Set(['0,0']), steps=0;
+  while(!(pos.r===4&&pos.c===4)&&steps<40) {
+    const moves=DIRS4.filter(([dr,dc])=>valid(pos.r+dr,pos.c+dc));
+    if(!moves.length) break;
+    let move;
+    if(Math.random()<0.4) {
+      moves.sort((a,b)=>(Math.abs(pos.r+a[0]-4)+Math.abs(pos.c+a[1]-4))-(Math.abs(pos.r+b[0]-4)+Math.abs(pos.c+b[1]-4)));
+      move=moves[0];
+    } else move=moves[Math.floor(Math.random()*moves.length)];
+    pos={r:pos.r+move[0],c:pos.c+move[1]};
+    path.push({...pos}); steps++;
+  }
+  return path;
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function startRL() {
+  if(rlRunning) return;
+  rlRunning=true;
+  document.getElementById('rl-start-btn').disabled=true;
+  const log=document.getElementById('ep-log');
+  log.innerHTML='';
+  rlCollected=new Set();
+  const MAX=12;
+  const opt=bfs(0,0,4,4);
+
+  for(let ep=1; ep<=MAX; ep++) {
+    rlEp=ep;
+    document.getElementById('ep-num').textContent=ep;
+    const pct=Math.round(ep/MAX*100);
+    document.getElementById('rl-bar').style.width=pct+'%';
+    document.getElementById('rl-pct').textContent=pct+'%';
+
+    // early episodes random, later progressively optimal
+    let path;
+    if(ep<=4) path=randomPath();
+    else if(ep<=8) path=(Math.random()<(ep-4)/4&&opt)?opt:randomPath();
+    else path=opt||randomPath();
+
+    const vis=new Set();
+    let epReward=0;
+    for(let i=0;i<path.length;i++){
+      const p=path[i];
+      const k=p.r+','+p.c;
+      vis.add(k);
+      if(M[p.r][p.c]===2&&!rlCollected.has(k)){ rlCollected.add(k); epReward+=10; }
+      renderMaze(vis,p,false);
+      await sleep(ep>=9?160:70);
+    }
+    const reached=path[path.length-1].r===4&&path[path.length-1].c===4;
+    if(reached) epReward+=50;
+    rlScore+=epReward;
+    document.getElementById('ep-score').textContent=rlScore;
+
+    const li=document.createElement('p');
+    li.className=reached?'text-green-600 font-medium':'text-slate-500';
+    li.textContent=`에피소드 ${ep}: ${path.length}단계 탐색, +${epReward}점 ${reached?'🏆 목표 도달!':'⚡ 탐색 중...'}`;
+    log.appendChild(li);
+    log.scrollTop=log.scrollHeight;
+    await sleep(180);
+  }
+
+  rlRunning=false;
+  document.getElementById('rl-start-btn').disabled=false;
+  const done=document.createElement('p');
+  done.className='text-purple-600 font-bold mt-1';
+  done.textContent=`✅ 학습 완료! 총 ${rlScore}점 획득. AI가 최적 경로를 학습했어요!`;
+  log.appendChild(done);
+}
+
+function showBest() {
+  const p=bfs(0,0,4,4);
+  if(!p) return;
+  const vis=new Set(p.map(s=>s.r+','+s.c));
+  renderMaze(vis,null,true);
+  const log=document.getElementById('ep-log');
+  const li=document.createElement('p');
+  li.className='text-cyan-600 font-bold';
+  li.textContent=`🏆 최적 경로 표시 (${p.length}단계) — 학습 후 찾아낸 최단 경로입니다!`;
+  log.appendChild(li);
+}
+function resetRL() { rlRunning=false; initRL(); }
+
+// ══════════════════════════════
+// QUIZ
+// ══════════════════════════════
+const QS = [
+  {icon:'📧',q:'이메일에 "스팸/정상" 레이블을 붙인 데이터로 학습하여 새 이메일을 분류합니다.',opts:['지도학습','비지도학습','강화학습','규칙 기반 학습'],a:0,exp:'정답 레이블(스팸/정상)을 함께 제공하여 학습하므로 지도학습입니다!'},
+  {icon:'🛍️',q:'쇼핑몰 AI가 고객 구매 이력에서 정답 없이 비슷한 취향의 고객끼리 자동 그룹화합니다.',opts:['지도학습','비지도학습','강화학습','전이 학습'],a:1,exp:'레이블 없이 데이터 패턴으로 그룹을 만드므로 비지도학습입니다!'},
+  {icon:'♟️',q:'알파고(AlphaGo)는 수백만 번 바둑 게임에서 이기면 보상, 지면 페널티를 받으며 스스로 발전했습니다.',opts:['지도학습','비지도학습','강화학습','딥러닝'],a:2,exp:'시행착오로 보상을 최대화하는 방향으로 학습하므로 강화학습입니다!'},
+  {icon:'💳',q:'신용카드 AI가 "정상/이상" 레이블 없이 거래 패턴에서 이상한 거래를 스스로 탐지합니다.',opts:['지도학습','비지도학습','강화학습','지식 기반 학습'],a:1,exp:'레이블 없이 이상 패턴을 군집 외 데이터로 탐지하므로 비지도학습입니다!'},
+  {icon:'🌡️',q:'과거 날씨 데이터(입력)와 실제 기온(정답)을 함께 학습하여 내일 우리 동네 기온을 예측합니다.',opts:['비지도학습','강화학습','지도학습','연합 학습'],a:2,exp:'입력 데이터와 실제 기온이라는 정답(레이블)을 함께 제공하므로 지도학습입니다!'},
+  {icon:'🤖',q:'로봇이 걷기를 배울 때 넘어지면 -10점, 잘 걸으면 +10점을 받으며 스스로 보행을 학습합니다.',opts:['지도학습','비지도학습','강화학습','준지도학습'],a:2,exp:'행동에 대한 보상(점수)을 최대화하는 방향으로 학습하므로 강화학습입니다!'},
+  {icon:'📚',q:'도서관 AI가 책 내용을 분석하여 레이블 없이 비슷한 책끼리 자동으로 분류합니다.',opts:['지도학습','비지도학습','강화학습','딥러닝'],a:1,exp:'레이블 없이 내용 패턴으로 비슷한 책끼리 군집화하므로 비지도학습입니다!'},
+  {icon:'🏥',q:'X레이 사진에 "정상/암세포" 레이블을 붙인 수천 장의 데이터로 학습하여 새 X레이를 진단합니다.',opts:['비지도학습','강화학습','지도학습','전이 학습'],a:2,exp:'"정상/암세포"라는 레이블(정답)과 함께 학습하므로 지도학습입니다!'}
+];
+
+let qCur=0, qScore=0, qAns={};
+
+function initQ() {
+  qCur=0; qScore=0; qAns={};
+  document.getElementById('q-result').classList.add('hidden');
+  document.getElementById('q-card').classList.remove('hidden');
+  document.getElementById('q-next').classList.remove('hidden');
+  document.getElementById('q-prev').classList.remove('hidden');
+  renderQ();
+}
+
+function renderQ() {
+  const q=QS[qCur];
+  document.getElementById('q-icon').textContent=q.icon;
+  document.getElementById('q-text').textContent=`Q${qCur+1}. ${q.q}`;
+  document.getElementById('q-cur').textContent=qCur+1;
+  document.getElementById('q-tot').textContent=QS.length;
+  document.getElementById('q-sc').textContent=qScore;
+  document.getElementById('q-bar').style.width=`${(qCur+1)/QS.length*100}%`;
+  document.getElementById('q-prev').disabled=qCur===0;
+
+  const oc=document.getElementById('q-opts');
+  oc.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='quiz-opt';
+    b.textContent=['①','②','③','④'][i]+' '+o;
+    b.onclick=()=>answerQ(i);
+    if(qAns[qCur]!==undefined){
+      b.classList.add('done');
+      b.onclick=null;
+      if(i===q.a) b.classList.add('correct');
+      else if(i===qAns[qCur]) b.classList.add('wrong');
+    }
+    oc.appendChild(b);
+  });
+
+  const fb=document.getElementById('q-feedback');
+  if(qAns[qCur]!==undefined){
+    const ok=qAns[qCur]===q.a;
+    fb.className=`mt-4 p-4 rounded-xl ${ok?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200'}`;
+    fb.innerHTML=`<p class="${ok?'text-green-700':'text-red-700'} font-bold mb-1">${ok?'✅ 정답!':'❌ 오답!'}</p><p class="text-slate-700 text-sm">${q.exp}</p>`;
+    fb.classList.remove('hidden');
+  } else fb.classList.add('hidden');
+}
+
+function answerQ(sel) {
+  if(qAns[qCur]!==undefined) return;
+  qAns[qCur]=sel;
+  if(sel===QS[qCur].a) qScore++;
+  document.getElementById('q-sc').textContent=qScore;
+  renderQ();
+}
+
+function nextQ() {
+  if(qCur<QS.length-1){ qCur++; renderQ(); }
+  else showResult();
+}
+function prevQ() { if(qCur>0){ qCur--; renderQ(); } }
+
+function showResult() {
+  document.getElementById('q-card').classList.add('hidden');
+  document.getElementById('q-next').classList.add('hidden');
+  document.getElementById('q-prev').classList.add('hidden');
+  document.getElementById('q-result').classList.remove('hidden');
+  document.getElementById('q-final').textContent=qScore;
+  const m=document.getElementById('q-msg');
+  if(qScore===8){m.textContent='🎉 완벽해요! 기계학습의 달인이에요!';m.className='text-2xl font-bold text-emerald-600 my-5';}
+  else if(qScore>=6){m.textContent='👏 훌륭해요! 조금만 더 복습하면 완벽!';m.className='text-xl font-bold text-blue-600 my-5';}
+  else if(qScore>=4){m.textContent='🙂 좋아요! 각 개념을 다시 확인해보세요.';m.className='text-xl font-bold text-amber-600 my-5';}
+  else{m.textContent='💪 다시 도전! 각 학습 유형의 핵심을 살펴보세요.';m.className='text-xl font-bold text-red-600 my-5';}
+}
+function restartQ() {
+  initQ();
+  document.getElementById('q-next').classList.remove('hidden');
+  document.getElementById('q-prev').classList.remove('hidden');
+}
+
+// ── Boot ──
+initSV(); initUS(); initRL(); initGame();
+</script>
+</body>
+</html>
