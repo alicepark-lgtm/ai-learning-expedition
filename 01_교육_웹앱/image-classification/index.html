@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍊 오렌지 분류 게임</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+    background: linear-gradient(145deg, #FFF8F0 0%, #FFE8CC 100%);
+    min-height: 100vh;
+    color: #333;
+  }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 32px;
+    gap: 16px;
+  }
+  .screen.active { display: flex; }
+
+  .game-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #D84315;
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: -0.5px;
+  }
+  .game-subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 420px;
+  }
+  .card h3 {
+    font-size: 1.05rem;
+    color: #D84315;
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+
+  .name-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid #FFCCAA;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    color: #333;
+  }
+  .name-input:focus { border-color: #FF6B2B; }
+  .name-input.error { border-color: #D32F2F; animation: shake 0.3s; }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #FF6B2B, #D84315);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(216,67,21,0.35);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(216,67,21,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Leaderboard */
+  .lb-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 8px;
+    border-radius: 10px;
+    transition: background 0.15s;
+  }
+  .lb-row:hover { background: #FFF5EE; }
+  .lb-row + .lb-row { border-top: 1px solid #F5F5F5; }
+  .lb-rank { width: 36px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #BBB; flex-shrink: 0; }
+  .lb-rank.r1 { color: #FFB300; font-size: 1.4rem; }
+  .lb-rank.r2 { color: #90A4AE; font-size: 1.25rem; }
+  .lb-rank.r3 { color: #A1887F; font-size: 1.2rem; }
+  .lb-name { flex: 1; font-size: 0.97rem; font-weight: 600; color: #333; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-score { font-size: 1rem; font-weight: 800; color: #D84315; }
+  .lb-games { font-size: 0.75rem; color: #BBB; margin-left: 6px; flex-shrink: 0; }
+  .lb-loading { text-align: center; color: #CCC; padding: 24px 0; font-size: 0.9rem; }
+  .lb-empty { text-align: center; color: #BBB; padding: 24px 0; font-size: 0.95rem; line-height: 1.7; }
+
+  /* Game Screen */
+  #gameScreen { justify-content: space-between; padding: 12px 16px 20px; gap: 12px; }
+
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 460px;
+    background: white;
+    border-radius: 18px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .hdr-box { text-align: center; }
+  .hdr-label { font-size: 0.72rem; color: #BBB; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .hdr-value { font-size: 1.6rem; font-weight: 900; color: #333; line-height: 1.1; }
+  .hdr-value.timer-val { font-size: 2.6rem; color: #D84315; }
+  .hdr-value.timer-val.urgent { color: #C62828; animation: pulse 0.5s ease-in-out infinite; }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+
+  .image-wrap {
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  #gameImage {
+    max-width: 100%;
+    max-height: calc(100vh - 260px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    object-fit: contain;
+    background: white;
+    padding: 6px;
+    transition: opacity 0.15s ease;
+  }
+  .feedback-badge {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-size: 5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+  }
+  .feedback-badge.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+  .classify-row { display: flex; gap: 12px; width: 100%; max-width: 460px; }
+  .btn-classify {
+    flex: 1; padding: 16px 10px; border: none; border-radius: 16px;
+    font-size: 1rem; font-weight: 700; cursor: pointer; line-height: 1.4;
+    transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s;
+  }
+  .btn-classify:hover:not(:disabled) { transform: translateY(-3px); }
+  .btn-classify:active:not(:disabled) { transform: translateY(1px); }
+  .btn-classify:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-fresh { background: linear-gradient(135deg, #43A047, #1B5E20); color: white; box-shadow: 0 4px 16px rgba(56,142,60,0.35); }
+  .btn-rotten { background: linear-gradient(135deg, #6D4C41, #3E2723); color: white; box-shadow: 0 4px 16px rgba(109,76,65,0.35); }
+  .key-hint { font-size: 0.72rem; opacity: 0.7; font-weight: 400; }
+
+  /* Result Screen */
+  .result-emoji { font-size: 3.5rem; text-align: center; }
+  .result-title { font-size: 1.9rem; font-weight: 900; color: #D84315; text-align: center; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+  .stat-box { background: #FFF5EE; border-radius: 14px; padding: 14px; text-align: center; }
+  .stat-label { font-size: 0.78rem; color: #AAA; font-weight: 600; margin-bottom: 4px; }
+  .stat-val { font-size: 1.9rem; font-weight: 900; color: #333; line-height: 1.1; }
+  .cumul-box { background: linear-gradient(135deg, #FF6B2B, #D84315); border-radius: 16px; padding: 18px; text-align: center; color: white; width: 100%; }
+  .cumul-box .stat-label { color: rgba(255,255,255,0.75); font-size: 0.85rem; }
+  .cumul-box .stat-val { font-size: 2.4rem; color: white; }
+  .btn-secondary {
+    display: block; width: 100%; max-width: 420px; padding: 14px;
+    background: white; color: #D84315; border: 2px solid #FF6B2B;
+    border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: #FFF5EE; }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" class="screen active">
+  <div class="game-title">🍊 오렌지 분류 게임</div>
+  <div class="game-subtitle">30초 안에 신선한 오렌지와 불량 오렌지를 구분하세요!<br>맞으면 +10점, 틀리면 -5점</div>
+
+  <div class="card">
+    <h3>👤 플레이어 이름</h3>
+    <input type="text" id="playerName" class="name-input" placeholder="이름을 입력하고 시작하세요" maxlength="20">
+    <button class="btn-primary" id="btnStart" onclick="startGame()">🎮 게임 시작</button>
+  </div>
+
+  <div class="card">
+    <h3>🏆 TOP 10 랭킹 (누적 점수)</h3>
+    <div id="lbContent"><div class="lb-loading">랭킹 불러오는 중...</div></div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <div class="hdr-box">
+      <div class="hdr-label">점수</div>
+      <div class="hdr-value" id="scoreVal">0</div>
+    </div>
+    <div class="hdr-box">
+      <div class="hdr-label">남은 시간</div>
+      <div class="hdr-value timer-val" id="timerVal">30</div>
+    </div>
+    <div class="hdr-box">
+      <div class="hdr-label">맞춤/시도</div>
+      <div class="hdr-value" id="countVal">0/0</div>
+    </div>
+  </div>
+
+  <div class="image-wrap">
+    <img id="gameImage" src="" alt="오렌지">
+    <div class="feedback-badge" id="feedbackBadge"></div>
+  </div>
+
+  <div class="classify-row">
+    <button class="btn-classify btn-fresh" id="btnFresh" onclick="classify('fresh')">
+      ✅ 양품<br><span class="key-hint">(신선한 오렌지 · ← / F)</span>
+    </button>
+    <button class="btn-classify btn-rotten" id="btnRotten" onclick="classify('rotten')">
+      ❌ 불량품<br><span class="key-hint">(불량 오렌지 · → / R)</span>
+    </button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen" class="screen" style="justify-content:center;gap:14px;">
+  <div class="result-emoji" id="resultEmoji">🎉</div>
+  <div class="result-title">게임 종료!</div>
+
+  <div class="card" style="gap:12px;display:flex;flex-direction:column;">
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-label">이번 점수</div><div class="stat-val" id="rSession">0</div></div>
+      <div class="stat-box"><div class="stat-label">정확도</div><div class="stat-val" id="rAccuracy">0%</div></div>
+      <div class="stat-box"><div class="stat-label">맞은 개수</div><div class="stat-val" id="rCorrect">0</div></div>
+      <div class="stat-box"><div class="stat-label">총 시도</div><div class="stat-val" id="rTotal">0</div></div>
+    </div>
+    <div class="cumul-box">
+      <div class="stat-label">🏆 나의 누적 점수 합계</div>
+      <div class="stat-val" id="rCumul">-</div>
+      <div style="font-size:0.8rem;opacity:0.8;margin-top:4px;" id="rGames"></div>
+    </div>
+  </div>
+
+  <button class="btn-primary" style="max-width:420px" onclick="playAgain()">🔄 다시 하기</button>
+  <button class="btn-secondary" onclick="showStart()">🏠 홈으로 (랭킹 보기)</button>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  FIREBASE 설정 — Firebase 콘솔에서 복사한 값으로 교체
+// ═══════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "REPLACE_API_KEY",
+  authDomain:        "REPLACE_PROJECT_ID.firebaseapp.com",
+  projectId:         "REPLACE_PROJECT_ID",
+  storageBucket:     "REPLACE_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_SENDER_ID",
+  appId:             "REPLACE_APP_ID"
+};
+// ═══════════════════════════════════════════════════════
+
+// Firebase 초기화 (설정값이 채워진 경우에만)
+let db = null;
+const FB_READY = firebaseConfig.apiKey !== "REPLACE_API_KEY";
+if (FB_READY) {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}
+
+// ─── Image Data ──────────────────────────────────────────
+const freshNums  = Array.from({length: 307}, (_, i) => i + 1).filter(n => n !== 288);
+const rottenNums = Array.from({length: 591}, (_, i) => i + 1);
+const ALL_IMAGES = [
+  ...freshNums.map(n  => ({ path: `FreshOrange/freshOrange (${n}).jpg`,   label: 'fresh'  })),
+  ...rottenNums.map(n => ({ path: `RottenOrange/rottenOrange (${n}).jpg`, label: 'rotten' }))
+];
+
+// ─── Game State ──────────────────────────────────────────
+let deck = [], idx = 0, score = 0, correct = 0, attempts = 0;
+let timeLeft = 30, timerInterval = null;
+let currentPlayer = '', busy = false;
+
+// ─── Leaderboard (Firestore 우선, fallback: localStorage) ─
+const LB_LOCAL_KEY = 'orangeGame_lb_v1';
+
+async function loadLB() {
+  if (FB_READY) {
+    try {
+      const snap = await db.collection('leaderboard')
+        .orderBy('totalScore', 'desc').limit(10).get();
+      return snap.docs.map(d => d.data());
+    } catch (e) { console.warn('Firestore read failed, using localStorage', e); }
+  }
+  try { return JSON.parse(localStorage.getItem(LB_LOCAL_KEY)) || []; }
+  catch { return []; }
+}
+
+async function recordResult(name, sessionScore) {
+  if (FB_READY) {
+    try {
+      const ref = db.collection('leaderboard').doc(name);
+      await db.runTransaction(async tx => {
+        const doc = await tx.get(ref);
+        if (doc.exists) {
+          const d = doc.data();
+          tx.update(ref, {
+            totalScore:  d.totalScore + sessionScore,
+            gamesPlayed: d.gamesPlayed + 1,
+            best:        Math.max(d.best, sessionScore),
+            lastPlayed:  new Date().toISOString()
+          });
+        } else {
+          tx.set(ref, { name, totalScore: sessionScore, gamesPlayed: 1, best: sessionScore, lastPlayed: new Date().toISOString() });
+        }
+      });
+      const snap = await ref.get();
+      return snap.data();
+    } catch (e) { console.warn('Firestore write failed, using localStorage', e); }
+  }
+
+  // localStorage fallback
+  let lb = [];
+  try { lb = JSON.parse(localStorage.getItem(LB_LOCAL_KEY)) || []; } catch {}
+  const entry = lb.find(p => p.name === name);
+  if (entry) {
+    entry.totalScore += sessionScore;
+    entry.gamesPlayed++;
+    if (sessionScore > entry.best) entry.best = sessionScore;
+  } else {
+    lb.push({ name, totalScore: sessionScore, gamesPlayed: 1, best: sessionScore });
+  }
+  lb.sort((a, b) => b.totalScore - a.totalScore);
+  localStorage.setItem(LB_LOCAL_KEY, JSON.stringify(lb));
+  return lb.find(p => p.name === name);
+}
+
+async function renderLB() {
+  const el = document.getElementById('lbContent');
+  el.innerHTML = '<div class="lb-loading">랭킹 불러오는 중...</div>';
+  const lb = await loadLB();
+  const rankIcon = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+  const rankClass = i => i < 3 ? `r${i+1}` : '';
+  if (!lb.length) {
+    el.innerHTML = '<div class="lb-empty">아직 기록이 없습니다.<br>첫 번째 플레이어가 되어보세요! 🍊</div>';
+    return;
+  }
+  el.innerHTML = lb.map((p, i) => `
+    <div class="lb-row">
+      <span class="lb-rank ${rankClass(i)}">${rankIcon(i)}</span>
+      <span class="lb-name">${esc(p.name)}</span>
+      <span class="lb-score">${p.totalScore.toLocaleString()}점</span>
+      <span class="lb-games">${p.gamesPlayed}판</span>
+    </div>`).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Screen ───────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showStart() {
+  stopTimer();
+  renderLB();
+  showScreen('startScreen');
+}
+
+// ─── Game ─────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  const inp = document.getElementById('playerName');
+  currentPlayer = inp.value.trim();
+  if (!currentPlayer) {
+    inp.classList.add('error');
+    inp.focus();
+    setTimeout(() => inp.classList.remove('error'), 500);
+    return;
+  }
+  deck = shuffle(ALL_IMAGES);
+  idx = 0; score = 0; correct = 0; attempts = 0; timeLeft = 30; busy = false;
+  setBtns(false);
+  updateHUD();
+  showScreen('gameScreen');
+  loadImage();
+  startTimer();
+}
+
+function playAgain() { startGame(); }
+
+function startTimer() {
+  stopTimer();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const el = document.getElementById('timerVal');
+    el.textContent = timeLeft;
+    el.classList.toggle('urgent', timeLeft <= 10);
+    if (timeLeft <= 0) { stopTimer(); endGame(); }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function loadImage() {
+  if (idx >= deck.length) { deck = shuffle(ALL_IMAGES); idx = 0; }
+  const img = document.getElementById('gameImage');
+  img.style.opacity = '0.4';
+  img.onerror = () => { idx++; loadImage(); };
+  img.onload  = () => { img.style.opacity = '1'; };
+  img.src = deck[idx].path;
+}
+
+function classify(answer) {
+  if (busy || timeLeft <= 0) return;
+  busy = true;
+  setBtns(true);
+  const hit = deck[idx].label === answer;
+  score = Math.max(0, score + (hit ? 10 : -5));
+  if (hit) correct++;
+  attempts++;
+  idx++;
+
+  const badge = document.getElementById('feedbackBadge');
+  badge.textContent = hit ? '✅' : '❌';
+  badge.classList.add('show');
+  updateHUD();
+
+  setTimeout(() => {
+    badge.classList.remove('show');
+    setBtns(false);
+    busy = false;
+    if (timeLeft > 0) loadImage();
+  }, 280);
+}
+
+function setBtns(disabled) {
+  document.getElementById('btnFresh').disabled  = disabled;
+  document.getElementById('btnRotten').disabled = disabled;
+}
+
+function updateHUD() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('countVal').textContent = `${correct}/${attempts}`;
+  document.getElementById('timerVal').textContent = timeLeft;
+}
+
+async function endGame() {
+  setBtns(true);
+  const accuracy = attempts > 0 ? Math.round((correct / attempts) * 100) : 0;
+  document.getElementById('rSession').textContent  = score;
+  document.getElementById('rAccuracy').textContent = accuracy + '%';
+  document.getElementById('rCorrect').textContent  = correct;
+  document.getElementById('rTotal').textContent    = attempts;
+  document.getElementById('rCumul').textContent    = '저장 중...';
+  document.getElementById('rGames').textContent    = '';
+  document.getElementById('resultEmoji').textContent =
+    accuracy >= 90 ? '🏆' : accuracy >= 70 ? '🎉' : accuracy >= 50 ? '😊' : '😅';
+
+  showScreen('resultScreen');
+
+  const playerData = await recordResult(currentPlayer, score);
+  document.getElementById('rCumul').textContent = (playerData?.totalScore ?? score).toLocaleString() + '점';
+  document.getElementById('rGames').textContent = `총 ${playerData?.gamesPlayed ?? 1}판 플레이`;
+}
+
+// ─── Keyboard ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  const gs = document.getElementById('gameScreen').classList.contains('active');
+  const ss = document.getElementById('startScreen').classList.contains('active');
+  if (gs) {
+    if (e.key === 'ArrowLeft'  || e.key === 'f' || e.key === 'F') classify('fresh');
+    if (e.key === 'ArrowRight' || e.key === 'r' || e.key === 'R') classify('rotten');
+  }
+  if (ss && e.key === 'Enter') startGame();
+});
+document.getElementById('playerName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startGame();
+});
+
+// ─── Init ─────────────────────────────────────────────────
+renderLB();
+</script>
+</body>
+</html>
