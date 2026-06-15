@@ -855,19 +855,8 @@ result = <span class="fn">add</span>(<span class="num">3</span>, <span class="nu
     <button class="subtab-btn" onclick="switchSub('pc','sys',this)">피지컬 컴퓨팅 시스템</button>
   </div>
   <div id="pc-elec" class="subsection active">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 전기의 기본 개념</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 주요 전자 부품</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <table><tr><th>개념</th><th>단위</th><th>기호</th><th>설명</th></tr>
-    <tr><td><strong>전압 (Voltage)</strong></td><td>볼트 (V)</td><td>V</td><td>전류를 흐르게 하는 힘</td></tr>
-    <tr><td><strong>전류 (Current)</strong></td><td>암페어 (A)</td><td>I</td><td>전자의 흐름 (물의 흐름에 비유)</td></tr>
-    <tr><td><strong>저항 (Resistance)</strong></td><td>옴 (Ω)</td><td>R</td><td>전류의 흐름을 방해하는 성질</td></tr></table>
-    <div class="info-box"><div class="label">옴의 법칙 (Ohm's Law)</div>
-    <p style="font-size:1.3rem;text-align:center;color:#3730a3;margin:10px 0;font-weight:800">V = I × R</p>
-    <ul><li>전류(I) = 전압(V) ÷ 저항(Ω)</li><li>저항(R) = 전압(V) ÷ 전류(A)</li></ul>
-    <p style="font-size:.87rem;color:#475569;margin-top:8px">예) 5V 전원, 100Ω 저항 → 전류 = 5 ÷ 100 = 0.05A = 50mA</p></div>
-    </div></div>
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 주요 전자 부품</h3><span class="ico">›</span></div>
-    <div class="card-body">
     <table><tr><th>부품</th><th>설명</th><th>특징</th></tr>
     <tr><td><strong>LED</strong></td><td>발광 다이오드. 전류가 흐르면 빛을 냄.</td><td>긴 다리(+극 애노드), 짧은 다리(-극 캐소드)</td></tr>
     <tr><td><strong>저항</strong></td><td>전류를 제한함.</td><td>색띠로 저항값 표시</td></tr>
@@ -875,23 +864,42 @@ result = <span class="fn">add</span>(<span class="num">3</span>, <span class="nu
     <tr><td><strong>브레드보드</strong></td><td>납땜 없이 회로 구성</td><td>가로 연결 / 세로 중앙 분리</td></tr></table>
     <div class="warn">⚠️ LED에 저항 없이 직접 연결하면 과전류로 손상! 반드시 <strong>저항을 직렬 연결</strong>하세요.</div>
     </div></div>
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 직렬·병렬 연결</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <div class="two-col">
-      <div class="info-box"><div class="label">직렬 연결</div><ul><li>부품을 <strong>한 줄로</strong> 연결</li><li>전류 동일: I 동일</li><li>전압 분배: V = V₁+V₂</li><li>저항 합산: R = R₁+R₂</li></ul></div>
-      <div class="info-box"><div class="label">병렬 연결</div><ul><li>부품을 <strong>여러 줄로</strong> 연결</li><li>전압 동일: V 동일</li><li>전류 분배: I = I₁+I₂</li><li>저항 감소: 1/R = 1/R₁+1/R₂</li></ul></div>
-    </div></div></div>
   </div>
   <div id="pc-sys" class="subsection">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 피지컬 컴퓨팅 시스템</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>피지컬 컴퓨팅은 <strong>프로그래밍으로 물리적 세계(센서, 모터 등)와 상호작용</strong>하는 컴퓨팅입니다.</p>
-    <div class="info-box"><div class="label">3단계 처리 흐름</div>
-    <p style="text-align:center;font-size:1.1rem;color:#3730a3;font-weight:800;margin:10px 0">입력(Input) → 처리(Process) → 출력(Output)</p>
-    <table><tr><th>단계</th><th>역할</th><th>예시</th></tr>
-    <tr><td>입력</td><td>물리적 정보를 전기 신호로 변환</td><td>버튼, 온도·초음파·빛 센서</td></tr>
-    <tr><td>처리</td><td>프로그램으로 신호를 처리</td><td>라즈베리파이 피코, 아두이노</td></tr>
-    <tr><td>출력</td><td>처리 결과를 물리적으로 표현</td><td>LED, 모터, 스피커, 디스플레이</td></tr></table></div>
+    <p>피지컬 컴퓨팅은 <strong>프로그래밍으로 물리적 세계와 상호작용</strong>하는 컴퓨팅입니다. 핵심 흐름은 <strong>입력 → 처리 → 출력</strong> 3단계로 이루어집니다.</p>
+
+    <!-- 입력→처리→출력 흐름도 -->
+    <div style="display:flex;align-items:stretch;gap:0;margin:16px 0;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+      <div style="flex:1;background:#eef2ff;padding:16px;text-align:center">
+        <div style="font-size:1.3rem;margin-bottom:6px">📥</div>
+        <div style="font-size:.75rem;color:#6366f1;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">입력 (Input)</div>
+        <div style="font-size:1rem;font-weight:800;color:#3730a3;margin-bottom:8px">센서</div>
+        <div style="font-size:.8rem;color:#475569;line-height:1.7">물리적 정보를<br>전기 신호로 변환</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;background:#f1f5f9;color:#6366f1;font-size:1.2rem;font-weight:700">→</div>
+      <div style="flex:1;background:#ecfdf5;padding:16px;text-align:center">
+        <div style="font-size:1.3rem;margin-bottom:6px">⚙️</div>
+        <div style="font-size:.75rem;color:#10b981;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">처리 (Process)</div>
+        <div style="font-size:1rem;font-weight:800;color:#065f46;margin-bottom:8px">마이크로컨트롤러</div>
+        <div style="font-size:.8rem;color:#475569;line-height:1.7">프로그램으로<br>신호를 처리·판단</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 4px;background:#f1f5f9;color:#6366f1;font-size:1.2rem;font-weight:700">→</div>
+      <div style="flex:1;background:#fffbeb;padding:16px;text-align:center">
+        <div style="font-size:1.3rem;margin-bottom:6px">📤</div>
+        <div style="font-size:.75rem;color:#d97706;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">출력 (Output)</div>
+        <div style="font-size:1rem;font-weight:800;color:#92400e;margin-bottom:8px">액추에이터</div>
+        <div style="font-size:.8rem;color:#475569;line-height:1.7">처리 결과를<br>물리적으로 표현</div>
+      </div>
+    </div>
+
+    <table><tr><th>단계</th><th>구성 요소</th><th>역할</th><th>예시 장치</th></tr>
+    <tr><td><strong>입력</strong></td><td><strong>센서 (Sensor)</strong></td><td>빛·온도·거리 등 물리적 정보를 감지해 전기 신호로 변환</td><td>온도 센서, 초음파 센서, 빛 센서, 버튼</td></tr>
+    <tr><td><strong>처리</strong></td><td><strong>마이크로컨트롤러</strong></td><td>센서로부터 받은 신호를 프로그램 코드로 처리·판단</td><td>라즈베리파이 피코, 아두이노</td></tr>
+    <tr><td><strong>출력</strong></td><td><strong>액추에이터 (Actuator)</strong></td><td>처리 결과를 빛·소리·움직임 등 물리적 형태로 출력</td><td>LED, 모터, 서보모터, 스피커, 디스플레이</td></tr></table>
+
+    <div class="tip" style="margin-top:12px">💡 <strong>예시</strong>: 온도 센서(입력) → 피코가 온도 비교(처리) → 팬 모터 켜기(출력)</div>
     </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 라즈베리파이 피코 & GPIO</h3><span class="ico">›</span></div>
     <div class="card-body">
@@ -946,11 +954,39 @@ led = <span class="fn">Pin</span>(<span class="num">25</span>, Pin.OUT)   <span 
     <tr><td><strong>지도 학습</strong></td><td>정답(레이블)이 있는 데이터로 학습</td><td>스팸 분류, 주택 가격 예측</td></tr>
     <tr><td><strong>비지도 학습</strong></td><td>정답 없이 데이터에서 패턴 발견</td><td>군집화(Clustering)</td></tr>
     <tr><td><strong>강화 학습</strong></td><td>보상을 최대화하는 방향으로 학습</td><td>알파고, 자율주행</td></tr></table>
-    <div class="info-box"><div class="label">지도학습의 두 가지 유형</div>
-    <div class="two-col">
-      <div><strong>분류 (Classification)</strong><p style="font-size:.87rem;color:#475569">데이터를 범주로 예측<br>예: 스팸/정상 메일</p></div>
-      <div><strong>회귀 (Regression)</strong><p style="font-size:.87rem;color:#475569">연속 수치를 예측<br>예: 주택 가격 예측</p></div>
+
+    <div class="info-box" style="margin-top:14px"><div class="label">🏷️ 지도 학습 (Supervised Learning)</div>
+    <p><strong>정답(레이블)이 붙은 데이터</strong>를 이용해 모델을 학습시킵니다. 마치 정답지를 보며 공부하는 것과 같습니다.</p>
+    <div class="two-col" style="margin-top:8px">
+      <div><strong>분류 (Classification)</strong><p style="font-size:.85rem;color:#475569;margin-top:4px">데이터를 정해진 <strong>범주(카테고리)</strong>로 예측<br>예: 스팸/정상 메일 분류, 사진 속 동물 종류 판별</p></div>
+      <div><strong>회귀 (Regression)</strong><p style="font-size:.85rem;color:#475569;margin-top:4px"><strong>연속적인 수치</strong>를 예측<br>예: 내일 기온 예측, 주택 가격 예측</p></div>
     </div></div>
+
+    <div class="info-box" style="margin-top:10px"><div class="label">🔍 비지도 학습 (Unsupervised Learning)</div>
+    <p><strong>정답 없이</strong> 데이터 속에서 스스로 패턴이나 구조를 찾아냅니다. 데이터를 미리 분류하지 않아도 됩니다.</p>
+    <ul style="margin-top:6px">
+      <li><strong>군집화(Clustering)</strong>: 비슷한 데이터끼리 자동으로 그룹 묶기 (예: 고객 유형 분류)</li>
+      <li><strong>차원 축소</strong>: 복잡한 데이터를 간단하게 표현</li>
+    </ul></div>
+
+    <div class="info-box" style="margin-top:10px"><div class="label">🎮 강화 학습 (Reinforcement Learning)</div>
+    <p><strong>행동의 결과에 따라 보상/벌칙</strong>을 받으며 최적의 행동 전략을 스스로 학습합니다. 게임 캐릭터가 반복 플레이로 점점 잘하게 되는 것과 같습니다.</p>
+    <ul style="margin-top:6px">
+      <li><strong>에이전트(Agent)</strong>: 행동을 하는 주체</li>
+      <li><strong>환경(Environment)</strong>: 에이전트가 상호작용하는 세계</li>
+      <li><strong>보상(Reward)</strong>: 좋은 행동 → 양의 보상 / 나쁜 행동 → 음의 보상</li>
+      <li>예: 알파고(바둑), 자율주행, 로봇 제어</li>
+    </ul></div>
+
+    <div style="margin-top:16px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:14px 16px">
+      <div style="font-size:.8rem;color:#6366f1;font-weight:700;margin-bottom:6px">📚 더 자세한 내용은 여기서 학습하세요</div>
+      <a href="https://alicepark-lgtm.github.io/ai-learning-expedition/" target="_blank"
+         style="display:inline-flex;align-items:center;gap:8px;background:#6366f1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:.88rem;font-weight:700;transition:background .2s"
+         onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='#6366f1'">
+        🤖 AI 학습 원정대 바로가기 →
+      </a>
+      <p style="font-size:.8rem;color:#64748b;margin-top:8px">기계학습 모델의 원리와 구현을 인터랙티브하게 학습할 수 있습니다.</p>
+    </div>
     </div></div>
   </div>
   <div id="ai-eval" class="subsection">
