@@ -392,12 +392,12 @@ function highlight(code) {
   return escHtml(code)
     .replace(/\b(def|return|if|elif|else|for|while|in|and|or|not|True|False|None|break|continue|pass)\b/g,'<span class="kw">$1</span>')
     .replace(/\b(print|input|int|float|str|bool|len|range|list|map|append|remove|sort|replace)\b/g,'<span class="fn">$1</span>')
-    .replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g,'<span class="str">$1</span>')
+    .replace(/('[^']*'|"[^"]*")/g,'<span class="str">$1</span>')
     .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
     .replace(/#.*/g,'<span class="cmt">$&</span>');
 }
 
-function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.ctrlKey){ e.preventDefault(); if(answered[currentIdx]===undefined) check(); }
