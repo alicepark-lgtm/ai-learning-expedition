@@ -389,12 +389,18 @@ function updateStats(){
 }
 
 function highlight(code) {
-  return escHtml(code)
+  let s = escHtml(code);
+  const strs = [];
+  // Extract string literals first so their quotes don't corrupt later span attributes
+  s = s.replace(/('[^']*'|"[^"]*")/g, m => { strs.push(m); return '\x01s' + (strs.length-1) + '\x01'; });
+  s = s
     .replace(/\b(def|return|if|elif|else|for|while|in|and|or|not|True|False|None|break|continue|pass)\b/g,'<span class="kw">$1</span>')
     .replace(/\b(print|input|int|float|str|bool|len|range|list|map|append|remove|sort|replace)\b/g,'<span class="fn">$1</span>')
-    .replace(/('[^']*'|"[^"]*")/g,'<span class="str">$1</span>')
     .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
     .replace(/#.*/g,'<span class="cmt">$&</span>');
+  // Restore strings as colored spans
+  s = s.replace(/\x01s(\d+)\x01/g, (_, i) => '<span class="str">' + strs[+i] + '</span>');
+  return s;
 }
 
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
