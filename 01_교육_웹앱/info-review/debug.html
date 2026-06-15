@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오류 분석 | 정보 복습 도우미</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+nav{background:#1e293b;padding:14px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+nav a{color:#94a3b8;text-decoration:none;font-size:0.9rem}
+nav a:hover{color:#fbbf24}
+nav .cur{color:#fbbf24;font-weight:600}
+.page-header{background:linear-gradient(135deg,#1a0f00,#2d1a00);padding:36px 20px 28px;text-align:center}
+.page-header h1{font-size:1.8rem;color:#fbbf24;font-weight:800}
+.page-header p{color:#94a3b8;margin-top:6px;font-size:0.9rem}
+.container{max-width:820px;margin:0 auto;padding:24px 20px 60px}
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.filter-btn{padding:6px 14px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:20px;cursor:pointer;font-size:0.8rem;font-family:inherit;transition:all .2s}
+.filter-btn.active{background:#2d1a00;color:#fbbf24;border-color:#f59e0b}
+.stats-bar{display:flex;gap:12px;margin-bottom:18px}
+.stat-box{flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;text-align:center}
+.stat-box .val{font-size:1.6rem;font-weight:800;color:#fbbf24}
+.stat-box .lbl{font-size:0.72rem;color:#64748b;margin-top:2px}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.idx-badge{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:4px 12px;font-size:0.82rem;color:#64748b}
+.progress-bar{background:#1e293b;border-radius:20px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:20px;transition:width .3s}
+.problem-card{background:#1e293b;border:1px solid #334155;border-radius:14px;overflow:hidden;margin-bottom:16px}
+.problem-header{padding:14px 18px;background:#1e293b;border-bottom:1px solid #334155}
+.problem-meta{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.tag{padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600}
+.tag-type{background:#2d1a00;color:#fbbf24;border:1px solid #f59e0b}
+.tag-cat{background:#172033;color:#38bdf8;border:1px solid #1e3a5f}
+.problem-title{color:#e2e8f0;font-size:0.92rem;line-height:1.6}
+.problem-body{padding:16px 18px}
+pre.code-block{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;overflow-x:auto;font-size:0.88rem;line-height:1.8;font-family:'Consolas','Courier New',monospace;color:#e2e8f0;white-space:pre}
+.line-num{color:#475569;user-select:none;display:inline-block;width:28px;text-align:right;margin-right:10px}
+.error-line{background:#1a0a00;border-left:3px solid #f59e0b}
+.section-label{font-size:0.75rem;color:#94a3b8;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:14px 0 8px}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice-btn{padding:10px 14px;background:#0f172a;border:2px solid #334155;border-radius:8px;color:#94a3b8;cursor:pointer;text-align:left;font-family:inherit;font-size:0.87rem;line-height:1.5;transition:all .2s}
+.choice-btn:hover:not(.disabled){border-color:#f59e0b;color:#fbbf24}
+.choice-btn.selected{border-color:#f59e0b;color:#fbbf24;background:#1a0f00}
+.choice-btn.correct{border-color:#4ade80;color:#4ade80;background:#0a2a1a}
+.choice-btn.wrong{border-color:#f87171;color:#f87171;background:#2a0a0a}
+.choice-btn.disabled{cursor:default}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:0.87rem;line-height:1.7;display:none}
+.feedback.show{display:block}
+.feedback-ok{background:#0a2a1a;border-left:3px solid #4ade80;color:#86efac}
+.feedback-wrong{background:#2a0a0a;border-left:3px solid #f87171;color:#fca5a5}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;font-family:inherit;font-weight:600;transition:all .2s}
+.btn-primary{background:#f59e0b;color:#1a0f00}
+.btn-primary:hover{background:#fbbf24}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-secondary:hover{background:#263350;color:#c7d2fe}
+.answer-row-label{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#64748b;margin-bottom:6px}
+.answer-row-label span{background:#172033;border:1px solid #1e3a5f;color:#38bdf8;padding:2px 8px;border-radius:20px;font-size:0.75rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">🏠 홈</a>
+  <span style="color:#475569">›</span>
+  <span class="cur">🐛 오류 분석</span>
+</nav>
+<div class="page-header">
+  <h1>🐛 오류 분석하기</h1>
+  <p>잘못된 파이썬 코드에서 오류 원인을 찾아보세요</p>
+</div>
+<div class="container">
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('전체')">전체</button>
+    <button class="filter-btn" onclick="setFilter('오탈자')">오탈자</button>
+    <button class="filter-btn" onclick="setFilter('문법')">문법</button>
+    <button class="filter-btn" onclick="setFilter('논리')">논리</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-box"><div class="val" id="statScore">0</div><div class="lbl">정답</div></div>
+    <div class="stat-box"><div class="val" id="statTotal">0</div><div class="lbl">시도</div></div>
+    <div class="stat-box"><div class="val" id="statAcc">-</div><div class="lbl">정확도</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="nav-row">
+    <span class="idx-badge" id="idxBadge">1 / 13</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="prev()">◀ 이전</button>
+      <button class="btn btn-secondary" onclick="next()">다음 ▶</button>
+      <button class="btn btn-secondary" onclick="shuffle()">🔀 섞기</button>
+    </div>
+  </div>
+  <div id="problemArea"></div>
+</div>
+<script>
+const RAW = [
+  {type:'오탈자', cat:'입출력', title:'띄어쓰기로 구분된 두 정수 a, b가 입력되면, 두 정수의 합을 출력하는 프로그램을 작성하시오.',
+   code:'a,b = input().split()\nprint(int(a)+int(b)', errLine:2,
+   choices:['print() 함수에서 닫는 소괄호를 누락함.','int(a)에서 변수명을 잘못 작성함.','split() 함수의 괄호가 없음.','a,b 다중 할당 방식이 잘못됨.'],
+   answer:0, explain:'2번째 줄 print(int(a)+int(b) 에서 닫는 소괄호 ) 가 하나 빠졌습니다. 올바른 코드: print(int(a)+int(b))'},
+
+  {type:'오탈자', cat:'입출력', title:'띄어쓰기로 구분된 세 정수 a, b, c가 입력되면, 세 정수의 곱을 출력하는 프로그램을 작성하시오.',
+   code:'a,b,c=map(int,input(.split())\nprint(a*b*c)', errLine:1,
+   choices:['input() 함수에서 닫는 소괄호를 누락함.','map() 함수 인수가 잘못됨.','split()의 괄호가 없음.','a*b*c를 a+b+c로 작성해야 함.'],
+   answer:0, explain:'1번째 줄 input( 뒤에 닫는 소괄호 ) 가 빠졌습니다. input()으로 수정해야 합니다.'},
+
+  {type:'문법', cat:'연산자', title:'띄어쓰기로 구분된 두 정수가 입력되면, 두 값이 서로 다르면 True, 같으면 False를 출력하는 프로그램을 작성하시오.',
+   code:'a,b=map(int, input().split())\nprint(a=!b)', errLine:2,
+   choices:['같지 않다 연산자를 !=로 작성해야 하나, =!로 잘못 작성함.','a,b 다중 할당 방식이 잘못됨.','map()의 첫 번째 인수가 잘못됨.','print() 안에 비교식을 쓸 수 없음.'],
+   answer:0, explain:'파이썬에서 "다르다"는 != 입니다. =! 는 올바른 연산자가 아닙니다. print(a!=b)로 수정해야 합니다.'},
+
+  {type:'문법', cat:'연산자', title:'띄어쓰기로 구분된 두 정수 a, b가 입력되면, b가 a보다 작거나 같으면 True를 출력하는 프로그램을 작성하시오.',
+   code:'a,b=map(int,input().split())\nprint(b=<a)', errLine:2,
+   choices:['비교 연산자 =< 가 아닌 <=로 작성해야 함.','a, b의 순서를 바꿔야 함.','map()의 두 번째 인수가 잘못됨.','print()의 괄호가 잘못됨.'],
+   answer:0, explain:'비교 연산자에서 등호(=)는 항상 뒤에 위치합니다. =< → <=로 수정해야 합니다.'},
+
+  {type:'논리', cat:'연산자', title:'두 정수가 서로 다를 때 True, 같을 때 False를 출력하는 프로그램을 작성하시오.',
+   code:'a,b=map(int,input().split())\nprint(bool(a==b))', errLine:2,
+   choices:['서로 다를 때 True여야 하는데, ==를 사용해 같을 때 True가 출력됨.','bool() 함수를 사용할 수 없음.','a,b 다중 할당이 잘못됨.','map()의 첫 인수가 잘못됨.'],
+   answer:0, explain:'문제는 서로 다를 때 True를 요구하므로 a!=b를 사용해야 합니다. bool(a==b)는 같을 때 True가 됩니다.'},
+
+  {type:'논리', cat:'연산자', title:'두 정수 a,b 입력 → a+b, a-b, a*b, a//b, a/b 결과를 각각 줄바꿔 출력하는 프로그램을 작성하시오.',
+   code:'a,b=map(int,input().split())\nprint(a+b)\nprint(b-a)\nprint(a*b)\nprint(a&b)\nprint(a/b)', errLine:5,
+   choices:['몫 연산자는 //인데, &(비트AND)로 잘못 작성함.','a-b가 아닌 b-a로 잘못 작성함.','print(a/b)가 실수로 출력되어 잘못됨.','map()에서 int 대신 float를 써야 함.'],
+   answer:0, explain:'몫을 구하는 연산자는 // 입니다. & 는 비트 AND 연산자로 전혀 다른 의미입니다. print(a//b)로 수정해야 합니다.'},
+
+  {type:'논리', cat:'선택', title:'띄어쓰기로 구분된 세 실수가 입력되면 가장 큰 수를 출력하시오. (세 실수가 동일한 경우 그 중 하나 출력)',
+   code:'a,b,c=map(float, input().split())\nif a>b and a>c:\n    print(a)\nif b>a and b>c:\n    print(b)\nif c>a and c>b:\n    print(c)', errLine:'2 또는 4 또는 6',
+   choices:['세 값이 모두 동일할 때 아무것도 출력되지 않음.','float 대신 int를 써야 함.','if를 elif로 바꿔야 함.','and 대신 or를 써야 함.'],
+   answer:0, explain:'a==b==c일 때 모든 조건이 거짓이 되어 아무것도 출력되지 않습니다. 마지막 if를 else:로 바꾸거나 첫 번째 if의 조건을 a>=b and a>=c로 수정해야 합니다.'},
+
+  {type:'논리', cat:'선택', title:'두 실수 a, b가 입력되면 더 큰 값을 출력하시오. (동일하면 그 중 하나 출력)',
+   code:'a,b=map(float,input().split())\nif a>=b :\n    print(a)\nif a<=b :\n    print(b)', errLine:'2 또는 4',
+   choices:['a==b인 경우, 동일한 값이 두 번 출력됨.','a>=b와 a<=b 조건이 서로 반대임.','float 대신 int를 써야 함.','print(a)와 print(b)가 바뀌어 있음.'],
+   answer:0, explain:'a==b일 때 두 조건(a>=b, a<=b)이 모두 참이 되어 같은 값이 두 번 출력됩니다. 두 번째 if를 else:로 바꿔야 합니다.'},
+
+  {type:'논리', cat:'선택', title:'두 실수가 입력되면 큰 수를 출력하시오. (동일하면 그 중 하나 출력)',
+   code:'a, b = map(float,input().split())\nif a>b :\n    print(a)\n    else :\n        print(b)', errLine:4,
+   choices:['else의 들여쓰기 수준이 if와 다르게 잘못 작성됨.','else 대신 elif를 써야 함.','a>b 조건이 잘못됨.','print(b)의 들여쓰기가 잘못됨.'],
+   answer:0, explain:'else:는 반드시 if:와 같은 들여쓰기 수준에 있어야 합니다. else: 앞의 들여쓰기 4칸을 제거해야 합니다.'},
+
+  {type:'논리', cat:'반복', title:'두 정수 a, b가 입력되면, a부터 b까지의 정수를 오름차순으로 출력하시오.',
+   code:'a,b=map(int,input().split())\nfor i in range(a,b) :\n    print(i,end=" ")', errLine:2,
+   choices:['range(a,b)는 a~b-1까지라서 b가 포함되지 않음. range(a,b+1)이 필요.','for 대신 while을 써야 함.','print의 end 옵션이 잘못됨.','a와 b의 순서가 바뀌었음.'],
+   answer:0, explain:'range(a,b)는 a 이상 b 미만입니다. b까지 포함하려면 range(a, b+1)로 수정해야 합니다.'},
+
+  {type:'논리', cat:'리스트', title:'문자열이 입력되면, 첫 번째 문자와 마지막 문자 사이에 *를 넣어 출력하시오.',
+   code:'a = input()\nprint(a[1] + "*" +a[-1])', errLine:2,
+   choices:['인덱스 0이 첫 문자인데, a[1]로 잘못 작성함.','a[-1]이 마지막 문자가 아님.','* 문자를 따옴표로 감싸지 않음.','a[-1]을 a[0]으로 써야 함.'],
+   answer:0, explain:'파이썬 인덱스는 0부터 시작합니다. 첫 번째 문자는 a[0]이므로 print(a[0] + "*" + a[-1])로 수정해야 합니다.'},
+
+  {type:'문법', cat:'리스트', title:'길이 5인 문자열에 대해 회문인지 확인하여 True/False를 출력하시오.',
+   code:'s=input()\nprint((s[0]+s[1]+[2]+[3]+[4])==(s[-1]+s[-2]+s[-3]+s[-4]+s[-5]))', errLine:2,
+   choices:['[2],[3],[4]에서 변수명 s를 누락함. s[2],s[3],s[4]로 써야 함.','s[-1]부터의 인덱스가 잘못됨.','print() 괄호 개수가 맞지 않음.','== 대신 is를 써야 함.'],
+   answer:0, explain:'[2], [3], [4]는 리스트를 만드는 표현입니다. 문자열 인덱싱은 반드시 변수명 앞에 써야 합니다: s[2], s[3], s[4]'},
+
+  {type:'문법', cat:'리스트', title:'길이 5인 문자열이 입력되면, 첫·다섯번째 글자가 같고 두·네번째 글자가 같으면 True를 출력하시오.',
+   code:'a=input()\nprint([0]==[4] and [1]==[3])', errLine:2,
+   choices:['[0],[1],[3],[4]에서 변수명 a를 누락. a[0],a[1],a[3],a[4]로 써야 함.','and 대신 or를 써야 함.','print()의 괄호가 잘못됨.','a[0]과 a[4]의 인덱스가 바뀌었음.'],
+   answer:0, explain:'[0]==[4]는 리스트 [0]과 리스트 [4]를 비교하는 표현입니다. a[0]==a[4] and a[1]==a[3]으로 수정해야 합니다.'}
+];
+
+let items = [...RAW];
+let filtered = [...RAW];
+let currentIdx = 0;
+let score = 0, attempts = 0;
+let answered = {};
+let activeFilter = '전체';
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active', b.textContent===f));
+  filtered = f==='전체' ? [...items] : items.filter(d=>d.type===f);
+  currentIdx=0; answered={};
+  render();
+}
+
+function render() {
+  if(filtered.length===0){ document.getElementById('problemArea').innerHTML='<p class="msg">해당 오류 유형 문제가 없습니다.</p>'; return; }
+  const item = filtered[currentIdx];
+  document.getElementById('idxBadge').textContent = `${currentIdx+1} / ${filtered.length}`;
+  document.getElementById('progressFill').style.width = ((currentIdx+1)/filtered.length*100)+'%';
+
+  const lines = item.code.split('\n');
+  const codeHtml = lines.map((ln,i)=>{
+    const lineNo = i+1;
+    const isErr = String(item.errLine).includes(String(lineNo));
+    return `<div${isErr?' class="error-line"':''}><span class="line-num">${lineNo}</span>${escHtml(ln)}</div>`;
+  }).join('');
+
+  const state = answered[currentIdx];
+  const choicesHtml = item.choices.map((c,i)=>{
+    let cls = 'choice-btn';
+    if(state!==undefined){
+      cls += ' disabled';
+      if(i===item.answer) cls+=' correct';
+      else if(i===state && state!==item.answer) cls+=' wrong';
+    }
+    return `<button class="${cls}" onclick="choose(${i})">${String.fromCharCode(65+i)}. ${escHtml(c)}</button>`;
+  }).join('');
+
+  const feedbackHtml = state!==undefined ? `
+    <div class="feedback ${state===item.answer?'feedback-ok':'feedback-wrong'} show">
+      ${state===item.answer?'✅ 정답입니다!':'❌ 오답입니다.'}<br>
+      <strong>💡 해설:</strong> ${item.explain}
+    </div>` : '';
+
+  document.getElementById('problemArea').innerHTML = `
+    <div class="problem-card">
+      <div class="problem-header">
+        <div class="problem-meta">
+          <span class="tag tag-type">${item.type}</span>
+          <span class="tag tag-cat">${item.cat}</span>
+          <span class="tag tag-type">오류 행: ${item.errLine}</span>
+        </div>
+        <div class="problem-title">${escHtml(item.title)}</div>
+      </div>
+      <div class="problem-body">
+        <div class="section-label">🔴 오류가 포함된 코드</div>
+        <pre class="code-block">${codeHtml}</pre>
+        <div class="section-label">❓ 오류 원인은 무엇인가요?</div>
+        <div class="choices">${choicesHtml}</div>
+        ${feedbackHtml}
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="prev()">◀ 이전</button>
+          <button class="btn btn-primary" onclick="next()">다음 ▶</button>
+        </div>
+      </div>
+    </div>`;
+  updateStats();
+}
+
+function choose(idx) {
+  if(answered[currentIdx]!==undefined) return;
+  answered[currentIdx] = idx;
+  attempts++;
+  if(idx===filtered[currentIdx].answer) score++;
+  render();
+}
+
+function next(){ currentIdx=Math.min(currentIdx+1,filtered.length-1); render(); }
+function prev(){ currentIdx=Math.max(currentIdx-1,0); render(); }
+
+function shuffle(){
+  for(let i=filtered.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [filtered[i],filtered[j]]=[filtered[j],filtered[i]];
+  }
+  currentIdx=0; answered={};
+  render();
+}
+
+function updateStats(){
+  document.getElementById('statScore').textContent=score;
+  document.getElementById('statTotal').textContent=attempts;
+  document.getElementById('statAcc').textContent=attempts>0?Math.round(score/attempts*100)+'%':'-';
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+render();
+</script>
+</body>
+</html>

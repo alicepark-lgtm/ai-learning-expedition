@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결과 예측 | 정보 복습 도우미</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+nav{background:#1e293b;padding:14px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+nav a{color:#94a3b8;text-decoration:none;font-size:0.9rem}
+nav a:hover{color:#34d399}
+nav .cur{color:#34d399;font-weight:600}
+.page-header{background:linear-gradient(135deg,#022c22,#064e3b);padding:36px 20px 28px;text-align:center}
+.page-header h1{font-size:1.8rem;color:#34d399;font-weight:800}
+.page-header p{color:#94a3b8;margin-top:6px;font-size:0.9rem}
+.container{max-width:820px;margin:0 auto;padding:24px 20px 60px}
+.stats-bar{display:flex;gap:12px;margin-bottom:18px}
+.stat-box{flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;text-align:center}
+.stat-box .val{font-size:1.6rem;font-weight:800;color:#34d399}
+.stat-box .lbl{font-size:0.72rem;color:#64748b;margin-top:2px}
+.progress-bar{background:#1e293b;border-radius:20px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:20px;transition:width .3s}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.idx-badge{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:4px 12px;font-size:0.82rem;color:#64748b}
+.problem-card{background:#1e293b;border:1px solid #334155;border-radius:14px;overflow:hidden;margin-bottom:16px}
+.problem-header{padding:14px 18px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.problem-header .q-title{font-size:0.9rem;color:#94a3b8}
+.problem-header .q-num{font-size:0.8rem;color:#34d399;font-weight:700}
+.problem-body{padding:16px 18px}
+pre.code-block{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;overflow-x:auto;font-size:0.9rem;line-height:1.8;font-family:'Consolas','Courier New',monospace;color:#e2e8f0;white-space:pre;margin-bottom:16px}
+.kw{color:#f472b6}
+.fn{color:#a5f3fc}
+.str{color:#86efac}
+.num{color:#fb923c}
+.cmt{color:#475569}
+.section-label{font-size:0.75rem;color:#94a3b8;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.input-area{width:100%;background:#0f172a;border:2px solid #334155;border-radius:8px;padding:12px 14px;font-family:'Consolas','Courier New',monospace;font-size:0.95rem;color:#e2e8f0;outline:none;resize:vertical;transition:border-color .2s;min-height:60px}
+.input-area:focus{border-color:#10b981}
+.input-area.success{border-color:#4ade80;background:#0a1f0a}
+.input-area.error{border-color:#f87171;background:#1a0505}
+.btn-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;font-family:inherit;font-weight:600;transition:all .2s}
+.btn-primary{background:#10b981;color:#fff}
+.btn-primary:hover{background:#059669}
+.btn-hint{background:#172033;color:#38bdf8;border:1px solid #1e3a5f}
+.btn-hint:hover{background:#1e3a5f}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-secondary:hover{background:#263350;color:#c7d2fe}
+.feedback{margin-top:14px;border-radius:8px;overflow:hidden;display:none}
+.feedback.show{display:block}
+.feedback-header{padding:10px 14px;font-size:0.85rem;font-weight:700}
+.feedback-ok .feedback-header{background:#0a2a1a;color:#4ade80}
+.feedback-wrong .feedback-header{background:#1a0505;color:#f87171}
+.feedback-body{padding:12px 14px;background:#0f172a;border:1px solid #334155;border-top:none;border-radius:0 0 8px 8px}
+.feedback-body .answer-lbl{font-size:0.75rem;color:#64748b;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+pre.answer-code{font-family:'Consolas','Courier New',monospace;font-size:0.9rem;color:#34d399;background:#022c22;padding:10px 12px;border-radius:6px;margin-bottom:10px;white-space:pre}
+.explain-text{font-size:0.85rem;color:#94a3b8;line-height:1.7}
+.hint-box{background:#172033;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:0.85rem;color:#7dd3fc;display:none}
+.hint-box.show{display:block}
+.diff-line{display:flex;gap:8px;font-size:0.82rem;margin-top:6px}
+.diff-your{color:#f87171}.diff-ans{color:#4ade80}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">🏠 홈</a>
+  <span style="color:#475569">›</span>
+  <span class="cur">🔮 결과 예측</span>
+</nav>
+<div class="page-header">
+  <h1>🔮 결과 예측하기</h1>
+  <p>코드를 읽고 실행 결과를 직접 입력해보세요</p>
+</div>
+<div class="container">
+  <div class="stats-bar">
+    <div class="stat-box"><div class="val" id="statScore">0</div><div class="lbl">정답</div></div>
+    <div class="stat-box"><div class="val" id="statTotal">0</div><div class="lbl">시도</div></div>
+    <div class="stat-box"><div class="val" id="statAcc">-</div><div class="lbl">정확도</div></div>
+    <div class="stat-box"><div class="val" id="statLeft">20</div><div class="lbl">남은 문제</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="nav-row">
+    <span class="idx-badge" id="idxBadge">1 / 20</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="prev()">◀ 이전</button>
+      <button class="btn btn-secondary" onclick="next()">다음 ▶</button>
+      <button class="btn btn-secondary" onclick="shuffle()">🔀 섞기</button>
+    </div>
+  </div>
+  <div id="problemArea"></div>
+</div>
+<script>
+const PROBLEMS = [
+  {
+    title:'정수 나눗셈 연산',
+    code:`a = 10
+b = 3
+print(a // b)
+print(a % b)`,
+    answer:'3\n1',
+    hint:'// 는 몫, % 는 나머지를 구하는 연산자입니다.',
+    explain:'10 // 3 = 3(몫), 10 % 3 = 1(나머지). 각각 별도 줄에 출력되므로 3과 1이 줄바꿔 출력됩니다.'
+  },
+  {
+    title:'반복문으로 패턴 출력',
+    code:`for i in range(1, 4):
+    print(i * '*')`,
+    answer:'*\n**\n***',
+    hint:'i가 1, 2, 3을 순서대로 가질 때 \'*\'*i의 결과를 생각해보세요.',
+    explain:'i=1: \'*\'*1="*", i=2: \'*\'*2="**", i=3: \'*\'*3="***". 각각 줄바꿔 출력됩니다.'
+  },
+  {
+    title:'누적 합 계산',
+    code:`n = 5
+result = 0
+for i in range(1, n+1):
+    result += i
+print(result)`,
+    answer:'15',
+    hint:'1+2+3+4+5를 계산해보세요.',
+    explain:'range(1, 6)은 1,2,3,4,5. 모두 더하면 15입니다.'
+  },
+  {
+    title:'리스트 슬라이싱',
+    code:`a = [1, 2, 3, 4, 5]
+print(a[1:4])`,
+    answer:'[2, 3, 4]',
+    hint:'a[1:4]는 인덱스 1 이상 4 미만의 요소입니다.',
+    explain:'a[1]=2, a[2]=3, a[3]=4. a[4]는 포함되지 않습니다.'
+  },
+  {
+    title:'조건문 분기',
+    code:`x = 3
+if x > 5:
+    print('크다')
+elif x > 1:
+    print('중간')
+else:
+    print('작다')`,
+    answer:'중간',
+    hint:'x=3이 각 조건에서 참인지 확인하세요.',
+    explain:'x=3은 5보다 크지 않고, 1보다 큽니다. 첫 번째 elif 블록이 실행됩니다.'
+  },
+  {
+    title:'문자열 연산',
+    code:`print('py' + 'thon')
+print('py' * 3)`,
+    answer:'python\npypypy',
+    hint:'+는 문자열 연결, *는 문자열 반복입니다.',
+    explain:"'py'+'thon'='python', 'py'*3='pypypy'. 각각 별도 줄에 출력됩니다."
+  },
+  {
+    title:'while 반복문',
+    code:`n = 1
+while n <= 5:
+    print(n, end=' ')
+    n += 2`,
+    answer:'1 3 5',
+    hint:'n이 1, 3, 5, 7 순서로 증가하는데 조건은 n<=5입니다.',
+    explain:'n=1(출력),n=3(출력),n=5(출력),n=7(조건 거짓→종료). end=\' \'로 공백 구분 출력.'
+  },
+  {
+    title:'리스트 메서드',
+    code:`a = [1, 2, 3]
+a.append(4)
+a.remove(2)
+print(a)`,
+    answer:'[1, 3, 4]',
+    hint:'append는 뒤에 추가, remove는 해당 값을 제거합니다.',
+    explain:'append(4) → [1,2,3,4]. remove(2) → [1,3,4].'
+  },
+  {
+    title:'함수 반환값',
+    code:`def calc(a, b):
+    return a * b + b
+print(calc(3, 4))`,
+    answer:'16',
+    hint:'a=3, b=4를 식에 대입해보세요.',
+    explain:'3*4+4 = 12+4 = 16.'
+  },
+  {
+    title:'range 역순',
+    code:`for i in range(5, 0, -2):
+    print(i, end=' ')`,
+    answer:'5 3 1',
+    hint:'range(5, 0, -2)는 5부터 -2씩 감소하며 0보다 클 때까지입니다.',
+    explain:'5, 3, 1을 출력하고 그 다음 -1은 0보다 작으므로 종료.'
+  },
+  {
+    title:'문자열과 정수 연산',
+    code:`a, b = '10', '20'
+print(a + b)
+print(int(a) + int(b))`,
+    answer:'1020\n30',
+    hint:'첫 번째는 문자열 연결, 두 번째는 정수 덧셈입니다.',
+    explain:"'10'+'20'='1020'(문자열 연결), int('10')+int('20')=30(정수 덧셈)."
+  },
+  {
+    title:'문자열 인덱싱·슬라이싱',
+    code:`s = 'hello'
+print(s[1])
+print(s[-2])
+print(s[1:4])`,
+    answer:'e\nl\nell',
+    hint:'인덱스는 0부터, 음수는 뒤에서부터 셉니다.',
+    explain:'s[1]=e, s[-2]=l(뒤에서2번째), s[1:4]=ell(인덱스1~3).'
+  },
+  {
+    title:'조건문으로 카운팅',
+    code:`count = 0
+for i in range(1, 11):
+    if i % 3 == 0:
+        count += 1
+print(count)`,
+    answer:'3',
+    hint:'1~10 중 3의 배수는 3, 6, 9 입니다.',
+    explain:'3%3=0, 6%3=0, 9%3=0으로 count가 3번 증가합니다.'
+  },
+  {
+    title:'홀수·짝수 판별',
+    code:`n = 7
+if n % 2 == 0:
+    print('짝수')
+else:
+    print('홀수')`,
+    answer:'홀수',
+    hint:'7을 2로 나눈 나머지를 구해보세요.',
+    explain:'7%2=1. 0이 아니므로 else 블록 실행 → 홀수 출력.'
+  },
+  {
+    title:'리스트 기본 정보',
+    code:`a = [3, 1, 4, 1, 5, 9, 2, 6]
+print(len(a))
+print(a[0])
+print(a[-1])`,
+    answer:'8\n3\n6',
+    hint:'len()은 요소 개수, [0]은 첫 번째, [-1]은 마지막 요소입니다.',
+    explain:'리스트 요소 8개. a[0]=3(첫번째), a[-1]=6(마지막).'
+  },
+  {
+    title:'함수와 True/False 반환',
+    code:`def is_even(n):
+    if n % 2 == 0:
+        return True
+    return False
+print(is_even(4))
+print(is_even(7))`,
+    answer:'True\nFalse',
+    hint:'4%2와 7%2를 각각 계산해보세요.',
+    explain:'4%2=0이므로 True, 7%2=1이므로 False.'
+  },
+  {
+    title:'최솟값 찾기',
+    code:`a = [5, 3, 8, 1, 9, 2, 7, 4, 6]
+min_val = a[0]
+for x in a:
+    if x < min_val:
+        min_val = x
+print(min_val)`,
+    answer:'1',
+    hint:'리스트를 순회하며 가장 작은 값을 계속 갱신합니다.',
+    explain:'1이 가장 작은 값입니다. min_val이 5→3→1로 갱신됩니다.'
+  },
+  {
+    title:'2중 반복문 곱셈표',
+    code:`for i in range(1, 4):
+    for j in range(1, 4):
+        print(i * j, end=' ')
+    print()`,
+    answer:'1 2 3 \n2 4 6 \n3 6 9 ',
+    hint:'i와 j 각각 1,2,3을 가지며 i*j를 출력합니다. print()는 줄바꿈.',
+    explain:'i=1: 1 2 3 (줄바꿈), i=2: 2 4 6 (줄바꿈), i=3: 3 6 9 (줄바꿈).'
+  },
+  {
+    title:'재귀 함수',
+    code:`def factorial(n):
+    if n == 1:
+        return 1
+    return n * factorial(n-1)
+print(factorial(4))`,
+    answer:'24',
+    hint:'4! = 4×3×2×1 을 재귀적으로 계산합니다.',
+    explain:'factorial(4)=4*factorial(3)=4*3*factorial(2)=4*3*2*factorial(1)=4*3*2*1=24.'
+  },
+  {
+    title:'문자열 replace와 len',
+    code:`s = 'Hello, World!'
+print(s.replace('World', 'Python'))
+print(len(s))`,
+    answer:'Hello, Python!\n13',
+    hint:'replace()는 특정 부분을 바꾸고, len()은 전체 길이를 반환합니다.',
+    explain:"'World'를 'Python'으로 교체 → 'Hello, Python!'. len('Hello, World!')=13."
+  }
+];
+
+let items = [...PROBLEMS];
+let currentIdx = 0;
+let score = 0, attempts = 0;
+let answered = {};
+let hintShown = {};
+
+function render() {
+  const item = items[currentIdx];
+  document.getElementById('idxBadge').textContent = `${currentIdx+1} / ${items.length}`;
+  document.getElementById('progressFill').style.width = ((currentIdx+1)/items.length*100)+'%';
+  document.getElementById('statLeft').textContent = items.length - Object.keys(answered).length;
+
+  const state = answered[currentIdx];
+  const isAnswered = state !== undefined;
+  const isCorrect = isAnswered && state.correct;
+
+  const feedbackHtml = isAnswered ? `
+    <div class="feedback ${isCorrect?'feedback-ok':'feedback-wrong'} show">
+      <div class="feedback-header">${isCorrect?'✅ 정답입니다!':'❌ 오답입니다.'}</div>
+      <div class="feedback-body">
+        <div class="answer-lbl">정답 출력</div>
+        <pre class="answer-code">${escHtml(item.answer)}</pre>
+        ${!isCorrect?`<div class="diff-line"><span class="diff-your">내 답: ${escHtml(state.input)}</span></div>`:''}
+        <div class="explain-text">💡 ${item.explain}</div>
+      </div>
+    </div>` : '';
+
+  const hintHtml = `<div class="hint-box${hintShown[currentIdx]?' show':''}" id="hintBox">💡 힌트: ${item.hint}</div>`;
+
+  document.getElementById('problemArea').innerHTML = `
+    <div class="problem-card">
+      <div class="problem-header">
+        <span class="q-title">코드를 읽고 출력 결과를 입력하세요</span>
+        <span class="q-num">문제 ${currentIdx+1}</span>
+      </div>
+      <div class="problem-body">
+        <pre class="code-block">${highlight(item.code)}</pre>
+        ${hintHtml}
+        <div class="section-label">📤 예상 출력 결과</div>
+        <textarea class="input-area${isAnswered?(isCorrect?' success':' error'):''}" id="userInput"
+          placeholder="줄바꿈이 있으면 Enter키로 줄을 나눠서 입력하세요..."
+          rows="3" ${isAnswered?'readonly':''}
+          autocomplete="off" spellcheck="false">${isAnswered?state.input:''}</textarea>
+        ${feedbackHtml}
+        <div class="btn-row">
+          ${!isAnswered?`<button class="btn btn-primary" onclick="check()">✅ 제출</button>`:''}
+          ${!isAnswered?`<button class="btn btn-hint" onclick="showHint()">💡 힌트</button>`:''}
+          <button class="btn btn-secondary" onclick="prev()">◀ 이전</button>
+          <button class="btn btn-secondary" onclick="next()">다음 ▶</button>
+        </div>
+      </div>
+    </div>`;
+  updateStats();
+}
+
+function check() {
+  const item = items[currentIdx];
+  const input = document.getElementById('userInput').value.trim();
+  if(!input) return;
+  attempts++;
+  const correct = normalizeAnswer(input) === normalizeAnswer(item.answer);
+  if(correct) score++;
+  answered[currentIdx] = {input, correct};
+  render();
+}
+
+function normalizeAnswer(s) {
+  return s.trim().replace(/\r\n/g,'\n').replace(/ +\n/g,'\n').replace(/\n +/g,'\n');
+}
+
+function showHint() {
+  hintShown[currentIdx] = true;
+  document.getElementById('hintBox').classList.add('show');
+}
+
+function next(){ currentIdx=Math.min(currentIdx+1,items.length-1); render(); }
+function prev(){ currentIdx=Math.max(currentIdx-1,0); render(); }
+
+function shuffle(){
+  for(let i=items.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [items[i],items[j]]=[items[j],items[i]];
+  }
+  currentIdx=0; answered={}; hintShown={};
+  render();
+}
+
+function updateStats(){
+  document.getElementById('statScore').textContent=score;
+  document.getElementById('statTotal').textContent=attempts;
+  document.getElementById('statAcc').textContent=attempts>0?Math.round(score/attempts*100)+'%':'-';
+  document.getElementById('statLeft').textContent=items.length-Object.keys(answered).length;
+}
+
+function highlight(code) {
+  return escHtml(code)
+    .replace(/\b(def|return|if|elif|else|for|while|in|and|or|not|True|False|None|break|continue|pass)\b/g,'<span class="kw">$1</span>')
+    .replace(/\b(print|input|int|float|str|bool|len|range|list|map|append|remove|sort|replace)\b/g,'<span class="fn">$1</span>')
+    .replace(/(&#39;[^&#]*&#39;|&quot;[^&]*&quot;)/g,'<span class="str">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
+    .replace(/#.*/g,'<span class="cmt">$&</span>');
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.ctrlKey){ e.preventDefault(); if(answered[currentIdx]===undefined) check(); }
+});
+
+render();
+</script>
+</body>
+</html>

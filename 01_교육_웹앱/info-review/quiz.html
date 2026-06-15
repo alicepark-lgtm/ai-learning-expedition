@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>객관식 퀴즈 | 정보 복습 도우미</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+nav{background:#1e293b;padding:14px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+nav a{color:#94a3b8;text-decoration:none;font-size:0.9rem}nav a:hover{color:#c7d2fe}
+nav .cur{color:#c7d2fe;font-weight:600}
+.page-header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:36px 20px 28px;text-align:center}
+.page-header h1{font-size:1.8rem;color:#c7d2fe;font-weight:800}
+.page-header p{color:#94a3b8;margin-top:6px;font-size:.9rem}
+.container{max-width:860px;margin:0 auto;padding:24px 20px 60px}
+/* 설정 화면 */
+.setup-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:28px}
+.setup-card h2{color:#c7d2fe;font-size:1.1rem;margin-bottom:16px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
+.cat-check{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#0f172a;border:2px solid #334155;border-radius:10px;cursor:pointer;transition:all .2s}
+.cat-check:hover{border-color:#6366f1}
+.cat-check.on{border-color:#6366f1;background:#1e1b4b}
+.cat-check input{display:none}
+.cat-check .dot{width:14px;height:14px;border-radius:50%;border:2px solid #475569;transition:all .2s;flex-shrink:0}
+.cat-check.on .dot{background:#6366f1;border-color:#6366f1}
+.cat-check span{font-size:.85rem;color:#94a3b8}
+.cat-check.on span{color:#c7d2fe}
+.opt-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.opt-group label{display:block;font-size:.75rem;color:#64748b;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.opt-select{background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:8px 12px;border-radius:8px;font-family:inherit;font-size:.9rem;outline:none}
+.start-btn{width:100%;padding:14px;background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.start-btn:hover{opacity:.9}
+/* 퀴즈 화면 */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.q-meta{font-size:.82rem;color:#64748b}
+.q-tags{display:flex;gap:6px}
+.tag{padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:600}
+.tag-cat{background:#1e1b4b;color:#a5b4fc;border:1px solid #4338ca}
+.tag-lvl-easy{background:#0a2a1a;color:#4ade80;border:1px solid #16a34a}
+.tag-lvl-med{background:#1a1a00;color:#fbbf24;border:1px solid #ca8a04}
+.tag-lvl-hard{background:#1a0505;color:#f87171;border:1px solid #dc2626}
+.progress-bar{background:#1e293b;border-radius:20px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:20px;transition:width .3s}
+.timer-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.timer{font-size:1.1rem;font-weight:700;color:#a5b4fc}
+.score-badge{background:#1e1b4b;border:1px solid #4338ca;color:#c7d2fe;padding:4px 14px;border-radius:20px;font-size:.82rem}
+.question-card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:22px;margin-bottom:14px}
+.question-text{font-size:1rem;color:#e2e8f0;line-height:1.7;margin-bottom:16px}
+pre.q-code{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:12px 14px;font-family:'Consolas','Courier New',monospace;font-size:.87rem;line-height:1.7;color:#e2e8f0;white-space:pre;overflow-x:auto;margin:10px 0}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice{padding:11px 14px;background:#0f172a;border:2px solid #334155;border-radius:8px;color:#94a3b8;cursor:pointer;text-align:left;font-family:inherit;font-size:.88rem;line-height:1.5;transition:all .2s;display:flex;align-items:flex-start;gap:10px}
+.choice:hover:not(.disabled){border-color:#6366f1;color:#c7d2fe;background:#1e1b4b}
+.choice .choice-key{font-weight:700;color:#6366f1;flex-shrink:0}
+.choice.selected{border-color:#6366f1;background:#1e1b4b;color:#c7d2fe}
+.choice.correct{border-color:#4ade80;background:#0a2a1a;color:#4ade80}
+.choice.correct .choice-key{color:#4ade80}
+.choice.wrong{border-color:#f87171;background:#1a0505;color:#f87171}
+.choice.wrong .choice-key{color:#f87171}
+.choice.disabled{cursor:default}
+.choice.show-correct{border-color:#4ade80;background:#0a2a1a;color:#4ade80;opacity:.7}
+.choice.show-correct .choice-key{color:#4ade80}
+.feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.85rem;line-height:1.6;display:none}
+.feedback.show{display:block}
+.feedback-ok{background:#0a2a1a;border-left:3px solid #4ade80;color:#86efac}
+.feedback-wrong{background:#1a0505;border-left:3px solid #f87171;color:#fca5a5}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-family:inherit;font-weight:600;transition:all .2s}
+.btn-primary{background:#6366f1;color:#fff}.btn-primary:hover{background:#4f46e5}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}.btn-secondary:hover{background:#263350;color:#c7d2fe}
+/* 결과 화면 */
+.result-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:32px;text-align:center}
+.result-score{font-size:3rem;font-weight:800;color:#c7d2fe;margin:16px 0}
+.result-pct{font-size:1.2rem;color:#94a3b8;margin-bottom:24px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:20px 0}
+.result-item{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px;text-align:center}
+.result-item .ri-cat{font-size:.72rem;color:#64748b;margin-bottom:4px}
+.result-item .ri-score{font-size:1.1rem;font-weight:700;color:#c7d2fe}
+.result-item .ri-bar{height:4px;border-radius:2px;background:#334155;margin-top:6px;overflow:hidden}
+.result-item .ri-fill{height:100%;border-radius:2px;background:#6366f1;transition:width .5s}
+.kw{color:#f472b6}.fn{color:#a5f3fc}.str{color:#86efac}.num{color:#fb923c}.cmt{color:#475569}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">🏠 홈</a>
+  <span style="color:#475569">›</span>
+  <span class="cur">📝 객관식 퀴즈</span>
+</nav>
+<div class="page-header">
+  <h1>📝 객관식 문제 풀기</h1>
+  <p>단원별 선택 또는 랜덤으로 90문제에 도전하세요</p>
+</div>
+<div class="container" id="app"></div>
+
+<script>
+const QUIZ = [
+// ── 추상화 (5) ───────────────────────────────────────────────────────────────
+{id:1,cat:'추상화',lv:'easy',q:'추상화(Abstraction)의 개념을 가장 잘 설명한 것은?',choices:['문제를 여러 조각으로 분해하는 것','문제 해결에 불필요한 세부 사항을 제거하고 핵심만 나타내는 것','컴퓨터에게 명령을 내리는 것','알고리즘을 코드로 변환하는 것'],ans:1,ex:'추상화는 핵심만 남기고 불필요한 세부 사항을 제거하는 사고 방식입니다.'},
+{id:2,cat:'추상화',lv:'easy',q:'다음 중 알고리즘이 반드시 가져야 할 조건이 아닌 것은?',choices:['유한성 - 유한한 단계 후 반드시 종료','효과성 - 각 단계가 실제 수행 가능','복잡성 - 구조가 복잡해야 함','출력 - 하나 이상의 결과 존재'],ans:2,ex:'알고리즘의 조건은 입력·출력·명확성·유한성·효과성입니다. 복잡성은 조건이 아닙니다.'},
+{id:3,cat:'추상화',lv:'easy',q:'순서도에서 마름모(◇) 모양이 나타내는 것은?',choices:['시작 / 종료','처리(연산)','판단(조건 분기)','입력 / 출력'],ans:2,ex:'마름모는 Yes/No로 분기되는 판단(조건) 기호입니다.'},
+{id:4,cat:'추상화',lv:'med',q:'이진 탐색(Binary Search)을 사용하기 위한 필수 전제 조건은?',choices:['데이터 개수가 짝수여야 한다','데이터가 정렬되어 있어야 한다','데이터가 숫자여야 한다','데이터 개수가 100개 이상이어야 한다'],ans:1,ex:'이진 탐색은 정렬된 배열에서 중간값을 비교해 범위를 절반씩 줄여가므로 반드시 정렬이 필요합니다.'},
+{id:5,cat:'추상화',lv:'med',q:'버블 정렬에서 n개의 데이터를 정렬할 때 최대 비교 횟수(전체)는?',choices:['n','n-1','n(n-1)/2','n²'],ans:2,ex:'버블 정렬은 (n-1)+(n-2)+...+1 = n(n-1)/2번 비교합니다. 시간 복잡도 O(n²).'},
+
+// ── 출력문 (5) ────────────────────────────────────────────────────────────────
+{id:6,cat:'출력문',lv:'easy',q:"print('Hello', end='!')의 출력 결과는?",choices:["Hello\\n","Hello!","Hello !","!Hello"],ans:1,ex:"end='!'는 줄바꿈 대신 !를 출력 뒤에 붙입니다."},
+{id:7,cat:'출력문',lv:'easy',q:"print('a\\nb')의 출력 결과는?",choices:["a\\nb","a b","a (줄바꿈) b","ab"],ans:2,ex:"\\n은 줄바꿈 이스케이프 문자입니다. a가 출력되고 줄이 바뀐 뒤 b가 출력됩니다."},
+{id:8,cat:'출력문',lv:'med',q:"print('%d' % 3.7)의 출력 결과는?",choices:["3.7","3","4","오류 발생"],ans:1,ex:"%d는 정수 서식 문자로 소수점 이하를 버리고 3을 출력합니다."},
+{id:9,cat:'출력문',lv:'easy',q:"print('py', 'thon')의 출력 결과는?",choices:["python","py thon","py,thon","pythonNone"],ans:1,ex:"콤마로 구분하면 값 사이에 공백이 자동으로 삽입됩니다."},
+{id:10,cat:'출력문',lv:'med',q:"다음 중 출력 결과가 다른 하나는?",choices:["print('ab')","print('a', end=''); print('b')","print('a'+'b')","print('a', 'b')"],ans:3,ex:"print('a', 'b')는 'a b' (공백 포함)로 출력됩니다. 나머지는 모두 'ab'를 출력합니다."},
+
+// ── 입력문 (5) ────────────────────────────────────────────────────────────────
+{id:11,cat:'입력문',lv:'easy',q:'n = input()으로 입력받은 값의 자료형은?',choices:['int','float','str','bool'],ans:2,ex:'input()은 항상 문자열(str)을 반환합니다. 숫자를 입력해도 str입니다.'},
+{id:12,cat:'입력문',lv:'med',q:"n = int(input())에서 사용자가 '3.5'를 입력하면?",choices:['3','3.5','오류 발생','4'],ans:2,ex:"int()는 소수점 문자열을 직접 변환할 수 없습니다. ValueError가 발생합니다."},
+{id:13,cat:'입력문',lv:'easy',q:"a, b = map(int, input().split())에서 '10 20'을 입력하면 a+b의 값은?",choices:["'1020'","30","10","오류 발생"],ans:1,ex:'map(int, ...)으로 정수 변환 후 split()으로 분리하므로 10+20=30.'},
+{id:14,cat:'입력문',lv:'med',q:'한 줄에 여러 정수를 입력받아 각각 변환하는 올바른 코드는?',choices:['a, b = input()','a, b = int(input().split())','a, b = map(int, input().split())','a, b = int(map(input().split()))'],ans:2,ex:'map(int, input().split())이 표준 관용구입니다.'},
+{id:15,cat:'입력문',lv:'easy',q:"input('숫자를 입력하세요: ')에서 괄호 안 문자열의 역할은?",choices:['입력값의 자료형을 결정한다','입력 안내 메시지를 출력한다','기본값으로 사용된다','입력값과 함께 저장된다'],ans:1,ex:'괄호 안 문자열은 사용자에게 보여주는 프롬프트(안내 메시지)입니다.'},
+
+// ── 변수 (5) ──────────────────────────────────────────────────────────────────
+{id:16,cat:'변수',lv:'easy',q:'다음 중 파이썬에서 올바른 변수명은?',choices:['2count','my-name','my_name','for'],ans:2,ex:'변수명은 문자·숫자·밑줄(_)만 가능하며 숫자로 시작 불가, 예약어 사용 불가입니다.'},
+{id:17,cat:'변수',lv:'easy',q:'a = 5; a = a + 3 실행 후 a의 값은?',choices:['5','3','8','53'],ans:2,ex:'a = 5+3 = 8. 변수에 새 값을 재할당합니다.'},
+{id:18,cat:'변수',lv:'easy',q:'a, b = 10, 20 실행 후 b의 값은?',choices:['10','20','30','오류 발생'],ans:1,ex:'다중 할당에서 왼쪽 순서와 오른쪽 값 순서가 대응됩니다.'},
+{id:19,cat:'변수',lv:'med',q:'다음 코드 실행 후 x의 값은? x = 10; x += 3',choices:['10','3','13','103'],ans:2,ex:'x += 3은 x = x + 3과 동일합니다. 10+3=13.'},
+{id:20,cat:'변수',lv:'med',q:'두 변수의 값을 서로 교환하는 파이썬 방식은?',choices:['a = b; b = a','temp=a; a=b; b=temp','a, b = b, a','swap(a, b)'],ans:2,ex:'파이썬은 a, b = b, a 한 줄로 두 변수의 값을 교환할 수 있습니다.'},
+
+// ── 자료형 (5) ────────────────────────────────────────────────────────────────
+{id:21,cat:'자료형',lv:'easy',q:'type(3.14)의 결과는?',choices:["<class 'int'>","<class 'float'>","<class 'str'>","<class 'number'>"],ans:1,ex:'3.14는 소수점이 있으므로 float(실수형)입니다.'},
+{id:22,cat:'자료형',lv:'easy',q:'bool(0)의 결과는?',choices:['True','False','0','None'],ans:1,ex:'파이썬에서 0, 빈 문자열, None 등은 False입니다.'},
+{id:23,cat:'자료형',lv:'med',q:"int('3.14')의 결과는?",choices:['3','3.14','오류 발생','3.0'],ans:2,ex:"int()는 소수점이 있는 문자열을 직접 변환할 수 없습니다. float('3.14') 후 int()를 거쳐야 합니다."},
+{id:24,cat:'자료형',lv:'easy',q:'str(123)의 결과는?',choices:["123 (int 타입)","'123' (str 타입)","True","오류 발생"],ans:1,ex:'str()은 숫자를 문자열로 변환합니다.'},
+{id:25,cat:'자료형',lv:'med',q:"다음 중 불(bool) 자료형에서 False로 평가되는 것은?",choices:['True','1','빈 문자열 ""','any string'],ans:2,ex:'비어 있는 문자열, 0, None, 빈 리스트 등은 False로 평가됩니다.'},
+
+// ── 연산자 (5) ────────────────────────────────────────────────────────────────
+{id:26,cat:'연산자',lv:'easy',q:'7 // 2의 결과는?',choices:['3.5','3','1','2'],ans:1,ex:'// 는 정수 나눗셈(몫)입니다. 7÷2=3.5이므로 몫은 3.'},
+{id:27,cat:'연산자',lv:'easy',q:'7 % 3의 결과는?',choices:['2','1','3','2.33'],ans:1,ex:'7을 3으로 나누면 몫 2, 나머지 1입니다.'},
+{id:28,cat:'연산자',lv:'easy',q:'2 ** 4의 결과는?',choices:['8','16','24','6'],ans:1,ex:'** 는 거듭제곱. 2⁴=16.'},
+{id:29,cat:'연산자',lv:'easy',q:"'파이' * 3의 결과는?",choices:["파이3","파이파이파이","오류 발생","파이+파이+파이"],ans:1,ex:'문자열과 정수를 곱하면 문자열이 반복됩니다.'},
+{id:30,cat:'연산자',lv:'med',q:'(3 > 2) and (5 < 3)의 결과는?',choices:['True','False','3','5'],ans:1,ex:'3>2=True, 5<3=False. True and False = False.'},
+
+// ── 조건문 (10) ───────────────────────────────────────────────────────────────
+{id:31,cat:'조건문',lv:'easy',q:'if n >= 80: 에서 n=80일 때 이 조건의 결과는?',choices:['False','True','80','오류 발생'],ans:1,ex:'>= 는 크거나 같다. 80>=80은 True입니다.'},
+{id:32,cat:'조건문',lv:'easy',q:'n=75일 때 다음 코드의 출력은?\nif n>=80: print("A")\nelif n>=70: print("B")\nelse: print("C")',choices:['A','B','C','AB'],ans:1,ex:'75>=80은 False, 75>=70은 True이므로 elif 블록 실행 → B.'},
+{id:33,cat:'조건문',lv:'easy',q:'if-elif-else 구조에서 한 번 실행 시 실행되는 블록 수는?',choices:['모든 블록','정확히 하나','최대 두 개','else가 항상 실행'],ans:1,ex:'if-elif-else는 조건을 위에서부터 검사해 처음 참인 블록 하나만 실행합니다.'},
+{id:34,cat:'조건문',lv:'easy',q:'pass 키워드의 역할은?',choices:['반복문을 중단','현재 반복을 건너뜀','아무 동작도 하지 않음','함수를 종료'],ans:2,ex:'pass는 코드 블록이 필요하지만 아무것도 실행할 필요 없을 때 사용합니다.'},
+{id:35,cat:'조건문',lv:'med',q:'n=5일 때 다음 코드의 출력은?\nif n>0: print("+")\nif n<10: print("-")',choices:['+','-','+ 와 - 모두 출력','아무것도 출력 안 됨'],ans:2,ex:'두 if가 독립적이므로 두 조건 모두 검사. 5>0=True, 5<10=True → 둘 다 출력.'},
+{id:36,cat:'조건문',lv:'med',q:'파이썬 코드 블록을 구분하는 방법은?',choices:['중괄호 {}','세미콜론 ;','들여쓰기 (공백/탭)','괄호 ()'],ans:2,ex:'파이썬은 들여쓰기로 코드 블록을 구분합니다. 일반적으로 공백 4칸을 사용합니다.'},
+{id:37,cat:'조건문',lv:'med',q:'elif는 한 if 블록에 몇 번까지 사용할 수 있는가?',choices:['1번','2번','3번','제한 없이'],ans:3,ex:'elif는 필요한 만큼 여러 번 사용할 수 있습니다.'},
+{id:38,cat:'조건문',lv:'med',q:'다음 중 비교 연산자 작성이 잘못된 것은?',choices:['a == b','a != b','a =! b','a >= b'],ans:2,ex:"파이썬에서 '같지 않다'는 != 입니다. =! 는 존재하지 않는 연산자입니다."},
+{id:39,cat:'조건문',lv:'hard',q:'a=5, b=5일 때 다음 코드의 출력은?\nif a>=b: print(a)\nif a<=b: print(b)',choices:['5 (한 번)','5 5 (두 번)','아무것도 안 나옴','오류 발생'],ans:1,ex:'a>=b(5>=5=True)와 a<=b(5<=5=True) 모두 참이므로 5가 두 번 출력됩니다.'},
+{id:40,cat:'조건문',lv:'hard',q:'n=0일 때 다음 코드의 출력은?\nif n>0: print("양수")\nelif n<0: print("음수")\nelse: print("영")',choices:['양수','음수','영','아무것도 출력 안 됨'],ans:2,ex:'n=0이면 n>0=False, n<0=False이므로 else 블록이 실행됩니다.'},
+
+// ── 반복문 (10) ───────────────────────────────────────────────────────────────
+{id:41,cat:'반복문',lv:'easy',q:'for i in range(5)에서 i가 취하는 값은?',choices:['1,2,3,4,5','0,1,2,3,4','0,1,2,3,4,5','1,2,3,4'],ans:1,ex:'range(5)는 0 이상 5 미만 → 0,1,2,3,4.'},
+{id:42,cat:'반복문',lv:'easy',q:'range(2, 8, 2)가 생성하는 수열은?',choices:['2,4,6,8','2,4,6','2,3,4,5,6,7','0,2,4,6'],ans:1,ex:'range(start, stop, step): 2부터 시작, 2씩 증가, 8 미만 → 2,4,6.'},
+{id:43,cat:'반복문',lv:'easy',q:'break 키워드의 역할은?',choices:['현재 반복을 건너뜀','반복문을 완전히 종료','함수를 종료','프로그램을 종료'],ans:1,ex:'break는 반복문에서 즉시 빠져나옵니다.'},
+{id:44,cat:'반복문',lv:'easy',q:'continue 키워드의 역할은?',choices:['반복문을 완전히 종료','현재 반복을 건너뛰고 다음으로','함수를 종료','무한루프를 만듦'],ans:1,ex:'continue는 현재 반복의 나머지 코드를 건너뛰고 다음 반복으로 넘어갑니다.'},
+{id:45,cat:'반복문',lv:'easy',q:'while True: 루프를 종료하려면?',choices:['stop','end','break','return'],ans:2,ex:'무한루프를 탈출하려면 break를 사용합니다.'},
+{id:46,cat:'반복문',lv:'easy',q:"for i in 'hello'를 실행할 때 i가 순서대로 취하는 값은?",choices:["hello (문자열 전체)","h,e,l,l,o","오류 발생","['h','e','l','l','o']"],ans:1,ex:'문자열도 반복 가능한 객체이므로 글자 하나씩 꺼낼 수 있습니다.'},
+{id:47,cat:'반복문',lv:'med',q:'다음 코드의 출력은?\nfor i in range(3):\n    print(i, end=" ")',choices:['0 1 2','1 2 3','0 1 2 3','1 2'],ans:0,ex:'range(3)=0,1,2. end=" "로 공백으로 구분해 한 줄에 출력.'},
+{id:48,cat:'반복문',lv:'med',q:'다음 코드의 출력은?\nn=1\nwhile n<6:\n    print(n, end=" ")\n    n+=2',choices:['1 3 5','1 2 3 4 5','1 3 5 7','2 4 6'],ans:0,ex:'n=1(출력)→n=3(출력)→n=5(출력)→n=7(조건 거짓 종료).'},
+{id:49,cat:'반복문',lv:'med',q:'1부터 100까지 홀수의 합을 구하는 올바른 코드는?',choices:['for i in range(100): total+=i','for i in range(1,101,2): total+=i','for i in range(1,100,2): total+=i','for i in range(0,100,2): total+=i'],ans:1,ex:'range(1,101,2)는 1,3,5,...,99. 100을 포함하려면 stop=101이어야 합니다.'},
+{id:50,cat:'반복문',lv:'hard',q:'다음 코드의 출력은?\nfor i in range(1,4):\n    for j in range(1,4):\n        if i==j: print(i,end=" ")',choices:['1 2 3','1 4 9','1','오류 발생'],ans:0,ex:'i==j일 때만 출력: (1,1)→1, (2,2)→2, (3,3)→3. 출력: 1 2 3.'},
+
+// ── 함수 (10) ─────────────────────────────────────────────────────────────────
+{id:51,cat:'함수',lv:'easy',q:'파이썬에서 함수를 정의할 때 사용하는 키워드는?',choices:['func','define','def','function'],ans:2,ex:'파이썬 함수 정의 키워드는 def입니다.'},
+{id:52,cat:'함수',lv:'easy',q:'return 키워드의 역할은?',choices:['함수를 호출한다','함수를 정의한다','함수를 종료하고 값을 반환한다','변수를 삭제한다'],ans:2,ex:'return은 함수를 즉시 종료하고 값을 호출한 곳으로 돌려줍니다.'},
+{id:53,cat:'함수',lv:'easy',q:'다음 코드의 출력은?\ndef add(a,b): return a+b\nprint(add(3,4))',choices:['None','7','ab','3 4'],ans:1,ex:'add(3,4)=3+4=7을 반환하고 print()가 7을 출력합니다.'},
+{id:54,cat:'함수',lv:'easy',q:'함수에 return문이 없으면 반환값은?',choices:['0','False','None','오류 발생'],ans:2,ex:'return이 없거나 return만 쓰면 None을 반환합니다.'},
+{id:55,cat:'함수',lv:'med',q:'매개변수(parameter)와 인수(argument)의 차이는?',choices:['둘 다 같은 의미','매개변수는 정의 시, 인수는 호출 시 사용','매개변수는 호출 시, 인수는 정의 시 사용','매개변수는 전역, 인수는 지역변수'],ans:1,ex:'def f(x): 에서 x가 매개변수, f(5) 에서 5가 인수입니다.'},
+{id:56,cat:'함수',lv:'med',q:'함수 안에서 정의된 변수의 유효 범위는?',choices:['전체 프로그램','함수 안에서만','함수 호출 이후 전체','모듈 전체'],ans:1,ex:'함수 안의 변수는 지역 변수(local variable)로 함수 밖에서 접근할 수 없습니다.'},
+{id:57,cat:'함수',lv:'med',q:'기본값 매개변수(default parameter)의 올바른 정의는?',choices:['def f(a=10, b):','def f(a, b=10):','def f(a, b): b=10','def f(=10, b):'],ans:1,ex:'기본값이 있는 매개변수는 기본값이 없는 것 뒤에 위치해야 합니다.'},
+{id:58,cat:'함수',lv:'med',q:'재귀함수(recursive function)란?',choices:['반복문을 포함하는 함수','자기 자신을 호출하는 함수','여러 값을 반환하는 함수','매개변수가 없는 함수'],ans:1,ex:'재귀함수는 함수 내부에서 자기 자신을 다시 호출하는 함수입니다.'},
+{id:59,cat:'함수',lv:'med',q:'다음 코드의 출력은?\ndef greet(name="학생"):\n    print("안녕,", name)\ngreet()\ngreet("철수")',choices:['안녕, 학생 / 안녕, 학생','안녕, 학생 / 안녕, 철수','오류 / 안녕, 철수','안녕,  / 안녕, 철수'],ans:1,ex:'greet()는 기본값 "학생"을, greet("철수")는 "철수"를 사용합니다.'},
+{id:60,cat:'함수',lv:'hard',q:'다음 코드의 출력은?\ndef f(n):\n    if n==1: return 1\n    return n * f(n-1)\nprint(f(5))',choices:['5','25','120','오류 발생'],ans:2,ex:'f(5)=5*f(4)=5*4*f(3)=5*4*3*f(2)=5*4*3*2*f(1)=5*4*3*2*1=120 (5!).'},
+
+// ── 리스트 (5) ────────────────────────────────────────────────────────────────
+{id:61,cat:'리스트',lv:'easy',q:'a=[1,2,3,4,5]에서 a[2]의 값은?',choices:['1','2','3','4'],ans:2,ex:'인덱스는 0부터 시작합니다. a[2]=3.'},
+{id:62,cat:'리스트',lv:'easy',q:'a=[1,2,3,4,5]에서 a[1:3]의 결과는?',choices:['[1,2,3]','[2,3]','[1,2]','[2,3,4]'],ans:1,ex:'슬라이싱 a[1:3]은 인덱스 1 이상 3 미만 → [2,3].'},
+{id:63,cat:'리스트',lv:'easy',q:'리스트의 마지막 요소를 가져오는 올바른 방법은?',choices:['a[last]','a[-1]','a[end]','a[len(a)]'],ans:1,ex:'음수 인덱스 -1은 뒤에서 첫 번째, 즉 마지막 요소입니다.'},
+{id:64,cat:'리스트',lv:'easy',q:'a=[1,2,3]; a.append(4); print(a)의 결과는?',choices:['[1,2,3]','[4,1,2,3]','[1,2,3,4]','4'],ans:2,ex:'append()는 리스트 맨 뒤에 요소를 추가합니다.'},
+{id:65,cat:'리스트',lv:'med',q:'len([1,2,3,4,5])의 결과는?',choices:['4','5','6','[5]'],ans:1,ex:'len()은 리스트의 요소 개수를 반환합니다.'},
+
+// ── 파이썬 종합 (10) ──────────────────────────────────────────────────────────
+{id:66,cat:'파이썬종합',lv:'med',q:"다음 코드의 출력은?\na='123'; b='456'; print(a+b)",choices:['579','123456','123 456','오류 발생'],ans:1,ex:'문자열 + 문자열은 연결입니다. 덧셈이 아닙니다.'},
+{id:67,cat:'파이썬종합',lv:'med',q:'다음 코드에서 오류가 발생하는 줄은?\na=input()  # 1번\nb=a+1      # 2번\nprint(b)   # 3번',choices:['1번','2번','3번','오류 없음'],ans:1,ex:'input()은 str 반환. str+int는 TypeError 발생 → 2번 줄.'},
+{id:68,cat:'파이썬종합',lv:'med',q:'다음 코드의 출력은?\nfor i in range(1,5):\n    if i%2==0: print(i, end=" ")',choices:['1 3','2 4','1 2 3 4','0 2 4'],ans:1,ex:'range(1,5)=1,2,3,4. 짝수(i%2==0)만 출력 → 2 4.'},
+{id:69,cat:'파이썬종합',lv:'med',q:'버블정렬에서 [3,1,2]를 1회전(pass) 후 결과는?',choices:['[1,2,3]','[1,3,2]','[2,1,3]','[3,1,2]'],ans:1,ex:'(3,1)교환→[1,3,2], (3,2)교환→[1,2,3]. 1회전 후 [1,2,3].'},
+{id:70,cat:'파이썬종합',lv:'med',q:'이진탐색에서 [1,3,5,7,9,11]에서 7을 찾을 때 처음 비교하는 값은?',choices:['1','7','5','9'],ans:2,ex:'left=0, right=5, mid=2 → arr[2]=5가 처음 비교 대상.'},
+{id:71,cat:'파이썬종합',lv:'easy',q:'다음 중 파이썬의 예약어(키워드)가 아닌 것은?',choices:['if','while','print','for'],ans:2,ex:'print는 내장 함수이지 예약어가 아닙니다. 변수명으로 사용 가능(비권장).'},
+{id:72,cat:'파이썬종합',lv:'med',q:'다음 코드의 출력은?\ntotal=0\nfor i in range(1,6): total+=i\nprint(total)',choices:['10','15','6','5'],ans:1,ex:'1+2+3+4+5=15.'},
+{id:73,cat:'파이썬종합',lv:'hard',q:'다음 코드의 출력은?\na=[1,2,3]; b=a; b.append(4); print(a)',choices:['[1,2,3]','[1,2,3,4]','[4]','오류 발생'],ans:1,ex:'b=a는 복사가 아닌 같은 리스트를 가리킵니다. b.append(4)는 a도 변경합니다.'},
+{id:74,cat:'파이썬종합',lv:'hard',q:'다음 코드의 출력은?\na=[5,3,1,4,2]; a.sort(); print(a[0])',choices:['5','1','3','2'],ans:1,ex:'sort()는 오름차순 정렬. [1,2,3,4,5]로 정렬 후 a[0]=1.'},
+{id:75,cat:'파이썬종합',lv:'hard',q:'다음 코드의 출력은?\ndef f(lst): lst.append(10)\na=[1,2,3]; f(a); print(a)',choices:['[1,2,3]','[1,2,3,10]','[10,1,2,3]','오류 발생'],ans:1,ex:'리스트는 참조로 전달됩니다. 함수 안에서 수정하면 원본도 변경됩니다.'},
+
+// ── 피지컬 컴퓨팅 (5) ────────────────────────────────────────────────────────
+{id:76,cat:'피지컬컴퓨팅',lv:'easy',q:'옴의 법칙(Ohm\'s Law)의 올바른 수식은?',choices:['V=I+R','V=I×R','V=I÷R','V=I-R'],ans:1,ex:'V(전압) = I(전류) × R(저항).'},
+{id:77,cat:'피지컬컴퓨팅',lv:'easy',q:'LED 회로에 저항을 직렬 연결하는 주된 이유는?',choices:['밝기를 높이기 위해','전류를 제한해 LED를 보호하기 위해','전압을 높이기 위해','회로를 열기 위해'],ans:1,ex:'과전류는 LED를 손상시킵니다. 저항으로 전류를 제한해 보호합니다.'},
+{id:78,cat:'피지컬컴퓨팅',lv:'easy',q:'피지컬 컴퓨팅 시스템의 처리 순서는?',choices:['처리→입력→출력','입력→출력→처리','입력→처리→출력','출력→처리→입력'],ans:2,ex:'센서(입력) → 마이크로컨트롤러(처리) → 액추에이터(출력).'},
+{id:79,cat:'피지컬컴퓨팅',lv:'med',q:'라즈베리파이 피코의 GPIO 핀의 역할은?',choices:['전원만 공급','디지털/아날로그 신호를 입출력하는 핀','인터넷에 연결','화면을 출력'],ans:1,ex:'GPIO(범용 입출력)는 다양한 전자 부품과 신호를 주고받는 핀입니다.'},
+{id:80,cat:'피지컬컴퓨팅',lv:'med',q:'다음 중 피지컬 컴퓨팅의 입력 장치가 아닌 것은?',choices:['온도 센서','버튼','LED','초음파 센서'],ans:2,ex:'LED는 빛을 내는 출력 장치입니다. 나머지는 정보를 수집하는 입력 장치입니다.'},
+
+// ── 인공지능 (10) ─────────────────────────────────────────────────────────────
+{id:81,cat:'인공지능',lv:'easy',q:'지도 학습(Supervised Learning)의 특징은?',choices:['레이블 없는 데이터로 학습','레이블(정답)이 있는 데이터로 학습','보상을 통해 학습','규칙을 직접 설정'],ans:1,ex:'지도학습은 정답(레이블)이 포함된 데이터를 사용해 모델을 학습시킵니다.'},
+{id:82,cat:'인공지능',lv:'easy',q:'비지도 학습(Unsupervised Learning)의 대표적인 예는?',choices:['스팸 메일 분류','주택 가격 예측','군집화(Clustering)','이미지 인식'],ans:2,ex:'비지도학습은 정답 없이 데이터에서 패턴을 찾습니다. 군집화가 대표적입니다.'},
+{id:83,cat:'인공지능',lv:'easy',q:'강화 학습(Reinforcement Learning)의 핵심 개념은?',choices:['레이블 데이터 학습','환경과 상호작용해 보상을 최대화하도록 학습','데이터 군집 분석','인간이 직접 규칙 입력'],ans:1,ex:'강화학습은 에이전트가 환경에서 행동하고 보상을 받으며 학습합니다.'},
+{id:84,cat:'인공지능',lv:'easy',q:'딥러닝(Deep Learning)의 기반이 되는 개념은?',choices:['결정 트리','인공신경망(ANN)','유전 알고리즘','k-최근접 이웃'],ans:1,ex:'딥러닝은 깊은 인공신경망을 사용하는 머신러닝의 한 분야입니다.'},
+{id:85,cat:'인공지능',lv:'easy',q:'머신러닝에서 회귀(Regression)가 해결하는 문제는?',choices:['데이터를 범주로 분류','연속적인 수치 예측','이미지 생성','텍스트 번역'],ans:1,ex:'회귀는 연속 수치(예: 주택 가격, 기온)를 예측하는 문제입니다.'},
+{id:86,cat:'인공지능',lv:'med',q:'과적합(Overfitting)이란?',choices:['학습 데이터 부족','훈련 데이터엔 맞지만 새 데이터 성능이 낮은 상태','모델이 너무 단순','학습 속도가 느림'],ans:1,ex:'과적합은 훈련 데이터를 너무 외워서 일반화 성능이 낮아진 상태입니다.'},
+{id:87,cat:'인공지능',lv:'med',q:'k-최근접 이웃(k-NN) 알고리즘의 분류 방법은?',choices:['모든 데이터를 클러스터로 분리','가장 가까운 k개의 이웃 다수결로 분류','결정 경계를 최대 마진으로 설정','신경망 가중치 조정'],ans:1,ex:'k-NN은 새 데이터 주변의 k개 이웃 중 가장 많은 클래스로 분류합니다.'},
+{id:88,cat:'인공지능',lv:'med',q:'머신러닝에서 훈련 데이터(Training data)의 역할은?',choices:['모델의 최종 성능 평가','모델이 패턴을 학습하는 데 사용','하이퍼파라미터 조정','실제 서비스 입력'],ans:1,ex:'훈련 데이터는 모델이 패턴을 학습하는 데 사용됩니다.'},
+{id:89,cat:'인공지능',lv:'med',q:'분류(Classification)와 회귀(Regression)의 차이는?',choices:['분류는 수치 예측, 회귀는 범주 예측','분류는 범주 예측, 회귀는 연속 수치 예측','분류는 비지도, 회귀는 지도학습','둘 다 같은 방법'],ans:1,ex:'분류: 범주(클래스), 회귀: 연속 수치. 둘 다 지도학습입니다.'},
+{id:90,cat:'인공지능',lv:'hard',q:'인공신경망의 구조에서 은닉층(Hidden Layer)의 역할은?',choices:['데이터를 입력받음','최종 예측값을 출력','입력층과 출력층 사이에서 특성을 추출·변환','데이터를 저장'],ans:2,ex:'은닉층은 입력에서 복잡한 특성(패턴)을 추출하고 변환하는 역할을 합니다.'}
+];
+
+const CATS = ['추상화','출력문','입력문','변수','자료형','연산자','조건문','반복문','함수','리스트','파이썬종합','피지컬컴퓨팅','인공지능'];
+const CAT_LABELS = {'추상화':'추상화(5)','출력문':'출력문(5)','입력문':'입력문(5)','변수':'변수(5)','자료형':'자료형(5)','연산자':'연산자(5)','조건문':'조건문(10)','반복문':'반복문(10)','함수':'함수(10)','리스트':'리스트(5)','파이썬종합':'파이썬종합(10)','피지컬컴퓨팅':'피지컬컴퓨팅(5)','인공지능':'인공지능(10)'};
+
+let state = 'setup';
+let selectedCats = new Set(CATS);
+let quizMode = 'random';
+let quizItems = [];
+let currentIdx = 0;
+let answered = {};
+let score = 0;
+let timerSec = 0;
+let timerInterval = null;
+
+function render() {
+  if(state==='setup') renderSetup();
+  else if(state==='quiz') renderQuiz();
+  else renderResult();
+}
+
+function renderSetup() {
+  document.getElementById('app').innerHTML = `
+  <div class="setup-card">
+    <h2>📋 단원 선택</h2>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button onclick="selectAll(true)" style="padding:5px 12px;background:#1e1b4b;border:1px solid #4338ca;color:#c7d2fe;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit">전체 선택</button>
+      <button onclick="selectAll(false)" style="padding:5px 12px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit">전체 해제</button>
+    </div>
+    <div class="cat-grid" id="catGrid">
+      ${CATS.map(c=>`
+        <div class="cat-check${selectedCats.has(c)?' on':''}" onclick="toggleCat('${c}')" id="cc_${c}">
+          <div class="dot"></div>
+          <span>${CAT_LABELS[c]}</span>
+        </div>`).join('')}
+    </div>
+    <div class="opt-row">
+      <div class="opt-group">
+        <label>출제 방식</label>
+        <select class="opt-select" id="modeSelect">
+          <option value="random" ${quizMode==='random'?'selected':''}>🔀 랜덤 섞기</option>
+          <option value="order" ${quizMode==='order'?'selected':''}>📋 단원 순서대로</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:.82rem;color:#64748b;margin-bottom:14px" id="qCount">선택된 문제: ${[...selectedCats].reduce((a,c)=>a+QUIZ.filter(q=>q.cat===c).length,0)}문제</div>
+    <button class="start-btn" onclick="startQuiz()">🚀 퀴즈 시작</button>
+  </div>`;
+}
+
+function toggleCat(c) {
+  if(selectedCats.has(c)) selectedCats.delete(c);
+  else selectedCats.add(c);
+  updateSetupUI();
+}
+function selectAll(v) {
+  selectedCats = v ? new Set(CATS) : new Set();
+  updateSetupUI();
+}
+function updateSetupUI() {
+  CATS.forEach(c=>{
+    const el = document.getElementById('cc_'+c);
+    if(el) el.classList.toggle('on', selectedCats.has(c));
+  });
+  const cnt = document.getElementById('qCount');
+  if(cnt) cnt.textContent = '선택된 문제: '+[...selectedCats].reduce((a,c)=>a+QUIZ.filter(q=>q.cat===c).length,0)+'문제';
+}
+
+function startQuiz() {
+  if(selectedCats.size===0){ alert('단원을 하나 이상 선택해주세요.'); return; }
+  quizMode = document.getElementById('modeSelect').value;
+  quizItems = QUIZ.filter(q=>selectedCats.has(q.cat));
+  if(quizMode==='random') {
+    for(let i=quizItems.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [quizItems[i],quizItems[j]]=[quizItems[j],quizItems[i]];
+    }
+  }
+  currentIdx=0; answered={}; score=0; timerSec=0;
+  state='quiz';
+  timerInterval = setInterval(()=>{ timerSec++; const t=document.getElementById('timerDisp'); if(t) t.textContent=fmtTime(timerSec); },1000);
+  render();
+}
+
+function renderQuiz() {
+  const item = quizItems[currentIdx];
+  const total = quizItems.length;
+  const st = answered[currentIdx];
+  const isAns = st!==undefined;
+
+  const lvTag = `<span class="tag tag-lvl-${item.lv}">${{easy:'쉬움',med:'보통',hard:'어려움'}[item.lv]}</span>`;
+  const catTag = `<span class="tag tag-cat">${item.cat}</span>`;
+
+  const choicesHtml = item.choices.map((c,i)=>{
+    let cls='choice';
+    if(isAns){
+      cls+=' disabled';
+      if(i===item.ans) cls+=' show-correct';
+      if(i===st) cls+=(st===item.ans?' correct':' wrong');
+    }
+    return `<button class="${cls}" onclick="choose(${i})"><span class="choice-key">${'ABCD'[i]}.</span><span>${escHtml(c)}</span></button>`;
+  }).join('');
+
+  const feedbackHtml = isAns ? `<div class="feedback ${st===item.ans?'feedback-ok':'feedback-wrong'} show">
+    ${st===item.ans?'✅ 정답입니다!':'❌ 오답! 정답은 <strong>'+'ABCD'[item.ans]+'</strong> 입니다.'}<br>
+    💡 ${item.ex}</div>` : '';
+
+  const qText = item.q.includes('\n')
+    ? item.q.split('\n').map((ln,i)=>i===0?`<span>${escHtml(ln)}</span>`:`<pre class="q-code">${highlight(ln)}</pre>`).join('')
+    : escHtml(item.q);
+
+  document.getElementById('app').innerHTML = `
+  <div class="timer-bar">
+    <div class="timer">⏱ <span id="timerDisp">${fmtTime(timerSec)}</span></div>
+    <div class="score-badge">✅ ${score} / ${Object.keys(answered).length}</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:${(currentIdx+1)/total*100}%"></div></div>
+  <div class="quiz-header">
+    <div class="q-meta">문제 ${currentIdx+1} / ${total}</div>
+    <div class="q-tags">${catTag}${lvTag}</div>
+  </div>
+  <div class="question-card">
+    <div class="question-text">${qText}</div>
+    <div class="choices">${choicesHtml}</div>
+    ${feedbackHtml}
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="prevQ()">◀ 이전</button>
+    ${currentIdx<total-1
+      ? `<button class="btn btn-primary" onclick="nextQ()">다음 ▶</button>`
+      : `<button class="btn btn-primary" onclick="endQuiz()">결과 보기 🏁</button>`}
+    <button class="btn btn-secondary" onclick="state='setup';clearInterval(timerInterval);render()">⚙️ 설정</button>
+  </div>`;
+}
+
+function choose(idx) {
+  if(answered[currentIdx]!==undefined) return;
+  answered[currentIdx]=idx;
+  if(idx===quizItems[currentIdx].ans) score++;
+  render();
+}
+function nextQ(){ currentIdx=Math.min(currentIdx+1,quizItems.length-1); render(); }
+function prevQ(){ currentIdx=Math.max(currentIdx-1,0); render(); }
+
+function endQuiz(){
+  clearInterval(timerInterval);
+  state='result';
+  render();
+}
+
+function renderResult() {
+  const total = quizItems.length;
+  const pct = Math.round(score/total*100);
+  const grade = pct>=90?'🏆 최우수':pct>=80?'🥇 우수':pct>=70?'🥈 양호':pct>=60?'🥉 보통':'💪 분발 필요';
+
+  const catStats = {};
+  CATS.forEach(c=>{ catStats[c]={right:0,total:0}; });
+  quizItems.forEach((item,i)=>{
+    catStats[item.cat].total++;
+    if(answered[i]===item.ans) catStats[item.cat].right++;
+  });
+
+  const catHtml = Object.entries(catStats).filter(([,v])=>v.total>0).map(([c,v])=>`
+    <div class="result-item">
+      <div class="ri-cat">${c}</div>
+      <div class="ri-score">${v.right}/${v.total}</div>
+      <div class="ri-bar"><div class="ri-fill" style="width:${v.total?Math.round(v.right/v.total*100):0}%"></div></div>
+    </div>`).join('');
+
+  document.getElementById('app').innerHTML = `
+  <div class="result-card">
+    <div style="font-size:1.4rem;color:#c7d2fe">${grade}</div>
+    <div class="result-score">${score} / ${total}</div>
+    <div class="result-pct">${pct}점 · 소요시간 ${fmtTime(timerSec)}</div>
+    <div class="result-grid">${catHtml}</div>
+    <div class="btn-row" style="justify-content:center;margin-top:20px">
+      <button class="btn btn-primary" onclick="reQuiz()">🔄 다시 풀기</button>
+      <button class="btn btn-secondary" onclick="state='setup';render()">⚙️ 단원 재선택</button>
+      <button class="btn btn-secondary" onclick="reviewWrong()">❌ 오답만 풀기</button>
+    </div>
+  </div>`;
+}
+
+function reQuiz(){
+  score=0; answered={}; currentIdx=0; timerSec=0;
+  for(let i=quizItems.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [quizItems[i],quizItems[j]]=[quizItems[j],quizItems[i]];
+  }
+  state='quiz';
+  timerInterval=setInterval(()=>{timerSec++;const t=document.getElementById('timerDisp');if(t)t.textContent=fmtTime(timerSec);},1000);
+  render();
+}
+
+function reviewWrong(){
+  const wrong = quizItems.filter((_,i)=>answered[i]!==undefined && answered[i]!==quizItems[i].ans);
+  if(wrong.length===0){ alert('오답이 없습니다! 완벽합니다 🎉'); return; }
+  quizItems=wrong;
+  score=0; answered={}; currentIdx=0; timerSec=0;
+  state='quiz';
+  timerInterval=setInterval(()=>{timerSec++;const t=document.getElementById('timerDisp');if(t)t.textContent=fmtTime(timerSec);},1000);
+  render();
+}
+
+function fmtTime(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function highlight(code){
+  return escHtml(code)
+    .replace(/\b(def|return|if|elif|else|for|while|in|and|or|not|True|False|None|break|continue|pass)\b/g,'<span class="kw">$1</span>')
+    .replace(/\b(print|input|int|float|str|bool|len|range|list|map|append|sort)\b/g,'<span class="fn">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
+    .replace(/#.*/g,'<span class="cmt">$&</span>');
+}
+
+render();
+</script>
+</body>
+</html>

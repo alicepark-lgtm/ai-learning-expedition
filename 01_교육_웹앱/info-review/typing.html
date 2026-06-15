@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타자 연습 | 정보 복습 도우미</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+nav{background:#1e293b;padding:14px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+nav a{color:#94a3b8;text-decoration:none;font-size:0.9rem}
+nav a:hover{color:#c7d2fe}
+nav .cur{color:#c7d2fe;font-weight:600}
+.page-header{background:linear-gradient(135deg,#0c2a4a,#1e3a5f);padding:36px 20px 28px;text-align:center}
+.page-header h1{font-size:1.8rem;color:#7dd3fc;font-weight:800}
+.page-header p{color:#94a3b8;margin-top:6px;font-size:0.9rem}
+.container{max-width:820px;margin:0 auto;padding:24px 20px 60px}
+.mode-bar{display:flex;gap:8px;margin-bottom:20px}
+.mode-btn{flex:1;padding:12px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:10px;cursor:pointer;font-size:0.9rem;font-family:inherit;transition:all .2s}
+.mode-btn.active{background:#1e3a5f;color:#7dd3fc;border-color:#0ea5e9;font-weight:700}
+.cat-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.cat-btn{padding:6px 14px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:20px;cursor:pointer;font-size:0.8rem;font-family:inherit;transition:all .2s}
+.cat-btn.active{background:#0c2a4a;color:#7dd3fc;border-color:#0ea5e9}
+.stats-bar{display:flex;gap:12px;margin-bottom:18px}
+.stat-box{flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;text-align:center}
+.stat-box .val{font-size:1.6rem;font-weight:800;color:#7dd3fc}
+.stat-box .lbl{font-size:0.72rem;color:#64748b;margin-top:2px}
+.prompt-card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:24px;margin-bottom:18px}
+.prompt-label{font-size:0.72rem;color:#38bdf8;font-weight:700;letter-spacing:1px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.prompt-text{font-family:'Consolas','Courier New',monospace;font-size:1.3rem;color:#e2e8f0;line-height:1.6;white-space:pre-wrap;word-break:break-all;min-height:36px}
+.prompt-text .correct{color:#4ade80}
+.prompt-text .wrong{color:#f87171;background:#2d0f0f;border-radius:2px}
+.prompt-text .cursor{border-left:2px solid #38bdf8;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.desc-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:12px 14px;font-size:0.85rem;color:#94a3b8;line-height:1.7;margin-bottom:14px;min-height:36px}
+.input-area{width:100%;background:#0f172a;border:2px solid #334155;border-radius:10px;padding:14px 16px;font-family:'Consolas','Courier New',monospace;font-size:1.1rem;color:#e2e8f0;outline:none;resize:none;transition:border-color .2s;min-height:50px}
+.input-area:focus{border-color:#0ea5e9}
+.input-area.success{border-color:#4ade80;background:#0a1f0a}
+.input-area.error{border-color:#f87171}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;font-family:inherit;font-weight:600;transition:all .2s}
+.btn-primary{background:#0ea5e9;color:#fff}
+.btn-primary:hover{background:#0284c7}
+.btn-secondary{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-secondary:hover{background:#263350;color:#c7d2fe}
+.result-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;margin-left:10px}
+.badge-ok{background:#0a2a1a;color:#4ade80;border:1px solid #4ade80}
+.badge-fail{background:#2a0a0a;color:#f87171;border:1px solid #f87171}
+.progress-bar{background:#1e293b;border-radius:20px;height:6px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:20px;transition:width .3s}
+.msg{text-align:center;padding:20px;color:#64748b;font-size:0.9rem}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.idx-badge{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:4px 12px;font-size:0.82rem;color:#64748b}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">🏠 홈</a>
+  <span style="color:#475569">›</span>
+  <span class="cur">⌨️ 타자 연습</span>
+</nav>
+<div class="page-header">
+  <h1>⌨️ 타자 연습하기</h1>
+  <p>파이썬 키워드와 코드 문장을 타이핑하며 속도와 정확도를 높여보세요</p>
+</div>
+<div class="container">
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="setMode('word')">📝 단어 연습</button>
+    <button class="mode-btn" onclick="setMode('sentence')">📄 문장 연습</button>
+  </div>
+  <div class="cat-bar" id="catBar"></div>
+  <div class="stats-bar">
+    <div class="stat-box"><div class="val" id="statScore">0</div><div class="lbl">정답 수</div></div>
+    <div class="stat-box"><div class="val" id="statAcc">-</div><div class="lbl">정확도</div></div>
+    <div class="stat-box"><div class="val" id="statWpm">-</div><div class="lbl">타수(CPM)</div></div>
+    <div class="stat-box"><div class="val" id="statTime">0s</div><div class="lbl">경과 시간</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="nav-row">
+    <span class="idx-badge" id="idxBadge">0 / 0</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="prevItem()">◀ 이전</button>
+      <button class="btn btn-secondary" onclick="skipItem()">건너뛰기 ▶</button>
+    </div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-label">
+      <span id="catLabel">카테고리</span>
+      <span id="resultBadge"></span>
+    </div>
+    <div class="prompt-text" id="promptDisplay"></div>
+  </div>
+  <div class="desc-box" id="descBox">설명이 여기에 표시됩니다.</div>
+  <textarea class="input-area" id="inputArea" placeholder="여기에 타이핑하세요..." rows="2" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="checkAnswer()">✅ 확인 (Enter)</button>
+    <button class="btn btn-secondary" onclick="shuffleItems()">🔀 섞기</button>
+    <button class="btn btn-secondary" onclick="resetStats()">🔄 초기화</button>
+  </div>
+</div>
+
+<script>
+const WORD_DATA = [
+  {cat:'입출력', code:'print()', desc:'print는 출력 함수로, 괄호 안의 값을 화면에 출력한다.'},
+  {cat:'입출력', code:'input()', desc:'input은 입력 함수로, 사용자가 키보드로 입력한 값을 문자열로 받는다.'},
+  {cat:'입출력', code:'end', desc:'end는 print() 함수의 출력 옵션으로, 출력 후 줄바꿈 대신 붙일 값을 정한다.'},
+  {cat:'입출력', code:'\\n', desc:'\\n은 이스케이프 문자로, 문자열 안에서 줄바꿈을 나타낸다.'},
+  {cat:'입출력', code:'%d', desc:'%d는 서식문자로, 정수를 10진수 형태로 출력할 때 사용한다.'},
+  {cat:'입출력', code:'%o', desc:'%o는 서식문자로, 정수를 8진수 형태로 출력할 때 사용한다.'},
+  {cat:'입출력', code:'%x', desc:'%x는 서식문자로, 정수를 16진수 소문자로 출력할 때 사용한다.'},
+  {cat:'입출력', code:'%X', desc:'%X는 서식문자로, 정수를 16진수 대문자로 출력할 때 사용한다.'},
+  {cat:'입출력', code:'%f', desc:'%f는 서식문자로, 실수를 출력할 때 사용한다.'},
+  {cat:'입출력', code:'%c', desc:'%c는 서식문자로, 정수를 아스키코드에 해당하는 문자로 출력할 때 사용한다.'},
+  {cat:'자료형', code:'int', desc:'int는 정수 자료형으로, 소수점이 없는 수를 나타낸다.'},
+  {cat:'자료형', code:'float', desc:'float는 실수 자료형으로, 소수점이 있는 수를 나타낸다.'},
+  {cat:'자료형', code:'str', desc:'str은 문자열 자료형으로, 문자나 문장을 나타낸다.'},
+  {cat:'자료형', code:'bool', desc:'bool은 불 자료형으로, 참과 거짓을 나타낸다.'},
+  {cat:'자료형', code:'list', desc:'list는 리스트 자료형으로, 여러 값을 순서대로 저장한다.'},
+  {cat:'자료형', code:'True', desc:'True는 불 자료형 값으로, 조건이 참임을 나타낸다.'},
+  {cat:'자료형', code:'False', desc:'False는 불 자료형 값으로, 조건이 거짓임을 나타낸다.'},
+  {cat:'자료형', code:'type()', desc:'type은 자료형 확인 함수로, 값이나 변수의 자료형을 알려준다.'},
+  {cat:'자료형', code:'int()', desc:'int는 형 변환 함수로, 값을 정수형으로 바꾼다.'},
+  {cat:'자료형', code:'float()', desc:'float는 형 변환 함수로, 값을 실수형으로 바꾼다.'},
+  {cat:'자료형', code:'str()', desc:'str은 형 변환 함수로, 값을 문자열형으로 바꾼다.'},
+  {cat:'자료형', code:'bool()', desc:'bool은 형 변환 함수로, 값을 참 또는 거짓으로 바꾼다.'},
+  {cat:'자료형', code:'map()', desc:'map은 여러 값에 같은 함수를 한 번에 적용하는 함수이다.'},
+  {cat:'자료형', code:'ord()', desc:'ord는 문자를 아스키코드 숫자로 바꾸는 함수이다.'},
+  {cat:'자료형', code:'chr()', desc:'chr는 아스키코드 숫자를 문자로 바꾸는 함수이다.'},
+  {cat:'연산자', code:'a = b', desc:'=는 할당 연산자로, 오른쪽 값 b를 왼쪽 변수 a에 저장한다.'},
+  {cat:'연산자', code:'a+b', desc:'+는 산술 연산자로, 두 값을 더한다. 문자열에서는 두 문자열을 이어 붙인다.'},
+  {cat:'연산자', code:'a-b', desc:'-는 산술 연산자로, 왼쪽 값에서 오른쪽 값을 뺀다.'},
+  {cat:'연산자', code:'a*b', desc:'*는 산술 연산자로, 두 값을 곱한다.'},
+  {cat:'연산자', code:'a**b', desc:'**는 산술 연산자로, a를 b번 거듭제곱한다.'},
+  {cat:'연산자', code:'a/b', desc:'/는 산술 연산자로, a를 b로 나눈다.'},
+  {cat:'연산자', code:'a//b', desc:'//는 산술 연산자로, a를 b로 나눈 몫을 구한다.'},
+  {cat:'연산자', code:'a % b', desc:'%는 산술 연산자로, a를 b로 나눈 나머지를 구한다.'},
+  {cat:'연산자', code:'a>b', desc:'>는 비교 연산자로, 왼쪽 값 a가 b보다 큰지 비교한다.'},
+  {cat:'연산자', code:'a<b', desc:'<는 비교 연산자로, 왼쪽 값 a가 b보다 작은지 비교한다.'},
+  {cat:'연산자', code:'a>=b', desc:'>=는 비교 연산자로, a가 b보다 크거나 같은지 비교한다.'},
+  {cat:'연산자', code:'a<=b', desc:'<=는 비교 연산자로, a가 b보다 작거나 같은지 비교한다.'},
+  {cat:'연산자', code:'a==b', desc:'==는 비교 연산자로, 두 값이 같은지 비교한다.'},
+  {cat:'연산자', code:'a!=b', desc:'!=는 비교 연산자로, 두 값이 다른지 비교한다.'},
+  {cat:'연산자', code:'a and b', desc:'and는 논리 연산자로, 두 조건이 모두 참일 때만 True가 된다.'},
+  {cat:'연산자', code:'a or b', desc:'or는 논리 연산자로, 두 조건 중 하나라도 참이면 True가 된다.'},
+  {cat:'연산자', code:'not a', desc:'not은 논리 연산자로, 조건의 참과 거짓을 반대로 바꾼다.'},
+  {cat:'선택', code:'if', desc:'if는 선택 구조 키워드로, 조건이 참일 때 특정 코드를 실행한다.'},
+  {cat:'선택', code:'elif', desc:'elif는 선택 구조 키워드로, 앞 조건이 거짓일 때 다른 조건을 추가로 검사한다.'},
+  {cat:'선택', code:'else', desc:'else는 선택 구조 키워드로, 앞의 조건들이 모두 거짓일 때 실행할 코드를 정한다.'},
+  {cat:'선택', code:'pass', desc:'pass는 아무 작업도 하지 않는 키워드로, 코드 블록을 비워 둘 수 없을 때 사용한다.'},
+  {cat:'반복', code:'while', desc:'while은 반복 구조 키워드로, 조건이 참인 동안 코드를 반복 실행한다.'},
+  {cat:'반복', code:'for', desc:'for는 반복 구조 키워드로, 반복 가능한 대상의 값을 하나씩 꺼내며 반복한다.'},
+  {cat:'반복', code:'in', desc:'in은 반복문에서 값을 하나씩 꺼낼 때 사용하는 키워드이다.'},
+  {cat:'반복', code:'range()', desc:'range는 반복문에서 사용할 정수 범위를 만들어 주는 함수이다.'},
+  {cat:'반복', code:'break', desc:'break는 반복 제어 키워드로, 반복문을 중간에 바로 끝낸다.'},
+  {cat:'반복', code:'continue', desc:'continue는 반복 제어 키워드로, 현재 반복을 건너뛰고 다음 반복으로 넘어간다.'},
+  {cat:'리스트', code:'[]', desc:'[]는 리스트를 만들 때 사용하는 대괄호이다.'},
+  {cat:'리스트', code:'split()', desc:'split은 문자열 메소드로, 문자열을 기준에 따라 나누어 리스트로 만든다.'},
+  {cat:'리스트', code:'list()', desc:'list는 형 변환 함수로, 데이터를 리스트 형태로 바꾼다.'},
+  {cat:'리스트', code:'len()', desc:'len은 길이 확인 함수로, 문자열이나 리스트의 요소 개수를 구한다.'},
+  {cat:'리스트', code:'append()', desc:'append는 리스트 메소드로, 리스트의 맨 뒤에 값을 추가한다.'},
+  {cat:'리스트', code:'remove()', desc:'remove는 리스트 메소드로, 리스트에서 특정 값을 찾아 제거한다.'},
+  {cat:'리스트', code:'clear()', desc:'clear는 리스트 메소드로, 리스트 안의 모든 값을 지운다.'},
+  {cat:'리스트', code:'del', desc:'del은 삭제 키워드로, 리스트의 특정 위치에 있는 값을 삭제할 때 사용한다.'},
+  {cat:'리스트', code:'replace()', desc:'replace는 문자열 메소드로, 문자열의 특정 부분을 다른 문자열로 바꾼다.'}
+];
+
+const SENTENCE_DATA = [
+  {cat:'입출력', code:'print(100)', desc:'print()는 괄호 안의 값을 화면에 출력하는 함수이다. 이 코드는 숫자 100을 출력한다.'},
+  {cat:'입출력', code:"print('고양이')", desc:"따옴표로 감싼 문자열을 출력하는 코드이다."},
+  {cat:'입출력', code:"print('붉은', end='')\nprint('노을')", desc:"end=''는 print()의 출력 옵션으로, 출력 후 줄바꿈하지 않도록 한다."},
+  {cat:'입출력', code:"print('안녕하세요.\\n반갑습니다.')", desc:"\\n은 이스케이프 문자로, 문자열 안에서 줄바꿈을 나타낸다."},
+  {cat:'입출력', code:"name=input()\nprint(name)", desc:"input()은 사용자가 키보드로 입력한 값을 받는 함수이다."},
+  {cat:'입출력', code:"num=int(input())\nprint('%4d' %num)", desc:"%4d는 정수를 공백을 포함해 네 자리 너비로 출력하는 서식 표현이다."},
+  {cat:'입출력', code:"num=float(input())\nprint('%.2f' %num)", desc:"%.2f는 실수를 소수점 둘째 자리까지 출력하는 서식 표현이다."},
+  {cat:'자료형', code:"temp = input()\nprint( type(temp) )", desc:"input()으로 받은 값은 숫자를 입력해도 자동으로 str로 저장된다."},
+  {cat:'자료형', code:"temp=int(input())\nprint(type(temp))", desc:"int()로 변환하면 자료형이 int로 바뀐다."},
+  {cat:'자료형', code:"print(bool(96))\nprint(bool(0))\nprint(bool(''))", desc:"bool()은 값을 참 또는 거짓으로 바꾼다. 0이 아닌 수와 비어 있지 않은 문자열은 True이다."},
+  {cat:'자료형', code:"var1, var2=map(int, input().split())", desc:"map(int, input().split())은 한 줄에 입력된 여러 값을 모두 정수로 바꾼다."},
+  {cat:'자료형', code:"n=input()\nprint(ord(n))", desc:"ord()는 문자를 아스키코드 숫자로 바꾸는 함수이다."},
+  {cat:'자료형', code:"n=int(input())\nprint(chr(n))", desc:"chr()는 아스키코드 숫자를 문자로 바꾸는 함수이다."},
+  {cat:'연산자', code:"a, b='10', '20'\nprint(a+b)", desc:"+는 문자열 사이에서 연결 연산자로 사용된다. '10'+'20'='1020'"},
+  {cat:'연산자', code:"name='python'\nk=3\nprint(name*k)", desc:"*는 문자열과 정수 사이에서 반복 연산자로 사용된다."},
+  {cat:'연산자', code:"a=int(input())\nb=int(input())\nprint(a**b)", desc:"**는 산술 연산자로, 거듭제곱을 계산한다."},
+  {cat:'연산자', code:"n, m=map(int, input().split())\nprint(n%2==0 and m%2==0)", desc:"%는 나머지를 구하는 연산자이고, and는 두 조건이 모두 참인지 확인한다."},
+  {cat:'선택', code:"n=int(input())\nif n>=80 :\n    print('A')\nprint('종료')", desc:"if는 선택 구조 키워드로, 조건이 참일 때만 들여쓰기 된 코드를 실행한다."},
+  {cat:'선택', code:"n=int(input())\nif n>=80 :\n    print('A')\nelif n>=60 :\n    print('B')\nelse :\n    print('C')\nprint('종료')", desc:"if, elif, else를 사용하면 여러 경우 중 하나를 선택하여 실행할 수 있다."},
+  {cat:'선택', code:"a, b=map(int, input().split())\nif a>=b :\n    print(a)\nelse :\n    print(b)", desc:"if ~ else를 사용해 두 수 중 더 큰 값을 출력한다."},
+  {cat:'반복', code:"n=1\nwhile n<7 :\n    print(n)\n    n=n+2\nprint('n:', n)", desc:"while은 조건이 참인 동안 들여쓰기 된 코드를 반복 실행한다."},
+  {cat:'반복', code:"for k in [9, 3, 2] :\n    print(k, end=' ')", desc:"for는 반복 가능한 대상에서 값을 하나씩 꺼내며 반복하는 키워드이다."},
+  {cat:'반복', code:"for i in range(5) :\n    print(i, end=' ')", desc:"range(5)는 0부터 4까지의 정수 범위를 만든다."},
+  {cat:'반복', code:"for p in range(6, -1, -2) :\n    print(p, end=' ')", desc:"range(6, -1, -2)는 6부터 시작해 2씩 감소하는 정수 범위를 만든다."},
+  {cat:'반복', code:"n=int(input())\nfor i in range(1, n+1) :\n    if n % i==0 :\n        print(i, end=' ')", desc:"for를 사용하여 1부터 n까지의 수를 차례대로 검사해 약수를 출력한다."},
+  {cat:'리스트', code:"a, b, c=input().split(',')\nprint(a, c)", desc:"split(',')은 문자열을 콤마 기준으로 나눈다."},
+  {cat:'리스트', code:"objet='computer'\nprint(objet[2])\nprint(objet[-1])", desc:"문자열도 인덱싱할 수 있다. [2]는 앞에서 세 번째 글자, [-1]은 마지막 글자이다."},
+  {cat:'리스트', code:"word='charming'\nprint(word[4:7])", desc:"슬라이싱은 문자열의 일부 범위를 잘라내는 방법이다."},
+  {cat:'리스트', code:"a=[9, 2, 'py', 'thon']\nprint(a[1], a[-2])", desc:"a[1]과 a[-2]는 리스트 인덱싱이다. 양수는 앞에서, 음수는 뒤에서 센다."},
+  {cat:'리스트', code:"fruits=['키위', '귤', '오렌지']\nprint(len(fruits))", desc:"len()은 리스트에 들어 있는 요소의 개수를 구하는 함수이다."},
+  {cat:'리스트', code:"num=list(map(int, input().split()))\nprint(type(num))\nprint(num[1])", desc:"list(map(int, input().split()))은 입력값을 정수로 변환한 뒤 리스트로 저장한다."}
+];
+
+let mode = 'word';
+let items = [];
+let filteredItems = [];
+let currentIdx = 0;
+let score = 0;
+let attempts = 0;
+let startTime = null;
+let timerInterval = null;
+let activeCategories = new Set(['전체']);
+
+const allCatsWord = ['전체','입출력','자료형','연산자','선택','반복','리스트'];
+const allCatsSent = ['전체','입출력','자료형','연산자','선택','반복','리스트'];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach((b,i)=> b.classList.toggle('active', (i===0&&m==='word')||(i===1&&m==='sentence')));
+  activeCategories = new Set(['전체']);
+  score=0; attempts=0; currentIdx=0;
+  resetTimer();
+  buildCatBar();
+  loadItems();
+  updateStats();
+}
+
+function buildCatBar() {
+  const bar = document.getElementById('catBar');
+  const cats = mode==='word' ? allCatsWord : allCatsSent;
+  bar.innerHTML = cats.map(c=>`<button class="cat-btn${activeCategories.has(c)?activeCategories.has('전체')&&c==='전체'?' active':activeCategories.has(c)?' active':''  :''}" onclick="toggleCat('${c}')">${c}</button>`).join('');
+  // re-apply
+  bar.querySelectorAll('.cat-btn').forEach(b=>{
+    b.classList.toggle('active', activeCategories.has(b.textContent));
+  });
+}
+
+function toggleCat(cat) {
+  if(cat==='전체') {
+    activeCategories = new Set(['전체']);
+  } else {
+    activeCategories.delete('전체');
+    if(activeCategories.has(cat)) activeCategories.delete(cat);
+    else activeCategories.add(cat);
+    if(activeCategories.size===0) activeCategories.add('전체');
+  }
+  buildCatBar();
+  loadItems();
+  score=0; attempts=0; currentIdx=0;
+  resetTimer();
+  updateStats();
+}
+
+function loadItems() {
+  const src = mode==='word' ? WORD_DATA : SENTENCE_DATA;
+  if(activeCategories.has('전체')) filteredItems = [...src];
+  else filteredItems = src.filter(d=>activeCategories.has(d.cat));
+  currentIdx = 0;
+  renderItem();
+}
+
+function renderItem() {
+  if(filteredItems.length===0){
+    document.getElementById('promptDisplay').textContent='데이터가 없습니다.';
+    return;
+  }
+  const item = filteredItems[currentIdx % filteredItems.length];
+  document.getElementById('catLabel').textContent = item.cat;
+  document.getElementById('promptDisplay').textContent = item.code;
+  document.getElementById('descBox').textContent = item.desc;
+  document.getElementById('inputArea').value = '';
+  document.getElementById('inputArea').className = 'input-area';
+  document.getElementById('resultBadge').innerHTML = '';
+  document.getElementById('idxBadge').textContent = `${currentIdx+1} / ${filteredItems.length}`;
+  document.getElementById('progressFill').style.width = ((currentIdx+1)/filteredItems.length*100)+'%';
+  document.getElementById('inputArea').focus();
+}
+
+function checkAnswer() {
+  const item = filteredItems[currentIdx % filteredItems.length];
+  const userInput = document.getElementById('inputArea').value;
+  const correct = item.code;
+  attempts++;
+  if(!startTime) { startTime = Date.now(); startTimer(); }
+
+  if(userInput === correct) {
+    score++;
+    document.getElementById('inputArea').className = 'input-area success';
+    document.getElementById('resultBadge').innerHTML = '<span class="result-badge badge-ok">✅ 정답!</span>';
+    setTimeout(()=>{ currentIdx++; if(currentIdx>=filteredItems.length) currentIdx=0; renderItem(); }, 700);
+  } else {
+    document.getElementById('inputArea').className = 'input-area error';
+    document.getElementById('resultBadge').innerHTML = `<span class="result-badge badge-fail">❌ 오답</span>`;
+    // show diff
+    showDiff(correct, userInput);
+  }
+  updateStats();
+}
+
+function showDiff(correct, typed) {
+  // just show correct in prompt briefly
+  const display = document.getElementById('promptDisplay');
+  let html = '';
+  for(let i=0;i<Math.max(correct.length, typed.length);i++){
+    if(i>=typed.length){ html+='<span class="cursor"> </span>'+correct.slice(i+1); break; }
+    else if(i>=correct.length) break;
+    else if(typed[i]===correct[i]) html+=`<span class="correct">${escHtml(correct[i])}</span>`;
+    else html+=`<span class="wrong">${escHtml(correct[i])}</span>`;
+  }
+  display.innerHTML = html;
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function skipItem() {
+  currentIdx++;
+  if(currentIdx>=filteredItems.length) currentIdx=0;
+  renderItem();
+}
+
+function prevItem() {
+  currentIdx--;
+  if(currentIdx<0) currentIdx=filteredItems.length-1;
+  renderItem();
+}
+
+function shuffleItems() {
+  for(let i=filteredItems.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [filteredItems[i],filteredItems[j]]=[filteredItems[j],filteredItems[i]];
+  }
+  currentIdx=0;
+  renderItem();
+}
+
+function updateStats() {
+  document.getElementById('statScore').textContent = score;
+  document.getElementById('statAcc').textContent = attempts>0 ? Math.round(score/attempts*100)+'%' : '-';
+}
+
+function startTimer() {
+  timerInterval = setInterval(()=>{
+    const s = Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('statTime').textContent = s+'s';
+    // CPM
+    const totalChars = filteredItems.slice(0,currentIdx).reduce((a,i)=>a+i.code.length,0);
+    const min = (Date.now()-startTime)/60000;
+    document.getElementById('statWpm').textContent = min>0 ? Math.round(totalChars/min) : '-';
+  },500);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  startTime = null;
+  document.getElementById('statTime').textContent = '0s';
+  document.getElementById('statWpm').textContent = '-';
+}
+
+function resetStats() {
+  score=0; attempts=0; currentIdx=0;
+  resetTimer();
+  updateStats();
+  loadItems();
+}
+
+document.getElementById('inputArea').addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); checkAnswer(); }
+});
+
+// init
+buildCatBar();
+loadItems();
+</script>
+</body>
+</html>
