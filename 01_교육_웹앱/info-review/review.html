@@ -60,6 +60,7 @@ table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.87rem}
 th{background:#eef2ff;color:#4338ca;padding:9px 11px;text-align:left;border:1px solid #c7d2fe;font-weight:700}
 td{padding:8px 11px;border:1px solid #e2e8f0;color:#475569;vertical-align:top}
 tr:nth-child(even) td{background:#f8fafc}
+td code{color:#1e293b}
 
 /* ===== 알고리즘 시뮬레이션 ===== */
 .sim-wrap{background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:20px;margin:16px 0}
@@ -256,30 +257,6 @@ total = <span class="num">0</span>
       </div>
     </div>
 
-    <!-- 그래프 탐색 시뮬레이션 -->
-    <div class="sim-wrap" style="margin-top:14px">
-      <div class="sim-title">그래프 순차 탐색(BFS) 시뮬레이션</div>
-      <div style="font-size:.82rem;color:#64748b;margin-bottom:10px">탐색할 시작 노드를 선택하고 BFS(너비 우선 탐색) 순서를 확인해보세요.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-        <span style="font-size:.83rem;color:#475569;align-self:center">시작 노드:</span>
-        <button class="sim-btn" id="gnode-A" onclick="graphSim.start('A')" style="border-radius:50%;width:38px;height:38px;padding:0">A</button>
-        <button class="sim-btn" id="gnode-B" onclick="graphSim.start('B')" style="border-radius:50%;width:38px;height:38px;padding:0">B</button>
-        <button class="sim-btn" id="gnode-C" onclick="graphSim.start('C')" style="border-radius:50%;width:38px;height:38px;padding:0">C</button>
-        <button class="sim-btn" id="gnode-D" onclick="graphSim.start('D')" style="border-radius:50%;width:38px;height:38px;padding:0">D</button>
-        <button class="sim-btn" id="gnode-E" onclick="graphSim.start('E')" style="border-radius:50%;width:38px;height:38px;padding:0">E</button>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-        <button class="sim-btn" id="graph-prev" onclick="graphSim.prev()" disabled>◀ 이전</button>
-        <button class="sim-btn" id="graph-next" onclick="graphSim.next()">다음 ▶</button>
-        <span class="sim-step-info" id="graph-step-info">시작 노드를 선택하세요</span>
-      </div>
-      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:12px" id="graph-nodes"></div>
-      <div style="margin-bottom:8px">
-        <span style="font-size:.8rem;color:#64748b;font-weight:600">그래프 연결:</span>
-        <span style="font-size:.8rem;color:#475569;margin-left:6px">A-B, A-D, B-C, B-E, C-E, D-E</span>
-      </div>
-      <div class="sim-log" id="graph-log">▶ 시작 노드를 클릭하면 BFS 탐색이 시작됩니다.</div>
-    </div>
     </div></div>
   </div>
 
@@ -288,12 +265,12 @@ total = <span class="num">0</span>
 
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 버블 정렬 (Bubble Sort) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>인접한 두 원소를 비교해 순서가 잘못되면 교환하는 방식. <strong>가장 큰 값이 매 회전마다 맨 뒤로 이동</strong>합니다.</p>
+    <p>인접한 두 원소를 비교해 순서가 잘못되면 교환하는 방식.<br><strong>오름차순</strong>: 가장 큰 값이 매 회전마다 맨 뒤로 이동 / <strong>내림차순</strong>: 가장 작은 값이 매 회전마다 맨 뒤로 이동.</p>
     <ul><li>n개 데이터 → 최대 <strong>n-1</strong>회 반복 (패스)</li><li>시간 복잡도: <strong>O(n²)</strong></li></ul>
 
     <!-- 버블정렬 시뮬레이션 -->
     <div class="sim-wrap">
-      <div class="sim-title">버블 정렬 단계별 시뮬레이션</div>
+      <div class="sim-title">버블 정렬 단계별 시뮬레이션 (오름차순 정렬)</div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc"></div> 기본</div>
         <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 비교 중</div>
@@ -323,7 +300,7 @@ total = <span class="num">0</span>
 
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 선택 정렬 (Selection Sort) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <p>전체에서 <strong>가장 작은 값을 찾아 맨 앞으로</strong> 이동시키는 방식을 반복합니다.</p>
+    <p><strong>오름차순</strong>: 전체에서 가장 작은 값을 찾아 맨 앞으로 이동 / <strong>내림차순</strong>: 전체에서 가장 큰 값을 찾아 맨 앞으로 이동시키는 방식을 반복합니다.</p>
     <ul><li>매 회전마다 최솟값 인덱스를 기억했다가 교환</li><li>시간 복잡도: <strong>O(n²)</strong></li></ul>
 
     <!-- 선택정렬 시뮬레이션 -->
@@ -361,9 +338,11 @@ total = <span class="num">0</span>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 버블 vs 선택 비교</h3><span class="ico">›</span></div>
     <div class="card-body">
     <table><tr><th>구분</th><th>버블 정렬</th><th>선택 정렬</th></tr>
-    <tr><td>방식</td><td>인접 원소 비교·교환 반복</td><td>최솟값 찾아 맨 앞과 교환</td></tr>
+    <tr><td>방식</td><td>인접 원소 비교·교환 반복</td><td>최솟값(또는 최댓값) 찾아 앞과 교환</td></tr>
     <tr><td>교환 횟수</td><td>많음</td><td>적음 (최대 n-1회)</td></tr>
-    <tr><td>시간 복잡도</td><td>O(n²)</td><td>O(n²)</td></tr></table>
+    <tr><td>시간 복잡도</td><td>O(n²)</td><td>O(n²)</td></tr>
+    <tr><td>오름차순</td><td>큰 값이 뒤로 이동</td><td>작은 값을 앞으로 이동</td></tr>
+    <tr><td>내림차순</td><td>작은 값이 뒤로 이동</td><td>큰 값을 앞으로 이동</td></tr></table>
     </div></div>
   </div>
 
@@ -527,7 +506,7 @@ total = <span class="num">0</span>
     <tr><td><code>int(input())</code></td><td>정수로 변환</td><td>10</td><td>10 (int)</td></tr>
     <tr><td><code>float(input())</code></td><td>실수로 변환</td><td>3.14</td><td>3.14 (float)</td></tr></table>
 
-    <div class="info-box" style="margin-top:14px"><div class="label">input().split() — 여러 값 입력</div>
+    <div class="info-box" style="margin-top:14px"><div class="label" style="text-transform:none">input().split() — 여러 값 입력</div>
     <p>입력받은 문자열을 공백 기준으로 나눠 리스트로 반환합니다.</p>
     <pre style="margin:6px 0"><code>data = <span class="fn">input</span>().split()
 <span class="cmt"># 입력: "apple banana cherry"</span>
@@ -538,7 +517,7 @@ a, b = <span class="fn">input</span>().split()
 <span class="cmt"># 결과: a='10', b='20' (문자열!)</span></code></pre>
     </div>
 
-    <div class="info-box" style="margin-top:10px"><div class="label">map(자료형, input().split()) — 여러 정수 한 번에 입력</div>
+    <div class="info-box" style="margin-top:10px"><div class="label" style="text-transform:none">map(자료형, input().split()) — 여러 정수 한 번에 입력</div>
     <p>split()으로 나눈 각 값을 자료형으로 변환합니다.</p>
     <pre style="margin:6px 0"><code>a, b = <span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split())
 <span class="cmt"># 입력: "10 20"</span>
@@ -569,12 +548,12 @@ a, b = b, a        <span class="cmt"># 두 변수 값 교환</span></code></pre>
     <div class="info-box"><div class="label">변수명 규칙</div>
     <ul><li>문자, 숫자, 밑줄(_) 사용 가능 / 숫자로 시작 불가</li><li>예약어 사용 불가: if, for, while, def, return …</li><li>대소문자 구분: name ≠ Name</li></ul></div>
     </div></div>
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 자료형 & 형 변환</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 자료형</h3><span class="ico">›</span></div>
     <div class="card-body">
     <table><tr><th>자료형</th><th>키워드</th><th>예시</th></tr>
     <tr><td>정수형</td><td>int</td><td>10, -3, 0</td></tr>
     <tr><td>실수형</td><td>float</td><td>3.14, -2.5</td></tr>
-    <tr><td>문자열형</td><td>str</td><td>'hello', "123"</td></tr>
+    <tr><td>문자열</td><td>str</td><td>'hello', "123"</td></tr>
     <tr><td>불(논리)형</td><td>bool</td><td>True, False</td></tr>
     <tr><td>리스트형</td><td>list</td><td>[1, 2, 3]</td></tr></table>
     <pre><code><span class="fn">int</span>(<span class="str">"10"</span>)      <span class="cmt"># → 10</span>
@@ -587,7 +566,8 @@ a, b = b, a        <span class="cmt"># 두 변수 값 교환</span></code></pre>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 연습 문제: 변수와 자료형 선 잇기</h3><span class="ico">›</span></div>
     <div class="card-body">
     <p>왼쪽 코드에 알맞은 자료형을 오른쪽에서 선택하여 연결해 보세요.</p>
-    <div id="match-game" style="margin-top:8px">
+    <div id="match-game" style="margin-top:8px;position:relative">
+      <canvas id="match-canvas" style="position:absolute;top:0;left:0;pointer-events:none;z-index:10"></canvas>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px">
         <div>
           <div style="font-size:.75rem;color:#6366f1;font-weight:700;letter-spacing:1px;margin-bottom:10px">코드</div>
@@ -768,8 +748,10 @@ i = <span class="num">0</span>
     <tr><td><code>range(0, 10, 1)</code></td><td>0,1,2,…,9</td><td>시작·끝·변화량 모두 지정</td></tr>
     <tr><td><code>range(0, 10, 2)</code></td><td>0, 2, 4, 6, 8</td><td>2씩 증가 (끝 10 미포함)</td></tr>
     <tr><td><code>range(5, 0, -1)</code></td><td>5, 4, 3, 2, 1</td><td>변화량 음수 → 감소 (역순)</td></tr>
-    <tr><td><code>range(10, 0, -2)</code></td><td>10, 8, 6, 4, 2</td><td>10에서 2씩 감소</td></tr></table>
-    <div class="tip" style="margin-top:10px">✅ range() 안의 값은 1개(끝), 2개(시작·끝), 3개(시작·끝·변화량) 모두 가능. <strong>끝점은 항상 포함되지 않습니다!</strong></div>
+    <tr><td><code>range(10, 0, -2)</code></td><td>10, 8, 6, 4, 2</td><td>10에서 2씩 감소</td></tr>
+    <tr><td><code>range(-5)</code></td><td>(없음, 빈 범위)</td><td>끝값이 음수이고 step=1이면 빈 수열 (0 ≥ -5 이므로 조건 불충족)</td></tr>
+    <tr><td><code>range(0, -5, -1)</code></td><td>0, -1, -2, -3, -4</td><td>0에서 -1씩 감소 (음수 방향 이동)</td></tr></table>
+    <div class="tip" style="margin-top:10px">✅ range() 안의 값은 1개(끝), 2개(시작·끝), 3개(시작·끝·변화량) 모두 가능. <strong>끝점은 항상 포함되지 않습니다!</strong><br>⚠️ range(-5)는 빈 범위 — 끝값이 음수면 수열이 생성되지 않습니다. 음수 방향으로 이동하려면 step을 음수로 지정하세요.</div>
     </div></div>
 
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 for 반복문 — 작동 원리</h3><span class="ico">›</span></div>
@@ -796,6 +778,78 @@ fruits = [<span class="str">"사과"</span>, <span class="str">"바나나"</span
 <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
     <span class="kw">if</span> i == <span class="num">3</span>: <span class="kw">continue</span>
     <span class="fn">print</span>(i, end=<span class="str">" "</span>)  <span class="cmt"># 1 2 4 5</span></code></pre>
+    </div></div>
+
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 while 반복문 단계별 시뮬레이터</h3><span class="ico">›</span></div>
+    <div class="card-body">
+    <p>while 반복문이 어떻게 단계별로 실행되는지 확인해보세요.</p>
+    <div class="sim-wrap">
+      <div class="sim-title">while 반복문 시뮬레이션 — i = 0 / while i &lt; 5</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:6px;letter-spacing:1px">코드</div>
+          <div style="background:#1e293b;border-radius:10px;padding:14px 16px;font-family:'Consolas','Courier New',monospace;font-size:.87rem;line-height:2.2">
+            <div id="wl-0" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#e2e8f0">i = </span><span style="color:#fb923c">0</span></div>
+            <div id="wl-1" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#f472b6">while</span><span style="color:#e2e8f0"> i &lt; </span><span style="color:#fb923c">5</span><span style="color:#e2e8f0">:</span></div>
+            <div id="wl-2" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#a5f3fc">print</span><span style="color:#e2e8f0">(i)</span></div>
+            <div id="wl-3" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#e2e8f0">i += </span><span style="color:#fb923c">1</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">변수 상태</div>
+            <div id="wl-vars" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.9rem;min-height:36px;color:#1e293b">-</div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">출력 결과</div>
+            <div id="wl-out" style="background:#1e293b;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.9rem;color:#a5f3fc;white-space:pre;min-height:52px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="whileSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="wl-prev" onclick="whileSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="wl-next" onclick="whileSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="wl-auto" onclick="whileSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="wl-step-info">0 / 0 단계</span>
+      </div>
+      <div class="sim-log" id="wl-log">▶ [초기화] 버튼을 눌러 시뮬레이션을 시작하세요.</div>
+    </div>
+    </div></div>
+
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 for 반복문 단계별 시뮬레이터</h3><span class="ico">›</span></div>
+    <div class="card-body">
+    <p>for 반복문이 어떻게 range()를 순회하며 실행되는지 확인해보세요.</p>
+    <div class="sim-wrap">
+      <div class="sim-title">for 반복문 시뮬레이션 — for i in range(1, 4)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:6px;letter-spacing:1px">코드</div>
+          <div style="background:#1e293b;border-radius:10px;padding:14px 16px;font-family:'Consolas','Courier New',monospace;font-size:.87rem;line-height:2.2">
+            <div id="fl-0" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#f472b6">for</span><span style="color:#e2e8f0"> i </span><span style="color:#f472b6">in</span><span style="color:#e2e8f0"> </span><span style="color:#a5f3fc">range</span><span style="color:#e2e8f0">(</span><span style="color:#fb923c">1</span><span style="color:#e2e8f0">, </span><span style="color:#fb923c">4</span><span style="color:#e2e8f0">):</span></div>
+            <div id="fl-1" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#a5f3fc">print</span><span style="color:#e2e8f0">(i * </span><span style="color:#86efac">'*'</span><span style="color:#e2e8f0">)</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">변수 상태</div>
+            <div id="fl-vars" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.9rem;min-height:36px;color:#1e293b">-</div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">출력 결과</div>
+            <div id="fl-out" style="background:#1e293b;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.9rem;color:#a5f3fc;white-space:pre;min-height:52px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="forSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="fl-prev" onclick="forSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="fl-next" onclick="forSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="fl-auto" onclick="forSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="fl-step-info">0 / 0 단계</span>
+      </div>
+      <div class="sim-log" id="fl-log">▶ [초기화] 버튼을 눌러 시뮬레이션을 시작하세요.</div>
+    </div>
     </div></div>
   </div>
 
@@ -844,6 +898,51 @@ result = <span class="fn">add</span>(<span class="num">3</span>, <span class="nu
       <div class="info-box"><div class="label">return 없으면?</div><p>return이 없거나 return만 있으면 <strong>None</strong> 반환</p></div>
     </div>
     <div class="warn">⚠️ 함수 안의 변수(지역 변수)는 함수 밖에서 사용할 수 없습니다!</div>
+    </div></div>
+
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 함수 동작 단계별 시뮬레이터</h3><span class="ico">›</span></div>
+    <div class="card-body">
+    <p>함수 호출 → 실행 → 반환 흐름을 단계별로 확인해보세요.</p>
+    <div class="sim-wrap">
+      <div class="sim-title">함수 호출·실행·반환 시뮬레이션</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:6px;letter-spacing:1px">코드</div>
+          <div style="background:#1e293b;border-radius:10px;padding:14px 16px;font-family:'Consolas','Courier New',monospace;font-size:.87rem;line-height:2.2">
+            <div id="fn-0" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#f472b6">def</span><span style="color:#e2e8f0"> </span><span style="color:#a5f3fc">add</span><span style="color:#e2e8f0">(a, b):</span></div>
+            <div id="fn-1" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#e2e8f0">c = a + b</span></div>
+            <div id="fn-2" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#94a3b8">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#f472b6">return</span><span style="color:#e2e8f0"> c</span></div>
+            <div style="height:10px"></div>
+            <div id="fn-4" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#e2e8f0">x = </span><span style="color:#fb923c">3</span></div>
+            <div id="fn-5" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#e2e8f0">y = </span><span style="color:#fb923c">4</span></div>
+            <div id="fn-6" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#e2e8f0">result = </span><span style="color:#a5f3fc">add</span><span style="color:#e2e8f0">(x, y)</span></div>
+            <div id="fn-7" style="padding:1px 6px;border-radius:4px;transition:background .25s"><span style="color:#a5f3fc">print</span><span style="color:#e2e8f0">(result)</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">실행 위치</div>
+            <div id="fn-ctx" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:.83rem;font-weight:700;color:#6366f1">-</div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">변수 상태</div>
+            <div id="fn-vars" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.85rem;min-height:52px;color:#1e293b;white-space:pre-line">-</div>
+          </div>
+          <div>
+            <div style="font-size:.75rem;color:#6366f1;font-weight:700;margin-bottom:4px;letter-spacing:1px">출력 결과</div>
+            <div id="fn-out" style="background:#1e293b;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:.9rem;color:#a5f3fc;white-space:pre;min-height:36px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="funcSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="fn-prev" onclick="funcSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="fn-next" onclick="funcSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="fn-auto" onclick="funcSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="fn-step-info">0 / 0 단계</span>
+      </div>
+      <div class="sim-log" id="fn-log">▶ [초기화] 버튼을 눌러 시뮬레이션을 시작하세요.</div>
+    </div>
     </div></div>
   </div>
 </div>
@@ -1286,54 +1385,77 @@ selSim.reset();
 seqSim.reset();
 binSim.reset();
 
-/* ─── BFS 그래프 시뮬레이션 ─────────────────────────────── */
-const GRAPH = {A:['B','D'], B:['A','C','E'], C:['B','E'], D:['A','E'], E:['B','C','D']};
-const graphSim = (()=>{
-  let steps=[], idx=0;
-  function start(root){
-    steps=buildBFS(root); idx=0;
-    renderGraph(steps[0]); updateUI();
-  }
-  function buildBFS(root){
-    const ss=[]; const visited=new Set(); const queue=[root];
-    visited.add(root);
-    ss.push({visited:new Set(visited),current:'',queue:[...queue],log:`<strong>시작!</strong> 노드 <strong>${root}</strong>를 큐에 넣고 방문 표시합니다. 큐: [${queue}]`});
-    while(queue.length){
-      const node=queue.shift();
-      ss.push({visited:new Set(visited),current:node,queue:[...queue],log:`<span class="step-num">방문</span> 노드 <strong>${node}</strong> 처리 중. 이웃: [${GRAPH[node].join(', ')}] 확인`});
-      for(const nb of GRAPH[node]){
-        if(!visited.has(nb)){
-          visited.add(nb); queue.push(nb);
-          ss.push({visited:new Set(visited),current:node,queue:[...queue],log:`<span class="step-num">발견</span> <strong>${node}</strong>의 이웃 <strong>${nb}</strong> 미방문 → 큐에 추가. 큐: [${queue}]`});
-        }
-      }
-    }
-    ss.push({visited:new Set(visited),current:'',queue:[],log:`✅ <strong>BFS 완료!</strong> 탐색 순서: <strong>${[...visited].join(' → ')}</strong>`});
-    return ss;
-  }
-  function renderGraph(s){
-    const nodes=['A','B','C','D','E'];
-    const html=nodes.map(n=>{
-      let bg='#fff', border='#e2e8f0', color='#1e293b';
-      if(s.current===n){ bg='#fef3c7'; border='#f59e0b'; color='#92400e'; }
-      else if(s.visited.has(n)){ bg='#ecfdf5'; border='#10b981'; color='#065f46'; }
-      return `<div style="width:48px;height:48px;border-radius:50%;background:${bg};border:2px solid ${border};color:${color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;transition:all .3s">${n}</div>`;
-    }).join('');
-    document.getElementById('graph-nodes').innerHTML=html;
-    document.getElementById('graph-log').innerHTML=s.log;
-    document.getElementById('graph-step-info').textContent=`${idx+1} / ${steps.length} 단계`;
-    document.getElementById('graph-prev').disabled=(idx===0);
-    document.getElementById('graph-next').disabled=(idx===steps.length-1);
-  }
-  function prev(){ if(idx>0){idx--;renderGraph(steps[idx]);} }
-  function next(){ if(idx<steps.length-1){idx++;renderGraph(steps[idx]);} }
-  function updateUI(){
-    document.getElementById('graph-step-info').textContent=`${idx+1} / ${steps.length} 단계`;
-    document.getElementById('graph-prev').disabled=(idx===0);
-    document.getElementById('graph-next').disabled=(idx===steps.length-1);
-  }
-  return {start,prev,next};
-})();
+/* ─── while 시뮬레이터 ────────────────────────────────── */
+const WHILE_STEPS = [
+  {line:0,vars:'',output:'',log:'while 반복문 실행 시작'},
+  {line:0,vars:'i = 0',output:'',log:'<span class="step-num">초기식</span> i = 0 → 변수 i를 0으로 초기화'},
+  {line:1,vars:'i = 0',output:'',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 0 &lt; 5 = <strong style="color:#10b981">True</strong> → 반복 실행'},
+  {line:2,vars:'i = 0',output:'0',log:'<span class="step-num">실행</span> print(i) → <strong>0</strong> 출력'},
+  {line:3,vars:'i = 1',output:'0',log:'<span class="step-num">변화식</span> i += 1 → i = 1'},
+  {line:1,vars:'i = 1',output:'0',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 1 &lt; 5 = <strong style="color:#10b981">True</strong> → 반복 실행'},
+  {line:2,vars:'i = 1',output:'0\n1',log:'<span class="step-num">실행</span> print(i) → <strong>1</strong> 출력'},
+  {line:3,vars:'i = 2',output:'0\n1',log:'<span class="step-num">변화식</span> i += 1 → i = 2'},
+  {line:1,vars:'i = 2',output:'0\n1',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 2 &lt; 5 = <strong style="color:#10b981">True</strong> → 반복 실행'},
+  {line:2,vars:'i = 2',output:'0\n1\n2',log:'<span class="step-num">실행</span> print(i) → <strong>2</strong> 출력'},
+  {line:3,vars:'i = 3',output:'0\n1\n2',log:'<span class="step-num">변화식</span> i += 1 → i = 3'},
+  {line:1,vars:'i = 3',output:'0\n1\n2',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 3 &lt; 5 = <strong style="color:#10b981">True</strong> → 반복 실행'},
+  {line:2,vars:'i = 3',output:'0\n1\n2\n3',log:'<span class="step-num">실행</span> print(i) → <strong>3</strong> 출력'},
+  {line:3,vars:'i = 4',output:'0\n1\n2\n3',log:'<span class="step-num">변화식</span> i += 1 → i = 4'},
+  {line:1,vars:'i = 4',output:'0\n1\n2\n3',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 4 &lt; 5 = <strong style="color:#10b981">True</strong> → 반복 실행'},
+  {line:2,vars:'i = 4',output:'0\n1\n2\n3\n4',log:'<span class="step-num">실행</span> print(i) → <strong>4</strong> 출력'},
+  {line:3,vars:'i = 5',output:'0\n1\n2\n3\n4',log:'<span class="step-num">변화식</span> i += 1 → i = 5'},
+  {line:1,vars:'i = 5',output:'0\n1\n2\n3\n4',log:'<span class="step-num">조건 검사</span> i &lt; 5 → 5 &lt; 5 = <strong style="color:#ef4444">False</strong> → 반복 종료!'},
+  {line:-1,vars:'i = 5',output:'0\n1\n2\n3\n4',log:'✅ while 반복문 종료. i = 5, 조건(i &lt; 5)이 거짓이 되었습니다.'},
+];
+function renderWhile(s){
+  for(let i=0;i<4;i++){const el=document.getElementById('wl-'+i);if(el)el.style.background=s.line===i?'rgba(99,102,241,.35)':'';}
+  const v=document.getElementById('wl-vars');if(v)v.textContent=s.vars||'-';
+  const o=document.getElementById('wl-out');if(o)o.textContent=s.output;
+  const l=document.getElementById('wl-log');if(l)l.innerHTML=s.log;
+}
+const whileSim=makeSimulator({prefix:'wl',buildSteps:()=>WHILE_STEPS,renderFn:renderWhile});
+
+/* ─── for 시뮬레이터 ─────────────────────────────────── */
+const FOR_STEPS = [
+  {line:-1,vars:'',output:'',log:'for 반복문 시작: range(1, 4) = [1, 2, 3] 생성'},
+  {line:0,vars:'i = 1',output:'',log:'<span class="step-num">i = 1</span> range의 첫 번째 값 꺼내기'},
+  {line:1,vars:'i = 1',output:'*',log:"<span class='step-num'>실행</span> print(1 * '*') → <strong>*</strong> 출력"},
+  {line:0,vars:'i = 2',output:'*',log:'<span class="step-num">i = 2</span> range의 두 번째 값 꺼내기'},
+  {line:1,vars:'i = 2',output:'*\n**',log:"<span class='step-num'>실행</span> print(2 * '*') → <strong>**</strong> 출력"},
+  {line:0,vars:'i = 3',output:'*\n**',log:'<span class="step-num">i = 3</span> range의 세 번째 값 꺼내기'},
+  {line:1,vars:'i = 3',output:'*\n**\n***',log:"<span class='step-num'>실행</span> print(3 * '*') → <strong>***</strong> 출력"},
+  {line:-1,vars:'i = 3',output:'*\n**\n***',log:'✅ for 반복문 종료. range(1, 4)의 모든 값 소진'},
+];
+function renderFor(s){
+  for(let i=0;i<2;i++){const el=document.getElementById('fl-'+i);if(el)el.style.background=s.line===i?'rgba(99,102,241,.35)':'';}
+  const v=document.getElementById('fl-vars');if(v)v.textContent=s.vars||'-';
+  const o=document.getElementById('fl-out');if(o)o.textContent=s.output;
+  const l=document.getElementById('fl-log');if(l)l.innerHTML=s.log;
+}
+const forSim=makeSimulator({prefix:'fl',buildSteps:()=>FOR_STEPS,renderFn:renderFor});
+
+/* ─── 함수 시뮬레이터 ────────────────────────────────── */
+const FUNC_STEPS = [
+  {lines:[0],ctx:'📌 함수 정의',vars:'(없음)',output:'',log:'<span class="step-num">함수 정의</span> def add(a, b): 함수 등록 (실행 안 됨, 코드만 저장)'},
+  {lines:[4],ctx:'🔵 메인 코드',vars:'',output:'',log:'<span class="step-num">x = 3</span> 변수 x에 3 대입'},
+  {lines:[5],ctx:'🔵 메인 코드',vars:'x = 3',output:'',log:'<span class="step-num">y = 4</span> 변수 y에 4 대입'},
+  {lines:[6],ctx:'🔵 메인 코드 → 함수 호출',vars:'x = 3\ny = 4',output:'',log:'<span class="step-num">함수 호출!</span> add(x, y) = add(3, 4) 호출 → 함수 내부로 이동'},
+  {lines:[0],ctx:'🟣 함수 실행 중: add()',vars:'[메인] x=3, y=4\n[함수] a=3, b=4',output:'',log:'<span class="step-num">함수 진입</span> 매개변수 a=3, b=4 전달받음'},
+  {lines:[1],ctx:'🟣 함수 실행 중: add()',vars:'[메인] x=3, y=4\n[함수] a=3, b=4',output:'',log:'<span class="step-num">c = a + b</span> c = 3 + 4 = 7'},
+  {lines:[2],ctx:'🟣 함수 실행 중: add()',vars:'[메인] x=3, y=4\n[함수] a=3, b=4, c=7',output:'',log:'<span class="step-num">return c</span> 7 반환 후 함수 종료 → 호출부로 복귀'},
+  {lines:[6],ctx:'🔵 메인 코드 (복귀)',vars:'x=3, y=4, result=7',output:'',log:'<span class="step-num">반환 완료</span> add()가 7을 반환 → result = 7 저장'},
+  {lines:[7],ctx:'🔵 메인 코드',vars:'x=3, y=4, result=7',output:'7',log:'<span class="step-num">print(result)</span> 7 출력'},
+  {lines:[],ctx:'✅ 종료',vars:'x=3, y=4, result=7',output:'7',log:'✅ 프로그램 종료. 함수 호출 → 실행 → 반환 완료'},
+];
+const FN_IDS=[0,1,2,4,5,6,7];
+function renderFunc(s){
+  FN_IDS.forEach(i=>{const el=document.getElementById('fn-'+i);if(el)el.style.background=s.lines.includes(i)?'rgba(99,102,241,.35)':'';});
+  const c=document.getElementById('fn-ctx');if(c)c.textContent=s.ctx;
+  const v=document.getElementById('fn-vars');if(v)v.textContent=s.vars||'-';
+  const o=document.getElementById('fn-out');if(o)o.textContent=s.output;
+  const l=document.getElementById('fn-log');if(l)l.innerHTML=s.log;
+}
+const funcSim=makeSimulator({prefix:'fn',buildSteps:()=>FUNC_STEPS,renderFn:renderFunc});
 
 /* ─── 매칭 게임 ─────────────────────────────────────────── */
 const MATCH_ITEMS = [
@@ -1352,6 +1474,8 @@ function initMatch(){
   left.innerHTML=''; right.innerHTML='';
   matchSelected=null;
   document.getElementById('match-result').textContent='';
+  const canvas=document.getElementById('match-canvas');
+  if(canvas){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}
   MATCH_ITEMS.forEach((item,i)=>{
     const btn=document.createElement('button');
     btn.textContent=item.code; btn.dataset.idx=i; btn.dataset.side='left';
@@ -1367,11 +1491,32 @@ function initMatch(){
     right.appendChild(btn);
   });
 }
+function drawMatchLines(){
+  const container=document.getElementById('match-game');
+  const canvas=document.getElementById('match-canvas');
+  if(!canvas||!container)return;
+  canvas.width=container.offsetWidth; canvas.height=container.offsetHeight;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const cRect=container.getBoundingClientRect();
+  const leftBtns=[...document.querySelectorAll('#match-left button')].filter(b=>b.dataset.paired==='1');
+  leftBtns.forEach(lb=>{
+    const mt=lb.dataset.matchedType;
+    const rb=[...document.querySelectorAll('#match-right button')].find(b=>b.textContent===mt&&b.dataset.paired==='1');
+    if(!rb)return;
+    const lr=lb.getBoundingClientRect(), rr=rb.getBoundingClientRect();
+    const x1=lr.right-cRect.left, y1=lr.top+lr.height/2-cRect.top;
+    const x2=rr.left-cRect.left,  y2=rr.top+rr.height/2-cRect.top;
+    ctx.strokeStyle='#6366f1'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x1,y1);
+    ctx.bezierCurveTo(x1+30,y1,x2-30,y2,x2,y2);
+    ctx.stroke();
+  });
+}
 function matchClick(btn,side,val){
   const prevSel=document.querySelector('.match-sel');
   if(prevSel){ prevSel.style.borderColor='#e2e8f0'; prevSel.classList.remove('match-sel'); }
   if(matchSelected && matchSelected.side!==side){
-    // pair
     btn.style.borderColor='#6366f1'; btn.classList.add('match-sel');
     const leftIdx = side==='left' ? val : matchSelected.val;
     const rightType = side==='right' ? val : matchSelected.val;
@@ -1381,6 +1526,7 @@ function matchClick(btn,side,val){
     matchSelected.btn.style.background='#eef2ff'; btn.style.background='#eef2ff';
     matchSelected.btn.style.borderColor='#6366f1'; btn.style.borderColor='#6366f1';
     matchSelected=null; btn.classList.remove('match-sel');
+    drawMatchLines();
   } else {
     btn.style.borderColor='#6366f1'; btn.classList.add('match-sel');
     matchSelected={btn,side,val};
@@ -1430,6 +1576,9 @@ function runCondSim(){
 
 /* ─── 초기화 ─────────────────────────────────────────────── */
 initMatch();
+whileSim.reset();
+forSim.reset();
+funcSim.reset();
 </script>
 </body>
 </html>
