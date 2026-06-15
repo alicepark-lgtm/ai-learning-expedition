@@ -283,10 +283,20 @@ function startQuiz() {
   quizMode = document.getElementById('modeSelect').value;
   quizItems = QUIZ.filter(q=>selectedCats.has(q.cat));
   if(quizMode==='random') {
-    for(let i=quizItems.length-1;i>0;i--){
+    // 각 선택 카테고리에서 골고루 섞어 최대 20문제 추출
+    const catList = [...selectedCats];
+    const perCat = Math.ceil(20 / catList.length);
+    const picked = [];
+    catList.forEach(c => {
+      const pool = QUIZ.filter(q=>q.cat===c).sort(()=>Math.random()-.5);
+      picked.push(...pool.slice(0, perCat));
+    });
+    // 전체 다시 섞어 20개로 자르기
+    for(let i=picked.length-1;i>0;i--){
       const j=Math.floor(Math.random()*(i+1));
-      [quizItems[i],quizItems[j]]=[quizItems[j],quizItems[i]];
+      [picked[i],picked[j]]=[picked[j],picked[i]];
     }
+    quizItems = picked.slice(0, 20);
   }
   currentIdx=0; answered={}; score=0; timerSec=0;
   state='quiz';
