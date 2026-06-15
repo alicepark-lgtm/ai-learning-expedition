@@ -6,59 +6,114 @@
 <title>내용 복습하기 | 정보 복습 도우미</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
-nav{background:#1e293b;padding:14px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
-nav a{color:#94a3b8;text-decoration:none;font-size:0.9rem}
-nav a:hover{color:#c7d2fe}
-nav .sep{color:#475569}
-nav .cur{color:#c7d2fe;font-weight:600}
-.page-header{background:linear-gradient(135deg,#1e1b4b,#312e81);padding:36px 20px 28px;text-align:center}
-.page-header h1{font-size:1.8rem;color:#c7d2fe;font-weight:800}
-.page-header p{color:#94a3b8;margin-top:6px;font-size:0.9rem}
-.tab-bar{display:flex;gap:0;max-width:900px;margin:24px auto 0;padding:0 20px}
-.tab-btn{flex:1;padding:11px 6px;background:#1e293b;border:1px solid #334155;color:#64748b;cursor:pointer;font-size:0.9rem;font-family:inherit;transition:all .2s}
-.tab-btn:first-child{border-radius:10px 0 0 10px}
-.tab-btn:last-child{border-radius:0 10px 10px 0}
-.tab-btn.active{background:#4338ca;color:#c7d2fe;border-color:#4338ca;font-weight:700}
-.tab-btn:hover:not(.active){background:#263350;color:#c7d2fe}
-.container{max-width:900px;margin:0 auto;padding:24px 20px 60px}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+nav{background:#fff;padding:13px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+nav a{color:#64748b;text-decoration:none;font-size:.9rem;transition:color .2s}
+nav a:hover{color:#6366f1}
+nav .sep{color:#cbd5e1}
+nav .cur{color:#6366f1;font-weight:700}
+.page-header{background:linear-gradient(135deg,#6366f1 0%,#818cf8 50%,#a78bfa 100%);padding:40px 20px 32px;text-align:center}
+.page-header h1{font-size:2rem;color:#fff;font-weight:800;letter-spacing:-.5px}
+.page-header p{color:#e0e7ff;margin-top:8px;font-size:.95rem}
+
+/* 탭바 */
+.tab-bar{display:flex;max-width:960px;margin:0 auto;padding:0 20px;gap:8px;transform:translateY(16px)}
+.tab-btn{flex:1;padding:12px 8px;background:#fff;border:2px solid #e2e8f0;color:#64748b;cursor:pointer;font-size:.92rem;font-family:inherit;border-radius:12px;transition:all .2s;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.tab-btn:hover:not(.active){border-color:#a5b4fc;color:#6366f1}
+.tab-btn.active{background:#6366f1;color:#fff;border-color:#6366f1;box-shadow:0 4px 12px rgba(99,102,241,.35)}
+
+.container{max-width:960px;margin:0 auto;padding:36px 20px 60px}
 .section{display:none}
 .section.active{display:block}
-.subtab-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.subtab-btn{padding:7px 14px;background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:20px;cursor:pointer;font-size:0.82rem;font-family:inherit;transition:all .2s}
-.subtab-btn.active{background:#312e81;color:#c7d2fe;border-color:#6366f1}
-.subtab-btn:hover:not(.active){border-color:#6366f1;color:#c7d2fe}
+
+/* 서브탭 */
+.subtab-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.subtab-btn{padding:7px 16px;background:#fff;border:2px solid #e2e8f0;color:#64748b;border-radius:20px;cursor:pointer;font-size:.83rem;font-family:inherit;transition:all .2s;font-weight:600}
+.subtab-btn.active{background:#6366f1;color:#fff;border-color:#6366f1}
+.subtab-btn:hover:not(.active){border-color:#a5b4fc;color:#6366f1}
 .subsection{display:none}
 .subsection.active{display:block}
-.card{background:#1e293b;border:1px solid #334155;border-radius:12px;margin-bottom:16px;overflow:hidden}
-.card-header{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;transition:background .2s}
-.card-header:hover{background:#263350}
-.card-header h3{font-size:1rem;color:#c7d2fe;font-weight:600}
-.card-header .ico{color:#64748b;transition:transform .3s;font-size:1.1rem}
+
+/* 카드 */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card-header{padding:15px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;transition:background .2s}
+.card-header:hover{background:#f8fafc}
+.card-header h3{font-size:1rem;color:#3730a3;font-weight:700}
+.card-header .ico{color:#94a3b8;transition:transform .3s;font-size:1.1rem}
 .card-header.open .ico{transform:rotate(90deg)}
-.card-body{padding:0 18px;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s}
-.card-body.open{padding:0 18px 18px;max-height:3000px}
-.card-body p{color:#94a3b8;line-height:1.8;font-size:0.9rem;margin-bottom:10px}
-.card-body ul{padding-left:18px;color:#94a3b8;line-height:1.9;font-size:0.9rem}
-.card-body li{margin-bottom:4px}
-.card-body strong{color:#c7d2fe}
-pre{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0;font-size:0.85rem;line-height:1.7}
-code{color:#a5f3fc;font-family:'Consolas','Courier New',monospace}
-.kw{color:#f472b6}
-.fn{color:#a5f3fc}
-.str{color:#86efac}
-.num{color:#fb923c}
-.cmt{color:#475569;font-style:italic}
-.tip{background:#0f2a1e;border-left:3px solid #10b981;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:0.85rem;color:#6ee7b7}
-.warn{background:#2a1f0f;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:0.85rem;color:#fcd34d}
-.info-box{background:#172033;border:1px solid #1e3a5f;border-radius:8px;padding:14px;margin:10px 0}
-.info-box .label{font-size:0.75rem;color:#38bdf8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.card-body{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s}
+.card-body.open{padding:0 20px 20px;max-height:5000px}
+.card-body p{color:#475569;line-height:1.85;font-size:.92rem;margin-bottom:10px}
+.card-body ul{padding-left:20px;color:#475569;line-height:1.9;font-size:.92rem}
+.card-body li{margin-bottom:5px}
+.card-body strong{color:#3730a3}
+pre{background:#1e293b;border-radius:10px;padding:16px;overflow-x:auto;margin:12px 0;font-size:.87rem;line-height:1.75}
+code{color:#e2e8f0;font-family:'Consolas','Courier New',monospace}
+.kw{color:#f472b6}.fn{color:#a5f3fc}.str{color:#86efac}.num{color:#fb923c}.cmt{color:#64748b;font-style:italic}
+.tip{background:#eef2ff;border-left:4px solid #6366f1;padding:11px 15px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.88rem;color:#4338ca}
+.warn{background:#fffbeb;border-left:4px solid #f59e0b;padding:11px 15px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.88rem;color:#92400e}
+.info-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin:12px 0}
+.info-box .label{font-size:.72rem;color:#6366f1;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
 @media(max-width:600px){.two-col{grid-template-columns:1fr}}
-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.85rem}
-th{background:#172033;color:#38bdf8;padding:8px 10px;text-align:left;border:1px solid #334155}
-td{padding:8px 10px;border:1px solid #334155;color:#94a3b8;vertical-align:top}
-tr:nth-child(even) td{background:#172033}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.87rem}
+th{background:#eef2ff;color:#4338ca;padding:9px 11px;text-align:left;border:1px solid #c7d2fe;font-weight:700}
+td{padding:8px 11px;border:1px solid #e2e8f0;color:#475569;vertical-align:top}
+tr:nth-child(even) td{background:#f8fafc}
+
+/* ===== 알고리즘 시뮬레이션 ===== */
+.sim-wrap{background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:20px;margin:16px 0}
+.sim-title{font-size:.8rem;color:#6366f1;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sim-title::before{content:'▶';font-size:.7rem}
+.sim-controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.sim-btn{padding:8px 16px;border:2px solid #e2e8f0;border-radius:8px;background:#fff;color:#475569;cursor:pointer;font-size:.83rem;font-family:inherit;font-weight:600;transition:all .2s}
+.sim-btn:hover{border-color:#6366f1;color:#6366f1}
+.sim-btn.primary{background:#6366f1;color:#fff;border-color:#6366f1}
+.sim-btn.primary:hover{background:#4f46e5}
+.sim-btn:disabled{opacity:.4;cursor:not-allowed}
+.sim-step-info{font-size:.82rem;color:#64748b;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px}
+.sim-array{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;min-height:80px;align-items:flex-end}
+/* 정렬 시뮬레이션 바 */
+.bar{display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .3s}
+.bar-rect{width:44px;border-radius:6px 6px 0 0;transition:all .35s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:.8rem;font-weight:700;color:#fff;min-height:20px}
+.bar-lbl{font-size:.75rem;color:#64748b;font-weight:600}
+.bar.default .bar-rect{background:#a5b4fc}
+.bar.comparing .bar-rect{background:#f59e0b;transform:scaleY(1.04);box-shadow:0 0 0 2px #f59e0b}
+.bar.swapping .bar-rect{background:#ef4444}
+.bar.sorted .bar-rect{background:#10b981}
+.bar.current-min .bar-rect{background:#ef4444}
+.bar.checking .bar-rect{background:#f59e0b;box-shadow:0 0 0 2px #f59e0b}
+.bar.found .bar-rect{background:#10b981;box-shadow:0 0 0 3px #10b981}
+.bar.eliminated .bar-rect{background:#cbd5e1}
+
+/* 탐색 시뮬레이션 박스 */
+.search-array{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.s-cell{width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;border:2px solid #e2e8f0;background:#fff;transition:all .3s;position:relative}
+.s-cell .val{font-size:1rem;font-weight:700;color:#1e293b}
+.s-cell .idx{font-size:.65rem;color:#94a3b8}
+.s-cell .ptr{position:absolute;top:-22px;font-size:.7rem;font-weight:700;padding:2px 6px;border-radius:10px}
+.s-cell.default{}
+.s-cell.checking{border-color:#f59e0b;background:#fffbeb}
+.s-cell.checking .val{color:#92400e}
+.s-cell.found{border-color:#10b981;background:#ecfdf5;box-shadow:0 0 0 3px rgba(16,185,129,.25)}
+.s-cell.found .val{color:#065f46}
+.s-cell.eliminated{background:#f1f5f9;border-color:#e2e8f0}
+.s-cell.eliminated .val{color:#94a3b8}
+.s-cell.left-ptr .ptr{background:#3b82f6;color:#fff}
+.s-cell.mid-ptr .ptr{background:#8b5cf6;color:#fff}
+.s-cell.right-ptr .ptr{background:#ec4899;color:#fff}
+
+.sim-log{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;font-size:.87rem;color:#374151;line-height:1.7;min-height:50px}
+.sim-log strong{color:#6366f1}
+.sim-log .step-num{display:inline-block;background:#eef2ff;color:#6366f1;padding:1px 8px;border-radius:10px;font-size:.75rem;font-weight:700;margin-right:6px}
+.sim-progress{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.78rem;color:#94a3b8}
+.sim-progress-bar{flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden}
+.sim-progress-fill{height:100%;background:#6366f1;transition:width .3s}
+
+/* 범례 */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#475569}
+.legend-dot{width:14px;height:14px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -73,183 +128,227 @@ tr:nth-child(even) td{background:#172033}
 </div>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('py')">🐍 파이썬</button>
-  <button class="tab-btn" onclick="switchTab('pc')">⚡ 피지컬 컴퓨팅</button>
-  <button class="tab-btn" onclick="switchTab('ai')">🤖 인공지능</button>
+  <button class="tab-btn active" onclick="switchTab('py',this)">🐍 파이썬</button>
+  <button class="tab-btn" onclick="switchTab('pc',this)">⚡ 피지컬 컴퓨팅</button>
+  <button class="tab-btn" onclick="switchTab('ai',this)">🤖 인공지능</button>
 </div>
 
 <div class="container">
 
-<!-- ===== 파이썬 섹션 ===== -->
+<!-- ===================== 파이썬 탭 ===================== -->
 <div id="tab-py" class="section active">
   <div class="subtab-bar">
-    <button class="subtab-btn active" onclick="switchSub('py','abs')">추상화·알고리즘</button>
-    <button class="subtab-btn" onclick="switchSub('py','sort')">정렬 알고리즘</button>
-    <button class="subtab-btn" onclick="switchSub('py','search')">탐색 알고리즘</button>
-    <button class="subtab-btn" onclick="switchSub('py','io')">출력·입력</button>
-    <button class="subtab-btn" onclick="switchSub('py','var')">변수·자료형</button>
-    <button class="subtab-btn" onclick="switchSub('py','op')">연산자</button>
-    <button class="subtab-btn" onclick="switchSub('py','cond')">조건문</button>
-    <button class="subtab-btn" onclick="switchSub('py','loop')">반복문</button>
-    <button class="subtab-btn" onclick="switchSub('py','list')">리스트</button>
-    <button class="subtab-btn" onclick="switchSub('py','func')">함수</button>
+    <button class="subtab-btn active" onclick="switchSub('py','abs',this)">추상화·알고리즘</button>
+    <button class="subtab-btn" onclick="switchSub('py','sort',this)">정렬 알고리즘</button>
+    <button class="subtab-btn" onclick="switchSub('py','search',this)">탐색 알고리즘</button>
+    <button class="subtab-btn" onclick="switchSub('py','io',this)">출력·입력</button>
+    <button class="subtab-btn" onclick="switchSub('py','var',this)">변수·자료형</button>
+    <button class="subtab-btn" onclick="switchSub('py','op',this)">연산자</button>
+    <button class="subtab-btn" onclick="switchSub('py','cond',this)">조건문</button>
+    <button class="subtab-btn" onclick="switchSub('py','loop',this)">반복문</button>
+    <button class="subtab-btn" onclick="switchSub('py','list',this)">리스트</button>
+    <button class="subtab-btn" onclick="switchSub('py','func',this)">함수</button>
   </div>
 
   <!-- 추상화 -->
   <div id="py-abs" class="subsection active">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 추상화(Abstraction) 란?</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 추상화(Abstraction)란?</h3><span class="ico">›</span></div>
     <div class="card-body open"><p>추상화는 <strong>문제 해결에 불필요한 세부 사항을 제거하고 핵심적인 내용만 추려 표현하는 것</strong>입니다.</p>
-    <p>예를 들어 지하철 노선도는 실제 거리와 지형을 무시하고 역 이름과 환승 정보만 남긴 추상화입니다.</p>
-    <div class="tip">✅ 추상화 → 알고리즘 설계 → 프로그래밍 순서로 문제를 해결합니다.</div>
+    <p>예) 지하철 노선도는 실제 거리와 지형을 무시하고 역 이름·환승 정보만 남긴 추상화입니다.</p>
+    <div class="tip">💡 추상화 → 알고리즘 설계 → 프로그래밍 순서로 문제를 해결합니다.</div>
     <div class="two-col">
       <div class="info-box"><div class="label">절차 추상화</div><p>어떻게(How) 계산하는지 숨기고 무엇(What)을 하는지만 표현. 함수가 대표적 예시.</p></div>
       <div class="info-box"><div class="label">데이터 추상화</div><p>복잡한 데이터를 단순하게 표현. 리스트, 변수 등이 대표적 예시.</p></div>
     </div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 알고리즘(Algorithm) 이란?</h3><span class="ico">›</span></div>
-    <div class="card-body"><p>알고리즘은 <strong>문제를 해결하기 위한 절차나 방법을 단계적으로 표현한 것</strong>입니다.</p>
-    <p>좋은 알고리즘의 조건 5가지:</p>
-    <ul>
-      <li><strong>입력(Input)</strong>: 0개 이상의 입력이 있어야 한다.</li>
-      <li><strong>출력(Output)</strong>: 1개 이상의 출력이 있어야 한다.</li>
-      <li><strong>명확성(Definiteness)</strong>: 각 단계가 명확하게 정의되어야 한다.</li>
-      <li><strong>유한성(Finiteness)</strong>: 유한한 단계 후에 반드시 종료되어야 한다.</li>
-      <li><strong>효과성(Effectiveness)</strong>: 각 단계가 실제로 수행 가능해야 한다.</li>
-    </ul></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 알고리즘 표현 방법</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 알고리즘의 조건 & 표현 방법</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>방법</th><th>설명</th><th>특징</th></tr>
-      <tr><td><strong>자연어</strong></td><td>일상 언어로 서술</td><td>이해하기 쉬우나 중의적 표현 가능</td></tr>
-      <tr><td><strong>의사코드</strong></td><td>프로그래밍 언어와 자연어의 중간</td><td>언어에 독립적, 논리 표현에 적합</td></tr>
-      <tr><td><strong>순서도</strong></td><td>기호와 화살표로 흐름 표현</td><td>시각적으로 이해하기 쉬움</td></tr>
-    </table>
+    <p><strong>알고리즘</strong>: 문제를 해결하기 위한 절차를 단계적으로 표현한 것</p>
+    <table><tr><th>조건</th><th>설명</th></tr>
+    <tr><td><strong>입력</strong></td><td>0개 이상의 입력이 있어야 한다.</td></tr>
+    <tr><td><strong>출력</strong></td><td>1개 이상의 결과가 있어야 한다.</td></tr>
+    <tr><td><strong>명확성</strong></td><td>각 단계가 명확하게 정의되어야 한다.</td></tr>
+    <tr><td><strong>유한성</strong></td><td>유한한 단계 후 반드시 종료되어야 한다.</td></tr>
+    <tr><td><strong>효과성</strong></td><td>각 단계가 실제로 수행 가능해야 한다.</td></tr></table>
+    <table><tr><th>표현 방법</th><th>특징</th></tr>
+    <tr><td><strong>자연어</strong></td><td>이해하기 쉬우나 중의적 표현 가능</td></tr>
+    <tr><td><strong>의사코드</strong></td><td>언어에 독립적, 논리 표현에 적합</td></tr>
+    <tr><td><strong>순서도</strong></td><td>기호로 흐름 표현, 시각적으로 명확</td></tr></table>
     <div class="info-box"><div class="label">순서도 주요 기호</div>
-    <ul>
-      <li>⬭ <strong>타원(터미널)</strong>: 시작 / 종료</li>
-      <li>▭ <strong>직사각형(처리)</strong>: 연산 및 처리</li>
-      <li>◇ <strong>마름모(판단)</strong>: 조건 분기 (예/아니오)</li>
-      <li>▱ <strong>평행사변형(입출력)</strong>: 데이터 입출력</li>
-    </ul></div></div></div>
+    <ul><li>⬭ <strong>타원</strong>: 시작/종료</li><li>▭ <strong>직사각형</strong>: 처리(연산)</li><li>◇ <strong>마름모</strong>: 판단(조건)</li><li>▱ <strong>평행사변형</strong>: 입출력</li></ul></div>
+    </div></div>
   </div>
 
   <!-- 정렬 알고리즘 -->
   <div id="py-sort" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 버블 정렬 (Bubble Sort)</h3><span class="ico">›</span></div>
+
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 버블 정렬 (Bubble Sort) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>인접한 두 원소를 비교하여 순서가 잘못된 경우 교환하는 방식. <strong>가장 큰 값이 맨 뒤로 "버블처럼" 올라가는 것</strong>이 특징입니다.</p>
-    <ul>
-      <li>n개의 데이터 → 최대 <strong>n-1</strong>회 반복</li>
-      <li>1회전에서 <strong>가장 큰 값</strong>이 맨 뒤로 이동</li>
-      <li>시간 복잡도: <strong>O(n²)</strong></li>
-    </ul>
+    <p>인접한 두 원소를 비교해 순서가 잘못되면 교환하는 방식. <strong>가장 큰 값이 매 회전마다 맨 뒤로 이동</strong>합니다.</p>
+    <ul><li>n개 데이터 → 최대 <strong>n-1</strong>회 반복 (패스)</li><li>시간 복잡도: <strong>O(n²)</strong></li></ul>
+
+    <!-- 버블정렬 시뮬레이션 -->
+    <div class="sim-wrap">
+      <div class="sim-title">버블 정렬 단계별 시뮬레이션</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc"></div> 기본</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 비교 중</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 교환</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> 정렬 완료</div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="bubbleSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="bubble-prev" onclick="bubbleSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="bubble-next" onclick="bubbleSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="bubble-auto" onclick="bubbleSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="bubble-step-info">0 / 0 단계</span>
+      </div>
+      <div class="sim-array" id="bubble-array"></div>
+      <div class="sim-log" id="bubble-log">▶ [초기화] 버튼을 눌러 시뮬레이션을 시작하세요.</div>
+      <div class="sim-progress"><span id="bubble-pass-info"></span><div class="sim-progress-bar"><div class="sim-progress-fill" id="bubble-prog"></div></div></div>
+    </div>
+
     <pre><code><span class="kw">def</span> <span class="fn">bubble_sort</span>(arr):
     n = <span class="fn">len</span>(arr)
     <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n - 1):        <span class="cmt"># 전체 패스 횟수</span>
         <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(n - 1 - i):  <span class="cmt"># 이미 정렬된 뒤는 제외</span>
             <span class="kw">if</span> arr[j] > arr[j + 1]:
-                arr[j], arr[j+<span class="num">1</span>] = arr[j+<span class="num">1</span>], arr[j]  <span class="cmt"># 교환</span>
-    <span class="kw">return</span> arr
+                arr[j], arr[j+<span class="num">1</span>] = arr[j+<span class="num">1</span>], arr[j]
+    <span class="kw">return</span> arr</code></pre>
+    </div></div>
 
-<span class="cmt"># 예시</span>
-data = [<span class="num">5</span>, <span class="num">3</span>, <span class="num">8</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">2</span>]
-<span class="fn">print</span>(bubble_sort(data))  <span class="cmt"># [1, 2, 3, 5, 8, 9]</span></code></pre>
-    <div class="info-box"><div class="label">동작 예시: [3, 1, 2]</div>
-    <p>1회전: (3,1)교환→[1,3,2] → (3,2)교환→[1,2,3]<br>
-    2회전: (1,2)비교→교환없음 → 완료</p></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 선택 정렬 (Selection Sort)</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 선택 정렬 (Selection Sort) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body">
     <p>전체에서 <strong>가장 작은 값을 찾아 맨 앞으로</strong> 이동시키는 방식을 반복합니다.</p>
-    <ul>
-      <li>n개의 데이터 → 최대 <strong>n-1</strong>회 반복</li>
-      <li>매 회전마다 <strong>최솟값의 인덱스</strong>를 기억했다가 교환</li>
-      <li>시간 복잡도: <strong>O(n²)</strong></li>
-    </ul>
+    <ul><li>매 회전마다 최솟값 인덱스를 기억했다가 교환</li><li>시간 복잡도: <strong>O(n²)</strong></li></ul>
+
+    <!-- 선택정렬 시뮬레이션 -->
+    <div class="sim-wrap">
+      <div class="sim-title">선택 정렬 단계별 시뮬레이션</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc"></div> 기본</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 비교 중</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 현재 최솟값</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> 정렬 완료</div>
+      </div>
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="selSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="sel-prev" onclick="selSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="sel-next" onclick="selSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="sel-auto" onclick="selSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="sel-step-info">0 / 0 단계</span>
+      </div>
+      <div class="sim-array" id="sel-array"></div>
+      <div class="sim-log" id="sel-log">▶ [초기화] 버튼을 눌러 시뮬레이션을 시작하세요.</div>
+      <div class="sim-progress"><span id="sel-pass-info"></span><div class="sim-progress-bar"><div class="sim-progress-fill" id="sel-prog"></div></div></div>
+    </div>
+
     <pre><code><span class="kw">def</span> <span class="fn">selection_sort</span>(arr):
     n = <span class="fn">len</span>(arr)
     <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n - 1):
-        min_idx = i           <span class="cmt"># 현재 위치를 최솟값 위치로 초기화</span>
+        min_idx = i
         <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i + 1, n):
             <span class="kw">if</span> arr[j] < arr[min_idx]:
-                min_idx = j   <span class="cmt"># 더 작은 값 발견 시 인덱스 갱신</span>
-        arr[i], arr[min_idx] = arr[min_idx], arr[i]  <span class="cmt"># 교환</span>
-    <span class="kw">return</span> arr
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+    <span class="kw">return</span> arr</code></pre>
+    </div></div>
 
-data = [<span class="num">5</span>, <span class="num">3</span>, <span class="num">8</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">2</span>]
-<span class="fn">print</span>(selection_sort(data))  <span class="cmt"># [1, 2, 3, 5, 8, 9]</span></code></pre>
-    <div class="info-box"><div class="label">동작 예시: [3, 1, 2]</div>
-    <p>1회전: 최솟값=1(인덱스1) → 3과 교환 → [1, 3, 2]<br>
-    2회전: 최솟값=2(인덱스2) → 3과 교환 → [1, 2, 3]</p></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 버블 정렬 vs 선택 정렬 비교</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 버블 vs 선택 비교</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>구분</th><th>버블 정렬</th><th>선택 정렬</th></tr>
-      <tr><td>방식</td><td>인접 원소 비교·교환 반복</td><td>최솟값 찾아 맨 앞과 교환</td></tr>
-      <tr><td>교환 횟수</td><td>많음</td><td>적음 (최대 n-1회)</td></tr>
-      <tr><td>시간 복잡도</td><td>O(n²)</td><td>O(n²)</td></tr>
-      <tr><td>안정성</td><td>안정 정렬</td><td>불안정 정렬</td></tr>
-    </table></div></div>
+    <table><tr><th>구분</th><th>버블 정렬</th><th>선택 정렬</th></tr>
+    <tr><td>방식</td><td>인접 원소 비교·교환 반복</td><td>최솟값 찾아 맨 앞과 교환</td></tr>
+    <tr><td>교환 횟수</td><td>많음</td><td>적음 (최대 n-1회)</td></tr>
+    <tr><td>시간 복잡도</td><td>O(n²)</td><td>O(n²)</td></tr></table>
+    </div></div>
   </div>
 
   <!-- 탐색 알고리즘 -->
   <div id="py-search" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 순차 탐색 (Sequential Search)</h3><span class="ico">›</span></div>
+
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 순차 탐색 (Sequential Search) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>데이터를 <strong>처음부터 끝까지 순서대로</strong> 하나씩 비교하며 찾는 방식입니다.</p>
-    <ul>
-      <li>정렬되지 않은 데이터도 탐색 가능</li>
-      <li>최악의 경우: 마지막에 있거나 없는 경우 → <strong>n번 비교</strong></li>
-      <li>시간 복잡도: <strong>O(n)</strong></li>
-    </ul>
+    <p>데이터를 <strong>처음부터 끝까지 순서대로</strong> 하나씩 비교하며 찾는 방식.</p>
+    <ul><li>정렬 불필요 — 어떤 순서의 데이터도 탐색 가능</li><li>시간 복잡도: <strong>O(n)</strong></li></ul>
+
+    <!-- 순차탐색 시뮬레이션 -->
+    <div class="sim-wrap">
+      <div class="sim-title">순차 탐색 단계별 시뮬레이션</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#fff;border:2px solid #e2e8f0"></div> 미확인</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fffbeb;border:2px solid #f59e0b"></div> 비교 중</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ecfdf5;border:2px solid #10b981"></div> 발견!</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:2px solid #e2e8f0"></div> 통과</div>
+      </div>
+      <div class="sim-controls">
+        <label style="font-size:.83rem;color:#64748b;font-weight:600">탐색할 값:</label>
+        <input id="seq-target" type="number" value="7" style="width:60px;padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;font-size:.9rem;outline:none;text-align:center">
+        <button class="sim-btn primary" onclick="seqSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="seq-prev" onclick="seqSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="seq-next" onclick="seqSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="seq-auto" onclick="seqSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="seq-step-info">0 / 0 단계</span>
+      </div>
+      <div class="search-array" id="seq-array"></div>
+      <div class="sim-log" id="seq-log">▶ 탐색할 값을 입력하고 [초기화] 버튼을 눌러 시작하세요.</div>
+    </div>
+
     <pre><code><span class="kw">def</span> <span class="fn">sequential_search</span>(arr, target):
     <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(arr)):
         <span class="kw">if</span> arr[i] == target:
-            <span class="kw">return</span> i     <span class="cmt"># 찾은 위치(인덱스) 반환</span>
-    <span class="kw">return</span> -<span class="num">1</span>             <span class="cmt"># 없으면 -1 반환</span>
+            <span class="kw">return</span> i       <span class="cmt"># 찾은 위치(인덱스) 반환</span>
+    <span class="kw">return</span> -<span class="num">1</span>           <span class="cmt"># 없으면 -1 반환</span></code></pre>
+    </div></div>
 
-data = [<span class="num">4</span>, <span class="num">2</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">3</span>]
-<span class="fn">print</span>(sequential_search(data, <span class="num">7</span>))   <span class="cmt"># 2</span>
-<span class="fn">print</span>(sequential_search(data, <span class="num">5</span>))   <span class="cmt"># -1</span></code></pre></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 이진 탐색 (Binary Search)</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 이진 탐색 (Binary Search) + 시뮬레이션</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <p><strong>정렬된 데이터</strong>에서 중간값과 비교하며 탐색 범위를 절반씩 줄여가는 방식입니다.</p>
-    <ul>
-      <li><strong>반드시 정렬된 데이터</strong>에서만 사용 가능</li>
-      <li>매 단계마다 탐색 범위가 절반으로 감소</li>
-      <li>시간 복잡도: <strong>O(log n)</strong> ← 순차탐색보다 훨씬 빠름</li>
-    </ul>
+    <p><strong>정렬된 데이터</strong>에서 중간값과 비교하며 탐색 범위를 절반씩 줄여가는 방식.</p>
+    <ul><li><strong>반드시 정렬된 데이터</strong>에서만 사용 가능</li><li>시간 복잡도: <strong>O(log n)</strong> — 순차탐색보다 훨씬 빠름</li></ul>
+
+    <!-- 이진탐색 시뮬레이션 -->
+    <div class="sim-wrap">
+      <div class="sim-title">이진 탐색 단계별 시뮬레이션</div>
+      <div class="legend">
+        <div class="legend-item"><span style="background:#3b82f6;color:#fff;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700">L</span> left</div>
+        <div class="legend-item"><span style="background:#8b5cf6;color:#fff;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700">M</span> mid</div>
+        <div class="legend-item"><span style="background:#ec4899;color:#fff;padding:2px 8px;border-radius:10px;font-size:.72rem;font-weight:700">R</span> right</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ecfdf5;border:2px solid #10b981"></div> 발견!</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9"></div> 탐색 범위 제외</div>
+      </div>
+      <div class="sim-controls">
+        <label style="font-size:.83rem;color:#64748b;font-weight:600">탐색할 값:</label>
+        <input id="bin-target" type="number" value="7" style="width:60px;padding:6px 10px;border:2px solid #e2e8f0;border-radius:8px;font-size:.9rem;outline:none;text-align:center">
+        <button class="sim-btn primary" onclick="binSim.reset()">🔄 초기화</button>
+        <button class="sim-btn" id="bin-prev" onclick="binSim.prev()" disabled>◀ 이전</button>
+        <button class="sim-btn" id="bin-next" onclick="binSim.next()">다음 ▶</button>
+        <button class="sim-btn" id="bin-auto" onclick="binSim.toggleAuto()">▶▶ 자동</button>
+        <span class="sim-step-info" id="bin-step-info">0 / 0 단계</span>
+      </div>
+      <div class="search-array" id="bin-array"></div>
+      <div class="sim-log" id="bin-log">▶ 탐색할 값을 입력하고 [초기화] 버튼을 눌러 시작하세요.</div>
+    </div>
+
     <pre><code><span class="kw">def</span> <span class="fn">binary_search</span>(arr, target):
     left, right = <span class="num">0</span>, <span class="fn">len</span>(arr) - <span class="num">1</span>
     <span class="kw">while</span> left <= right:
-        mid = (left + right) // <span class="num">2</span>   <span class="cmt"># 중간 인덱스</span>
+        mid = (left + right) // <span class="num">2</span>
         <span class="kw">if</span> arr[mid] == target:
-            <span class="kw">return</span> mid               <span class="cmt"># 발견!</span>
+            <span class="kw">return</span> mid
         <span class="kw">elif</span> arr[mid] < target:
-            left = mid + <span class="num">1</span>           <span class="cmt"># 오른쪽 절반 탐색</span>
+            left = mid + <span class="num">1</span>
         <span class="kw">else</span>:
-            right = mid - <span class="num">1</span>          <span class="cmt"># 왼쪽 절반 탐색</span>
-    <span class="kw">return</span> -<span class="num">1</span>
+            right = mid - <span class="num">1</span>
+    <span class="kw">return</span> -<span class="num">1</span></code></pre>
+    <div class="warn">⚠️ 이진 탐색은 반드시 <strong>정렬된 데이터</strong>에서만 사용 가능합니다!</div>
+    </div></div>
 
-data = [<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">11</span>, <span class="num">13</span>]
-<span class="fn">print</span>(binary_search(data, <span class="num">7</span>))    <span class="cmt"># 3</span>
-<span class="fn">print</span>(binary_search(data, <span class="num">6</span>))    <span class="cmt"># -1</span></code></pre>
-    <div class="info-box"><div class="label">동작 예시: [1,3,5,7,9,11,13]에서 7 탐색</div>
-    <p>① left=0, right=6, mid=3 → arr[3]=7 == 7 → 발견! 인덱스 3 반환</p></div>
-    <div class="warn">⚠️ 이진 탐색은 반드시 <strong>정렬된 데이터</strong>에서만 사용 가능합니다!</div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 순차 탐색 vs 이진 탐색 비교</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 순차 vs 이진 탐색 비교</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>구분</th><th>순차 탐색</th><th>이진 탐색</th></tr>
-      <tr><td>정렬 필요 여부</td><td>불필요</td><td>필요</td></tr>
-      <tr><td>시간 복잡도</td><td>O(n)</td><td>O(log n)</td></tr>
-      <tr><td>데이터 100개 최대 비교</td><td>100번</td><td>7번</td></tr>
-      <tr><td>데이터 1000개 최대 비교</td><td>1000번</td><td>10번</td></tr>
-    </table></div></div>
+    <table><tr><th>구분</th><th>순차 탐색</th><th>이진 탐색</th></tr>
+    <tr><td>정렬 필요</td><td>불필요</td><td>필요</td></tr>
+    <tr><td>시간 복잡도</td><td>O(n)</td><td>O(log n)</td></tr>
+    <tr><td>100개 최대 비교</td><td>100번</td><td>7번</td></tr>
+    <tr><td>1000개 최대 비교</td><td>1000번</td><td>10번</td></tr></table>
+    </div></div>
   </div>
 
   <!-- 출력·입력 -->
@@ -257,132 +356,97 @@ data = [<span class="num">1</span>, <span class="num">3</span>, <span class="num
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 출력문 print()</h3><span class="ico">›</span></div>
     <div class="card-body open">
     <pre><code><span class="fn">print</span>(<span class="str">"Hello"</span>)             <span class="cmt"># Hello</span>
-<span class="fn">print</span>(<span class="str">"a"</span>, <span class="str">"b"</span>)           <span class="cmt"># a b  (콤마: 공백 삽입)</span>
+<span class="fn">print</span>(<span class="str">"a"</span>, <span class="str">"b"</span>)           <span class="cmt"># a b  (콤마: 값 사이 공백 자동 삽입)</span>
 <span class="fn">print</span>(<span class="str">"a"</span>, end=<span class="str">""</span>)        <span class="cmt"># 줄바꿈 없이 출력</span>
 <span class="fn">print</span>(<span class="str">"a"</span>, end=<span class="str">"-"</span>)       <span class="cmt"># a- (줄바꿈 대신 - 출력)</span>
 <span class="fn">print</span>(<span class="str">"안녕\n반갑"</span>)         <span class="cmt"># \n = 줄바꿈</span>
 <span class="fn">print</span>(<span class="str">"%d"</span> % <span class="num">65</span>)          <span class="cmt"># 65 (10진 정수)</span>
 <span class="fn">print</span>(<span class="str">"%o"</span> % <span class="num">65</span>)          <span class="cmt"># 101 (8진수)</span>
 <span class="fn">print</span>(<span class="str">"%x"</span> % <span class="num">65</span>)          <span class="cmt"># 41 (16진수 소문자)</span>
-<span class="fn">print</span>(<span class="str">"%X"</span> % <span class="num">65</span>)          <span class="cmt"># 41 (16진수 대문자)</span>
-<span class="fn">print</span>(<span class="str">"%f"</span> % <span class="num">3.14</span>)        <span class="cmt"># 3.140000 (실수)</span>
+<span class="fn">print</span>(<span class="str">"%f"</span> % <span class="num">3.14</span>)        <span class="cmt"># 3.140000</span>
 <span class="fn">print</span>(<span class="str">"%.2f"</span> % <span class="num">3.14</span>)      <span class="cmt"># 3.14 (소수 2자리)</span>
 <span class="fn">print</span>(<span class="str">"%c"</span> % <span class="num">65</span>)          <span class="cmt"># A (아스키 문자)</span>
-<span class="fn">print</span>(<span class="str">"%4d"</span> % <span class="num">12</span>)         <span class="cmt"># " 12" (4자리 정렬)</span>
+<span class="fn">print</span>(<span class="str">"%4d"</span> % <span class="num">12</span>)         <span class="cmt"># "  12" (4자리 오른쪽 정렬)</span>
 <span class="fn">print</span>(<span class="str">"%04d"</span> % <span class="num">12</span>)        <span class="cmt"># 0012 (빈자리 0 채움)</span></code></pre>
-    <table>
-      <tr><th>서식 문자</th><th>의미</th><th>예시</th></tr>
-      <tr><td>%d</td><td>10진 정수</td><td>"%d" % 65 → 65</td></tr>
-      <tr><td>%o</td><td>8진수</td><td>"%o" % 65 → 101</td></tr>
-      <tr><td>%x / %X</td><td>16진수(소/대)</td><td>"%x" % 65 → 41</td></tr>
-      <tr><td>%f</td><td>실수</td><td>"%.2f" % 3.14 → 3.14</td></tr>
-      <tr><td>%c</td><td>아스키 문자</td><td>"%c" % 65 → A</td></tr>
-    </table></div></div>
-
+    <table><tr><th>서식문자</th><th>의미</th><th>예시</th></tr>
+    <tr><td>%d</td><td>10진 정수</td><td>"%d"%65 → 65</td></tr>
+    <tr><td>%o</td><td>8진수</td><td>"%o"%65 → 101</td></tr>
+    <tr><td>%x / %X</td><td>16진수 소/대문자</td><td>"%x"%65 → 41</td></tr>
+    <tr><td>%f</td><td>실수</td><td>"%.2f"%3.14 → 3.14</td></tr>
+    <tr><td>%c</td><td>아스키 문자</td><td>"%c"%65 → A</td></tr></table>
+    </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 입력문 input()</h3><span class="ico">›</span></div>
     <div class="card-body">
     <pre><code>name = <span class="fn">input</span>()              <span class="cmt"># 문자열로 입력받음</span>
 name = <span class="fn">input</span>(<span class="str">"이름: "</span>)      <span class="cmt"># 안내 메시지 출력 후 입력</span>
-
 n = <span class="fn">int</span>(<span class="fn">input</span>())           <span class="cmt"># 정수로 변환</span>
 f = <span class="fn">float</span>(<span class="fn">input</span>())         <span class="cmt"># 실수로 변환</span>
-
-<span class="cmt"># 한 줄에 여러 값 입력 (공백 구분)</span>
-a, b = <span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split())
-
-<span class="cmt"># 여러 줄 입력</span>
-x = <span class="fn">int</span>(<span class="fn">input</span>())
-y = <span class="fn">int</span>(<span class="fn">input</span>())</code></pre>
-    <div class="warn">⚠️ input()은 항상 <strong>문자열(str)</strong>을 반환합니다! 숫자 계산이 필요하면 int() 또는 float()으로 변환하세요.</div></div></div>
+a, b = <span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split()) <span class="cmt"># 한 줄에 두 정수 입력</span></code></pre>
+    <div class="warn">⚠️ input()은 항상 <strong>문자열(str)</strong>을 반환합니다! 숫자 계산이 필요하면 int() 또는 float()으로 변환하세요.</div>
+    </div></div>
   </div>
 
   <!-- 변수·자료형 -->
   <div id="py-var" class="subsection">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 변수(Variable)</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>변수는 <strong>데이터를 저장하는 메모리 공간</strong>에 붙인 이름입니다.</p>
     <pre><code>a = <span class="num">10</span>             <span class="cmt"># 정수 저장</span>
 b = <span class="num">3.14</span>           <span class="cmt"># 실수 저장</span>
 c = <span class="str">"hello"</span>        <span class="cmt"># 문자열 저장</span>
 a, b = <span class="num">10</span>, <span class="num">20</span>     <span class="cmt"># 다중 할당</span>
 a = b = <span class="num">5</span>         <span class="cmt"># 동시 할당</span>
-a += <span class="num">3</span>            <span class="cmt"># a = a + 3 과 동일</span></code></pre>
+a += <span class="num">3</span>            <span class="cmt"># a = a + 3 과 동일</span>
+a, b = b, a        <span class="cmt"># 두 변수 값 교환</span></code></pre>
     <div class="info-box"><div class="label">변수명 규칙</div>
-    <ul>
-      <li>문자, 숫자, 밑줄(_) 사용 가능</li>
-      <li>숫자로 시작 불가: ❌ 2count</li>
-      <li>예약어(키워드) 사용 불가: ❌ if, for, while, def ...</li>
-      <li>대소문자 구분: name ≠ Name</li>
-    </ul></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 자료형(Data Type)</h3><span class="ico">›</span></div>
+    <ul><li>문자, 숫자, 밑줄(_) 사용 가능 / 숫자로 시작 불가</li><li>예약어 사용 불가: if, for, while, def, return …</li><li>대소문자 구분: name ≠ Name</li></ul></div>
+    </div></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 자료형 & 형 변환</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>자료형</th><th>키워드</th><th>예시</th><th>설명</th></tr>
-      <tr><td>정수형</td><td>int</td><td>10, -3, 0</td><td>소수점 없는 수</td></tr>
-      <tr><td>실수형</td><td>float</td><td>3.14, -2.5</td><td>소수점 있는 수</td></tr>
-      <tr><td>문자열형</td><td>str</td><td>'hello', "123"</td><td>문자 또는 문장</td></tr>
-      <tr><td>불(논리)형</td><td>bool</td><td>True, False</td><td>참/거짓</td></tr>
-      <tr><td>리스트형</td><td>list</td><td>[1, 2, 3]</td><td>여러 값의 순서 있는 목록</td></tr>
-    </table>
-    <pre><code><span class="fn">print</span>(<span class="fn">type</span>(<span class="num">10</span>))       <span class="cmt"># &lt;class 'int'&gt;</span>
-<span class="fn">print</span>(<span class="fn">type</span>(<span class="num">3.14</span>))     <span class="cmt"># &lt;class 'float'&gt;</span>
-<span class="fn">print</span>(<span class="fn">type</span>(<span class="str">"hi"</span>))     <span class="cmt"># &lt;class 'str'&gt;</span>
-<span class="fn">print</span>(<span class="fn">type</span>(<span class="kw">True</span>))      <span class="cmt"># &lt;class 'bool'&gt;</span>
-
-<span class="cmt"># 형 변환</span>
-<span class="fn">int</span>(<span class="str">"10"</span>)    <span class="cmt"># → 10 (str→int)</span>
+    <table><tr><th>자료형</th><th>키워드</th><th>예시</th></tr>
+    <tr><td>정수형</td><td>int</td><td>10, -3, 0</td></tr>
+    <tr><td>실수형</td><td>float</td><td>3.14, -2.5</td></tr>
+    <tr><td>문자열형</td><td>str</td><td>'hello', "123"</td></tr>
+    <tr><td>불(논리)형</td><td>bool</td><td>True, False</td></tr>
+    <tr><td>리스트형</td><td>list</td><td>[1, 2, 3]</td></tr></table>
+    <pre><code><span class="fn">int</span>(<span class="str">"10"</span>)      <span class="cmt"># → 10</span>
 <span class="fn">float</span>(<span class="str">"3.14"</span>) <span class="cmt"># → 3.14</span>
-<span class="fn">str</span>(<span class="num">123</span>)      <span class="cmt"># → "123"</span>
-<span class="fn">bool</span>(<span class="num">0</span>)       <span class="cmt"># → False (0은 거짓)</span>
-<span class="fn">bool</span>(<span class="num">1</span>)       <span class="cmt"># → True  (0 외의 수는 참)</span></code></pre></div></div>
+<span class="fn">str</span>(<span class="num">123</span>)       <span class="cmt"># → "123"</span>
+<span class="fn">bool</span>(<span class="num">0</span>)        <span class="cmt"># → False (0은 거짓)</span>
+<span class="fn">bool</span>(<span class="num">1</span>)        <span class="cmt"># → True  (0 외의 수는 참)</span></code></pre>
+    </div></div>
   </div>
 
   <!-- 연산자 -->
   <div id="py-op" class="subsection">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 산술 연산자</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <table>
-      <tr><th>연산자</th><th>의미</th><th>예시</th><th>결과</th></tr>
-      <tr><td>+</td><td>덧셈 / 문자열 연결</td><td>7+3 / "a"+"b"</td><td>10 / "ab"</td></tr>
-      <tr><td>-</td><td>뺄셈</td><td>7-3</td><td>4</td></tr>
-      <tr><td>*</td><td>곱셈 / 문자열 반복</td><td>7*3 / "a"*3</td><td>21 / "aaa"</td></tr>
-      <tr><td>**</td><td>거듭제곱</td><td>2**4</td><td>16</td></tr>
-      <tr><td>/</td><td>나눗셈(실수)</td><td>7/3</td><td>2.333...</td></tr>
-      <tr><td>//</td><td>몫(정수 나눗셈)</td><td>7//3</td><td>2</td></tr>
-      <tr><td>%</td><td>나머지</td><td>7%3</td><td>1</td></tr>
-    </table></div></div>
-
+    <table><tr><th>연산자</th><th>의미</th><th>예시</th><th>결과</th></tr>
+    <tr><td>+</td><td>덧셈 / 문자열 연결</td><td>7+3 / "a"+"b"</td><td>10 / "ab"</td></tr>
+    <tr><td>-</td><td>뺄셈</td><td>7-3</td><td>4</td></tr>
+    <tr><td>*</td><td>곱셈 / 문자열 반복</td><td>7*3 / "a"*3</td><td>21 / "aaa"</td></tr>
+    <tr><td>**</td><td>거듭제곱</td><td>2**4</td><td>16</td></tr>
+    <tr><td>/</td><td>나눗셈(실수)</td><td>7/3</td><td>2.333…</td></tr>
+    <tr><td>//</td><td>몫(정수 나눗셈)</td><td>7//3</td><td>2</td></tr>
+    <tr><td>%</td><td>나머지</td><td>7%3</td><td>1</td></tr></table>
+    </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 비교·논리 연산자</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>연산자</th><th>의미</th><th>예시</th><th>결과</th></tr>
-      <tr><td>==</td><td>같다</td><td>3==3</td><td>True</td></tr>
-      <tr><td>!=</td><td>다르다</td><td>3!=4</td><td>True</td></tr>
-      <tr><td>&gt;</td><td>크다</td><td>5&gt;3</td><td>True</td></tr>
-      <tr><td>&lt;</td><td>작다</td><td>3&lt;2</td><td>False</td></tr>
-      <tr><td>&gt;=</td><td>크거나 같다</td><td>3&gt;=3</td><td>True</td></tr>
-      <tr><td>&lt;=</td><td>작거나 같다</td><td>2&lt;=3</td><td>True</td></tr>
-      <tr><td>and</td><td>둘 다 참</td><td>True and False</td><td>False</td></tr>
-      <tr><td>or</td><td>하나라도 참</td><td>True or False</td><td>True</td></tr>
-      <tr><td>not</td><td>반대</td><td>not True</td><td>False</td></tr>
-    </table></div></div>
+    <table><tr><th>연산자</th><th>의미</th><th>예시</th><th>결과</th></tr>
+    <tr><td>==</td><td>같다</td><td>3==3</td><td>True</td></tr>
+    <tr><td>!=</td><td>다르다</td><td>3!=4</td><td>True</td></tr>
+    <tr><td>&gt; / &lt;</td><td>크다/작다</td><td>5&gt;3</td><td>True</td></tr>
+    <tr><td>&gt;= / &lt;=</td><td>크거나같다/작거나같다</td><td>3&gt;=3</td><td>True</td></tr>
+    <tr><td>and</td><td>둘 다 참</td><td>True and False</td><td>False</td></tr>
+    <tr><td>or</td><td>하나라도 참</td><td>True or False</td><td>True</td></tr>
+    <tr><td>not</td><td>반대</td><td>not True</td><td>False</td></tr></table>
+    </div></div>
   </div>
 
   <!-- 조건문 -->
   <div id="py-cond" class="subsection">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 if / elif / else</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <pre><code><span class="cmt"># 기본 구조</span>
-<span class="kw">if</span> 조건1:
-    <span class="cmt"># 조건1이 참일 때 실행</span>
-<span class="kw">elif</span> 조건2:
-    <span class="cmt"># 조건2가 참일 때 실행</span>
-<span class="kw">else</span>:
-    <span class="cmt"># 모든 조건이 거짓일 때 실행</span>
-
-<span class="cmt"># 예시: 성적 등급</span>
-n = <span class="fn">int</span>(<span class="fn">input</span>())
+    <pre><code>n = <span class="fn">int</span>(<span class="fn">input</span>())
 <span class="kw">if</span> n >= <span class="num">90</span>:
     <span class="fn">print</span>(<span class="str">"A"</span>)
 <span class="kw">elif</span> n >= <span class="num">80</span>:
@@ -391,408 +455,484 @@ n = <span class="fn">int</span>(<span class="fn">input</span>())
     <span class="fn">print</span>(<span class="str">"C"</span>)
 <span class="kw">else</span>:
     <span class="fn">print</span>(<span class="str">"F"</span>)</code></pre>
-    <div class="warn">⚠️ 파이썬은 <strong>들여쓰기(4칸 또는 탭)</strong>로 코드 블록을 구분합니다. 들여쓰기가 틀리면 오류가 발생합니다!</div>
-    <div class="tip">✅ if / elif / else 는 정확히 하나의 블록만 실행됩니다. 여러 독립적 조건은 if를 여러 번 씁니다.</div></div></div>
+    <div class="warn">⚠️ 파이썬은 <strong>들여쓰기(4칸)</strong>로 코드 블록을 구분합니다. 들여쓰기가 잘못되면 오류가 발생합니다!</div>
+    <div class="tip">💡 if / elif / else 는 위에서부터 순서대로 검사해 처음 참인 블록 하나만 실행합니다.</div>
+    </div></div>
   </div>
 
   <!-- 반복문 -->
   <div id="py-loop" class="subsection">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 while 반복문</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <pre><code><span class="cmt"># 조건이 참인 동안 반복</span>
-i = <span class="num">1</span>
+    <pre><code>i = <span class="num">1</span>
 <span class="kw">while</span> i <= <span class="num">5</span>:
     <span class="fn">print</span>(i, end=<span class="str">" "</span>)
     i += <span class="num">1</span>
-<span class="cmt"># 출력: 1 2 3 4 5</span>
-
-<span class="cmt"># 무한 루프 + break</span>
-<span class="kw">while</span> <span class="kw">True</span>:
-    n = <span class="fn">int</span>(<span class="fn">input</span>())
-    <span class="kw">if</span> n == <span class="num">0</span>:
-        <span class="kw">break</span>
-    <span class="fn">print</span>(n)</code></pre></div></div>
-
+<span class="cmt"># 출력: 1 2 3 4 5</span></code></pre>
+    </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 for 반복문 / range()</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <pre><code><span class="cmt"># range(stop): 0 ~ stop-1</span>
-<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):         <span class="cmt"># 0,1,2,3,4</span>
-    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
-
-<span class="cmt"># range(start, stop): start ~ stop-1</span>
-<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):      <span class="cmt"># 1,2,3,4,5</span>
-    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
-
-<span class="cmt"># range(start, stop, step): step씩 증가</span>
-<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">10</span>, <span class="num">2</span>):   <span class="cmt"># 0,2,4,6,8</span>
-    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
-
-<span class="cmt"># 역순 (step=-1)</span>
-<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>, <span class="num">0</span>, -<span class="num">1</span>):   <span class="cmt"># 5,4,3,2,1</span>
-    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
-
-<span class="cmt"># 문자열/리스트 순회</span>
-<span class="kw">for</span> c <span class="kw">in</span> <span class="str">"hello"</span>:           <span class="cmt"># h,e,l,l,o</span>
-    <span class="fn">print</span>(c, end=<span class="str">" "</span>)</code></pre>
-    <table>
-      <tr><th>키워드</th><th>역할</th></tr>
-      <tr><td>break</td><td>반복문 완전 종료</td></tr>
-      <tr><td>continue</td><td>현재 반복 건너뛰고 다음으로</td></tr>
-    </table></div></div>
+    <pre><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):           <span class="cmt"># 0,1,2,3,4</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):        <span class="cmt"># 1,2,3,4,5</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">10</span>, <span class="num">2</span>):    <span class="cmt"># 0,2,4,6,8</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>, <span class="num">0</span>, -<span class="num">1</span>):    <span class="cmt"># 5,4,3,2,1 (역순)</span>
+<span class="kw">for</span> c <span class="kw">in</span> <span class="str">"hello"</span>:            <span class="cmt"># h,e,l,l,o</span></code></pre>
+    <table><tr><th>키워드</th><th>역할</th></tr>
+    <tr><td>break</td><td>반복문 완전 종료</td></tr>
+    <tr><td>continue</td><td>현재 반복 건너뛰고 다음으로</td></tr></table>
+    </div></div>
   </div>
 
   <!-- 리스트 -->
   <div id="py-list" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 리스트 기초</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 리스트 인덱싱·슬라이싱</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <pre><code><span class="cmt"># 리스트 생성</span>
-a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
-b = [<span class="str">'사과'</span>, <span class="str">'바나나'</span>, <span class="num">3</span>, <span class="kw">True</span>]   <span class="cmt"># 혼합 가능</span>
-c = []                              <span class="cmt"># 빈 리스트</span>
-
-<span class="cmt"># 인덱싱 (0부터 시작)</span>
-a[<span class="num">0</span>]   <span class="cmt"># 1  (첫 번째)</span>
-a[<span class="num">2</span>]   <span class="cmt"># 3  (세 번째)</span>
-a[-<span class="num">1</span>]  <span class="cmt"># 5  (마지막)</span>
-a[-<span class="num">2</span>]  <span class="cmt"># 4  (끝에서 두 번째)</span>
-
-<span class="cmt"># 슬라이싱</span>
-a[<span class="num">1</span>:<span class="num">4</span>]   <span class="cmt"># [2,3,4]  인덱스 1~3</span>
-a[:<span class="num">3</span>]    <span class="cmt"># [1,2,3]  처음~인덱스2</span>
-a[<span class="num">2</span>:]    <span class="cmt"># [3,4,5]  인덱스2~끝</span>
-
-<span class="fn">len</span>(a)   <span class="cmt"># 5 (요소 개수)</span></code></pre></div></div>
-
+    <pre><code>a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+a[<span class="num">0</span>]    <span class="cmt"># 1  (첫 번째)</span>
+a[-<span class="num">1</span>]   <span class="cmt"># 5  (마지막)</span>
+a[<span class="num">1</span>:<span class="num">4</span>]  <span class="cmt"># [2,3,4]  인덱스 1~3</span>
+a[:<span class="num">3</span>]   <span class="cmt"># [1,2,3]  처음~인덱스2</span>
+a[<span class="num">2</span>:]   <span class="cmt"># [3,4,5]  인덱스2~끝</span>
+<span class="fn">len</span>(a)  <span class="cmt"># 5 (요소 개수)</span></code></pre>
+    </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 리스트 메서드</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <pre><code>a = [<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>]
-a.append(<span class="num">5</span>)      <span class="cmt"># [3,1,4,5] 맨 뒤에 추가</span>
-a.remove(<span class="num">1</span>)      <span class="cmt"># [3,4,5] 해당 값 제거</span>
-a.sort()          <span class="cmt"># [3,4,5] 오름차순 정렬</span>
+    <pre><code>a.append(<span class="num">5</span>)      <span class="cmt"># 맨 뒤에 추가</span>
+a.remove(<span class="num">1</span>)      <span class="cmt"># 해당 값 제거</span>
+a.sort()          <span class="cmt"># 오름차순 정렬</span>
 a.sort(reverse=<span class="kw">True</span>)  <span class="cmt"># 내림차순</span>
-a.clear()         <span class="cmt"># [] 전체 삭제</span>
-<span class="kw">del</span> a[<span class="num">0</span>]         <span class="cmt"># 특정 인덱스 삭제</span></code></pre>
-    <div class="info-box"><div class="label">split() 과 리스트</div>
-    <pre><code>s = <span class="str">"사과 바나나 포도"</span>
-lst = s.split()       <span class="cmt"># ['사과','바나나','포도']</span>
-lst2 = s.split(<span class="str">","</span>)  <span class="cmt"># 콤마 기준으로 분리</span>
-nums = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split()))</code></pre></div></div></div>
+a.clear()         <span class="cmt"># 전체 삭제</span>
+<span class="kw">del</span> a[<span class="num">0</span>]         <span class="cmt"># 특정 인덱스 삭제</span>
+<span class="cmt"># split()으로 리스트 생성</span>
+nums = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split()))</code></pre>
+    </div></div>
   </div>
 
   <!-- 함수 -->
   <div id="py-func" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 함수 정의와 호출</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 함수 정의·호출·반환</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <pre><code><span class="cmt"># 함수 정의</span>
-<span class="kw">def</span> <span class="fn">greet</span>(name):
-    <span class="fn">print</span>(<span class="str">"안녕,</span> <span class="str">"</span> + name)
-
-<span class="cmt"># 함수 호출</span>
-<span class="fn">greet</span>(<span class="str">"철수"</span>)        <span class="cmt"># 안녕, 철수</span>
-
-<span class="cmt"># 반환값이 있는 함수</span>
-<span class="kw">def</span> <span class="fn">add</span>(a, b):
+    <pre><code><span class="kw">def</span> <span class="fn">add</span>(a, b):
     <span class="kw">return</span> a + b
 
-result = <span class="fn">add</span>(<span class="num">3</span>, <span class="num">4</span>)
-<span class="fn">print</span>(result)         <span class="cmt"># 7</span>
+result = <span class="fn">add</span>(<span class="num">3</span>, <span class="num">4</span>)    <span class="cmt"># 7</span>
 
 <span class="cmt"># 기본값(default) 매개변수</span>
 <span class="kw">def</span> <span class="fn">power</span>(base, exp=<span class="num">2</span>):
     <span class="kw">return</span> base ** exp
 
-<span class="fn">print</span>(<span class="fn">power</span>(<span class="num">3</span>))       <span class="cmt"># 9  (exp=2 기본값 사용)</span>
-<span class="fn">print</span>(<span class="fn">power</span>(<span class="num">3</span>, <span class="num">3</span>))    <span class="cmt"># 27</span></code></pre>
+<span class="fn">power</span>(<span class="num">3</span>)     <span class="cmt"># 9  (exp=2 기본값 사용)</span>
+<span class="fn">power</span>(<span class="num">3</span>, <span class="num">3</span>)  <span class="cmt"># 27</span></code></pre>
     <div class="two-col">
-      <div class="info-box"><div class="label">매개변수 vs 인수</div><p>매개변수(parameter): 함수 <strong>정의</strong> 시 변수명<br>인수(argument): 함수 <strong>호출</strong> 시 전달 값</p></div>
-      <div class="info-box"><div class="label">return이 없으면?</div><p>return이 없거나 return만 있으면 <strong>None</strong>을 반환합니다.</p></div>
-    </div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 지역 변수 vs 전역 변수</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <pre><code>x = <span class="num">10</span>              <span class="cmt"># 전역 변수</span>
-
-<span class="kw">def</span> <span class="fn">test</span>():
-    x = <span class="num">99</span>          <span class="cmt"># 지역 변수 (함수 안에서만 유효)</span>
-    <span class="fn">print</span>(x)        <span class="cmt"># 99</span>
-
-<span class="fn">test</span>()
-<span class="fn">print</span>(x)            <span class="cmt"># 10 (전역 변수는 변하지 않음)</span></code></pre>
-    <div class="warn">⚠️ 함수 안에서 만든 변수는 함수 밖에서 사용할 수 없습니다 (지역 변수).</div></div></div>
+      <div class="info-box"><div class="label">매개변수 vs 인수</div><p>매개변수(parameter): 함수 <strong>정의</strong> 시<br>인수(argument): 함수 <strong>호출</strong> 시 전달</p></div>
+      <div class="info-box"><div class="label">return 없으면?</div><p>return이 없거나 return만 있으면 <strong>None</strong> 반환</p></div>
+    </div>
+    <div class="warn">⚠️ 함수 안의 변수(지역 변수)는 함수 밖에서 사용할 수 없습니다!</div>
+    </div></div>
   </div>
 </div>
 
-<!-- ===== 피지컬 컴퓨팅 섹션 ===== -->
+<!-- ===================== 피지컬 컴퓨팅 탭 ===================== -->
 <div id="tab-pc" class="section">
   <div class="subtab-bar">
-    <button class="subtab-btn active" onclick="switchSub('pc','elec')">전자회로의 기초</button>
-    <button class="subtab-btn" onclick="switchSub('pc','sys')">피지컬 컴퓨팅 시스템</button>
+    <button class="subtab-btn active" onclick="switchSub('pc','elec',this)">전자회로의 기초</button>
+    <button class="subtab-btn" onclick="switchSub('pc','sys',this)">피지컬 컴퓨팅 시스템</button>
   </div>
-
   <div id="pc-elec" class="subsection active">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 전기의 기본 개념</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <table>
-      <tr><th>개념</th><th>단위</th><th>기호</th><th>설명</th></tr>
-      <tr><td><strong>전압 (Voltage)</strong></td><td>볼트 (V)</td><td>V</td><td>전류를 흐르게 하는 힘. 수압에 비유.</td></tr>
-      <tr><td><strong>전류 (Current)</strong></td><td>암페어 (A)</td><td>I</td><td>전자의 흐름. 물의 흐름에 비유.</td></tr>
-      <tr><td><strong>저항 (Resistance)</strong></td><td>옴 (Ω)</td><td>R</td><td>전류의 흐름을 방해하는 성질.</td></tr>
-    </table>
+    <table><tr><th>개념</th><th>단위</th><th>기호</th><th>설명</th></tr>
+    <tr><td><strong>전압 (Voltage)</strong></td><td>볼트 (V)</td><td>V</td><td>전류를 흐르게 하는 힘</td></tr>
+    <tr><td><strong>전류 (Current)</strong></td><td>암페어 (A)</td><td>I</td><td>전자의 흐름 (물의 흐름에 비유)</td></tr>
+    <tr><td><strong>저항 (Resistance)</strong></td><td>옴 (Ω)</td><td>R</td><td>전류의 흐름을 방해하는 성질</td></tr></table>
     <div class="info-box"><div class="label">옴의 법칙 (Ohm's Law)</div>
-    <p style="font-size:1.2rem;text-align:center;color:#c7d2fe;margin:10px 0"><strong>V = I × R</strong></p>
-    <ul>
-      <li>전압(V) = 전류(A) × 저항(Ω)</li>
-      <li>전류(I) = 전압(V) ÷ 저항(Ω)</li>
-      <li>저항(R) = 전압(V) ÷ 전류(A)</li>
-    </ul></div>
-    <div class="tip">✅ 예시: 5V 전원, 저항 100Ω → 전류 = 5 ÷ 100 = 0.05A = 50mA</div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 전자 부품</h3><span class="ico">›</span></div>
+    <p style="font-size:1.3rem;text-align:center;color:#3730a3;margin:10px 0;font-weight:800">V = I × R</p>
+    <ul><li>전류(I) = 전압(V) ÷ 저항(Ω)</li><li>저항(R) = 전압(V) ÷ 전류(A)</li></ul>
+    <p style="font-size:.87rem;color:#475569;margin-top:8px">예) 5V 전원, 100Ω 저항 → 전류 = 5 ÷ 100 = 0.05A = 50mA</p></div>
+    </div></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 주요 전자 부품</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <table>
-      <tr><th>부품</th><th>설명</th><th>특징</th></tr>
-      <tr><td><strong>LED</strong></td><td>발광 다이오드. 전류가 흐르면 빛을 냄.</td><td>긴 다리(+극), 짧은 다리(-극)</td></tr>
-      <tr><td><strong>저항</strong></td><td>전류를 제한함.</td><td>색띠로 저항값 표시</td></tr>
-      <tr><td><strong>버튼(스위치)</strong></td><td>회로를 열고 닫음.</td><td>누르면 연결, 떼면 차단</td></tr>
-      <tr><td><strong>브레드보드</strong></td><td>납땜 없이 회로 구성</td><td>가로줄은 연결, 세로 중앙은 분리</td></tr>
-    </table>
-    <div class="warn">⚠️ LED에 저항 없이 전류를 직접 연결하면 과전류로 LED가 손상될 수 있습니다. 반드시 <strong>저항을 직렬 연결</strong>하세요!</div></div></div>
-
+    <table><tr><th>부품</th><th>설명</th><th>특징</th></tr>
+    <tr><td><strong>LED</strong></td><td>발광 다이오드. 전류가 흐르면 빛을 냄.</td><td>긴 다리(+극 애노드), 짧은 다리(-극 캐소드)</td></tr>
+    <tr><td><strong>저항</strong></td><td>전류를 제한함.</td><td>색띠로 저항값 표시</td></tr>
+    <tr><td><strong>버튼(스위치)</strong></td><td>회로를 열고 닫음.</td><td>누르면 연결, 떼면 차단</td></tr>
+    <tr><td><strong>브레드보드</strong></td><td>납땜 없이 회로 구성</td><td>가로 연결 / 세로 중앙 분리</td></tr></table>
+    <div class="warn">⚠️ LED에 저항 없이 직접 연결하면 과전류로 손상! 반드시 <strong>저항을 직렬 연결</strong>하세요.</div>
+    </div></div>
     <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 직렬·병렬 연결</h3><span class="ico">›</span></div>
     <div class="card-body">
     <div class="two-col">
-      <div class="info-box"><div class="label">직렬 연결</div>
-      <ul>
-        <li>부품을 <strong>한 줄로</strong> 연결</li>
-        <li>전류가 같음: I 동일</li>
-        <li>전압이 분배: V = V₁ + V₂</li>
-        <li>저항이 합산: R = R₁ + R₂</li>
-      </ul></div>
-      <div class="info-box"><div class="label">병렬 연결</div>
-      <ul>
-        <li>부품을 <strong>여러 줄로</strong> 연결</li>
-        <li>전압이 같음: V 동일</li>
-        <li>전류가 분배: I = I₁ + I₂</li>
-        <li>저항 감소: 1/R = 1/R₁ + 1/R₂</li>
-      </ul></div>
+      <div class="info-box"><div class="label">직렬 연결</div><ul><li>부품을 <strong>한 줄로</strong> 연결</li><li>전류 동일: I 동일</li><li>전압 분배: V = V₁+V₂</li><li>저항 합산: R = R₁+R₂</li></ul></div>
+      <div class="info-box"><div class="label">병렬 연결</div><ul><li>부품을 <strong>여러 줄로</strong> 연결</li><li>전압 동일: V 동일</li><li>전류 분배: I = I₁+I₂</li><li>저항 감소: 1/R = 1/R₁+1/R₂</li></ul></div>
     </div></div></div>
   </div>
-
   <div id="pc-sys" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 피지컬 컴퓨팅이란?</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 피지컬 컴퓨팅 시스템</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>피지컬 컴퓨팅(Physical Computing)은 <strong>프로그래밍을 통해 물리적 세계(센서, 모터 등)와 상호작용하는 컴퓨팅</strong>입니다.</p>
-    <div class="info-box"><div class="label">피지컬 컴퓨팅 시스템 3단계</div>
-    <p style="text-align:center;font-size:1.1rem;color:#c7d2fe;margin:10px 0">
-      <strong>입력(Input)</strong> → <strong>처리(Process)</strong> → <strong>출력(Output)</strong>
-    </p>
-    <table>
-      <tr><th>단계</th><th>역할</th><th>예시</th></tr>
-      <tr><td>입력</td><td>물리적 환경 정보를 전기 신호로 변환</td><td>버튼, 온도 센서, 초음파 센서, 빛 센서</td></tr>
-      <tr><td>처리</td><td>입력 신호를 받아 프로그램으로 처리</td><td>라즈베리파이 피코, 아두이노</td></tr>
-      <tr><td>출력</td><td>처리 결과를 물리적으로 표현</td><td>LED, 모터, 스피커, 디스플레이</td></tr>
-    </table></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 라즈베리파이 피코 (Raspberry Pi Pico)</h3><span class="ico">›</span></div>
+    <p>피지컬 컴퓨팅은 <strong>프로그래밍으로 물리적 세계(센서, 모터 등)와 상호작용</strong>하는 컴퓨팅입니다.</p>
+    <div class="info-box"><div class="label">3단계 처리 흐름</div>
+    <p style="text-align:center;font-size:1.1rem;color:#3730a3;font-weight:800;margin:10px 0">입력(Input) → 처리(Process) → 출력(Output)</p>
+    <table><tr><th>단계</th><th>역할</th><th>예시</th></tr>
+    <tr><td>입력</td><td>물리적 정보를 전기 신호로 변환</td><td>버튼, 온도·초음파·빛 센서</td></tr>
+    <tr><td>처리</td><td>프로그램으로 신호를 처리</td><td>라즈베리파이 피코, 아두이노</td></tr>
+    <tr><td>출력</td><td>처리 결과를 물리적으로 표현</td><td>LED, 모터, 스피커, 디스플레이</td></tr></table></div>
+    </div></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 라즈베리파이 피코 & GPIO</h3><span class="ico">›</span></div>
     <div class="card-body">
-    <ul>
-      <li>영국 라즈베리파이 재단이 개발한 <strong>마이크로컨트롤러 보드</strong></li>
-      <li>프로세서: <strong>RP2040</strong> (듀얼 코어 ARM Cortex-M0+)</li>
-      <li><strong>MicroPython</strong>으로 프로그래밍 가능</li>
-      <li><strong>GPIO(General Purpose Input/Output)</strong> 핀: 디지털/아날로그 신호 입출력</li>
-    </ul>
-    <div class="info-box"><div class="label">GPIO 핀 모드</div>
-    <table>
-      <tr><th>모드</th><th>설명</th><th>예시</th></tr>
-      <tr><td>OUT (출력)</td><td>마이크로컨트롤러 → 부품</td><td>LED 켜기/끄기</td></tr>
-      <tr><td>IN (입력)</td><td>부품 → 마이크로컨트롤러</td><td>버튼 눌림 감지</td></tr>
-    </table></div>
+    <ul><li>영국 라즈베리파이 재단이 개발한 <strong>마이크로컨트롤러 보드</strong></li><li>프로세서: <strong>RP2040</strong> (듀얼코어 ARM Cortex-M0+)</li><li><strong>MicroPython</strong>으로 프로그래밍 가능</li><li>GPIO: 디지털/아날로그 신호를 입출력하는 핀</li></ul>
     <pre><code><span class="kw">from</span> machine <span class="kw">import</span> Pin
 <span class="kw">import</span> time
-
 led = <span class="fn">Pin</span>(<span class="num">25</span>, Pin.OUT)   <span class="cmt"># GPIO 25번을 출력으로 설정</span>
-
 <span class="kw">while</span> <span class="kw">True</span>:
     led.value(<span class="num">1</span>)          <span class="cmt"># LED 켜기</span>
-    time.sleep(<span class="num">0.5</span>)       <span class="cmt"># 0.5초 대기</span>
+    time.sleep(<span class="num">0.5</span>)
     led.value(<span class="num">0</span>)          <span class="cmt"># LED 끄기</span>
-    time.sleep(<span class="num">0.5</span>)</code></pre></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 디지털 신호 vs 아날로그 신호</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <div class="two-col">
-      <div class="info-box"><div class="label">디지털 신호</div>
-      <ul>
-        <li>0 또는 1 (HIGH/LOW)</li>
-        <li>버튼, LED 제어</li>
-        <li>정확한 값 표현</li>
-      </ul></div>
-      <div class="info-box"><div class="label">아날로그 신호</div>
-      <ul>
-        <li>연속적인 값 (0~3.3V)</li>
-        <li>가변저항, 온도 센서</li>
-        <li>ADC(아날로그-디지털 변환)로 읽음</li>
-      </ul></div>
-    </div></div></div>
+    time.sleep(<span class="num">0.5</span>)</code></pre>
+    </div></div>
   </div>
 </div>
 
-<!-- ===== 인공지능 섹션 ===== -->
+<!-- ===================== 인공지능 탭 ===================== -->
 <div id="tab-ai" class="section">
   <div class="subtab-bar">
-    <button class="subtab-btn active" onclick="switchSub('ai','intro')">인공지능 개요</button>
-    <button class="subtab-btn" onclick="switchSub('ai','ml')">머신러닝</button>
-    <button class="subtab-btn" onclick="switchSub('ai','types')">학습 유형</button>
-    <button class="subtab-btn" onclick="switchSub('ai','eval')">모델 평가</button>
+    <button class="subtab-btn active" onclick="switchSub('ai','intro',this)">인공지능 개요</button>
+    <button class="subtab-btn" onclick="switchSub('ai','ml',this)">머신러닝</button>
+    <button class="subtab-btn" onclick="switchSub('ai','types',this)">학습 유형</button>
+    <button class="subtab-btn" onclick="switchSub('ai','eval',this)">모델 평가</button>
   </div>
-
   <div id="ai-intro" class="subsection active">
     <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 인공지능(AI)이란?</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>인공지능(Artificial Intelligence, AI)은 <strong>인간의 지적 능력을 컴퓨터로 구현한 기술</strong>입니다.</p>
+    <p>인공지능(AI)은 <strong>인간의 지적 능력을 컴퓨터로 구현한 기술</strong>입니다.</p>
     <div class="info-box"><div class="label">AI 발전 3요소</div>
-    <ul>
-      <li>📊 <strong>빅데이터</strong>: 대량의 학습 데이터</li>
-      <li>💻 <strong>컴퓨팅 파워</strong>: GPU 등 고성능 하드웨어</li>
-      <li>🧠 <strong>알고리즘</strong>: 딥러닝 등 개선된 학습 알고리즘</li>
-    </ul></div>
-    <div class="two-col">
-      <div class="info-box"><div class="label">약한 AI (Narrow AI)</div><p>특정 작업만 수행. 현재 대부분의 AI.<br>예: 알파고, 음성인식, 이미지 인식</p></div>
-      <div class="info-box"><div class="label">강한 AI (General AI)</div><p>인간처럼 모든 작업 수행. 아직 실현 안 됨.<br>예: SF 영화의 로봇</p></div>
-    </div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 AI의 분류 체계</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <p style="text-align:center;color:#c7d2fe;margin:10px 0">
-      <strong>인공지능 ⊃ 머신러닝 ⊃ 딥러닝</strong>
-    </p>
-    <table>
-      <tr><th>개념</th><th>설명</th></tr>
-      <tr><td><strong>인공지능 (AI)</strong></td><td>인간 지능을 모방한 컴퓨터 기술 전반</td></tr>
-      <tr><td><strong>머신러닝 (ML)</strong></td><td>데이터로부터 스스로 학습하는 AI의 한 분야</td></tr>
-      <tr><td><strong>딥러닝 (DL)</strong></td><td>인공신경망을 깊게 쌓은 머신러닝의 한 분야</td></tr>
-    </table></div></div>
+    <ul><li>📊 <strong>빅데이터</strong>: 대량의 학습 데이터</li><li>💻 <strong>컴퓨팅 파워</strong>: GPU 등 고성능 하드웨어</li><li>🧠 <strong>알고리즘</strong>: 딥러닝 등 개선된 학습 알고리즘</li></ul></div>
+    <p style="text-align:center;font-size:1rem;color:#3730a3;font-weight:700;margin:14px 0">인공지능 ⊃ 머신러닝 ⊃ 딥러닝</p>
+    </div></div>
   </div>
-
   <div id="ai-ml" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 머신러닝(Machine Learning)이란?</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 머신러닝(Machine Learning)</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p>머신러닝은 <strong>사람이 직접 규칙을 설정하지 않고, 데이터로부터 패턴을 학습하여 예측·분류하는 기술</strong>입니다.</p>
+    <p>머신러닝은 <strong>사람이 직접 규칙을 설정하지 않고, 데이터로부터 패턴을 학습</strong>하여 예측·분류하는 기술입니다.</p>
     <div class="two-col">
       <div class="info-box"><div class="label">전통적 프로그래밍</div><p>데이터 + 규칙 → 결과</p></div>
       <div class="info-box"><div class="label">머신러닝</div><p>데이터 + 결과 → 규칙(모델)</p></div>
     </div>
-    <div class="info-box"><div class="label">머신러닝 용어 정리</div>
-    <table>
-      <tr><th>용어</th><th>설명</th></tr>
-      <tr><td>데이터셋</td><td>학습에 사용되는 데이터 집합</td></tr>
-      <tr><td>특성(Feature)</td><td>입력 데이터의 속성 (예: 키, 몸무게)</td></tr>
-      <tr><td>레이블(Label)</td><td>정답 데이터 (예: 성별)</td></tr>
-      <tr><td>모델(Model)</td><td>학습을 통해 만들어진 예측 함수</td></tr>
-      <tr><td>학습(Training)</td><td>모델이 데이터에서 패턴을 찾는 과정</td></tr>
-      <tr><td>예측(Prediction)</td><td>학습된 모델로 새 데이터를 분류/예측</td></tr>
-    </table></div></div></div>
+    <table><tr><th>용어</th><th>설명</th></tr>
+    <tr><td>특성(Feature)</td><td>입력 데이터의 속성 (예: 키, 몸무게)</td></tr>
+    <tr><td>레이블(Label)</td><td>정답 데이터 (예: 성별)</td></tr>
+    <tr><td>모델(Model)</td><td>학습을 통해 만들어진 예측 함수</td></tr></table>
+    </div></div>
   </div>
-
   <div id="ai-types" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 지도 학습 (Supervised Learning)</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 지도·비지도·강화 학습</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <p><strong>정답(레이블)이 있는 데이터</strong>로 학습합니다.</p>
+    <table><tr><th>학습 유형</th><th>특징</th><th>예시</th></tr>
+    <tr><td><strong>지도 학습</strong></td><td>정답(레이블)이 있는 데이터로 학습</td><td>스팸 분류, 주택 가격 예측</td></tr>
+    <tr><td><strong>비지도 학습</strong></td><td>정답 없이 데이터에서 패턴 발견</td><td>군집화(Clustering)</td></tr>
+    <tr><td><strong>강화 학습</strong></td><td>보상을 최대화하는 방향으로 학습</td><td>알파고, 자율주행</td></tr></table>
+    <div class="info-box"><div class="label">지도학습의 두 가지 유형</div>
     <div class="two-col">
-      <div class="info-box"><div class="label">분류 (Classification)</div><p>데이터를 <strong>범주</strong>로 예측<br>예: 스팸 메일 분류, 손글씨 숫자 인식, 암 진단</p></div>
-      <div class="info-box"><div class="label">회귀 (Regression)</div><p>데이터를 <strong>연속 수치</strong>로 예측<br>예: 주택 가격 예측, 기온 예측</p></div>
-    </div>
-    <p>대표 알고리즘: <strong>k-최근접 이웃(k-NN)</strong>, 결정 트리, 선형 회귀, SVM</p>
-    <div class="info-box"><div class="label">k-최근접 이웃 (k-NN) 알고리즘</div>
-    <p>새로운 데이터 주변의 가장 가까운 k개의 이웃을 찾아 <strong>다수결로 분류</strong>합니다.</p>
-    <ul>
-      <li>k=1: 가장 가까운 1개 이웃의 클래스로 분류</li>
-      <li>k=3: 가장 가까운 3개 이웃 중 많은 클래스로 분류</li>
-    </ul></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 비지도 학습 (Unsupervised Learning)</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <p><strong>정답(레이블)이 없는 데이터</strong>에서 스스로 패턴을 찾습니다.</p>
-    <div class="info-box"><div class="label">군집화 (Clustering)</div>
-    <p>유사한 데이터끼리 <strong>그룹(군집)</strong>으로 묶습니다.<br>예: 고객 분류, 문서 분류<br>대표 알고리즘: <strong>k-means</strong></p></div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 강화 학습 (Reinforcement Learning)</h3><span class="ico">›</span></div>
-    <div class="card-body">
-    <p><strong>환경과의 상호작용을 통해 보상을 최대화</strong>하는 방향으로 학습합니다.</p>
-    <table>
-      <tr><th>구성 요소</th><th>설명</th><th>예시</th></tr>
-      <tr><td>에이전트(Agent)</td><td>학습하고 행동하는 주체</td><td>게임 캐릭터</td></tr>
-      <tr><td>환경(Environment)</td><td>에이전트가 상호작용하는 세계</td><td>게임 맵</td></tr>
-      <tr><td>행동(Action)</td><td>에이전트의 선택</td><td>이동, 공격</td></tr>
-      <tr><td>보상(Reward)</td><td>행동의 결과로 받는 점수</td><td>+점수, -점수</td></tr>
-    </table>
-    <p>예시: 알파고(바둑), 자율주행차, 게임 AI</p></div></div>
+      <div><strong>분류 (Classification)</strong><p style="font-size:.87rem;color:#475569">데이터를 범주로 예측<br>예: 스팸/정상 메일</p></div>
+      <div><strong>회귀 (Regression)</strong><p style="font-size:.87rem;color:#475569">연속 수치를 예측<br>예: 주택 가격 예측</p></div>
+    </div></div>
+    </div></div>
   </div>
-
   <div id="ai-eval" class="subsection">
-    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 데이터 분할: 훈련/검증/테스트</h3><span class="ico">›</span></div>
+    <div class="card"><div class="card-header open" onclick="toggle(this)"><h3>🔹 모델 평가 & 과적합</h3><span class="ico">›</span></div>
     <div class="card-body open">
-    <table>
-      <tr><th>데이터셋</th><th>비율(일반)</th><th>역할</th></tr>
-      <tr><td><strong>훈련 데이터</strong></td><td>60~80%</td><td>모델 학습에 사용</td></tr>
-      <tr><td><strong>검증 데이터</strong></td><td>10~20%</td><td>하이퍼파라미터 조정</td></tr>
-      <tr><td><strong>테스트 데이터</strong></td><td>10~20%</td><td>최종 성능 평가</td></tr>
-    </table>
-    <div class="warn">⚠️ 테스트 데이터는 학습에 절대 사용하지 않아야 합니다!</div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 과적합 vs 과소적합</h3><span class="ico">›</span></div>
-    <div class="card-body">
+    <table><tr><th>데이터셋</th><th>비율</th><th>역할</th></tr>
+    <tr><td><strong>훈련 데이터</strong></td><td>60~80%</td><td>모델 학습</td></tr>
+    <tr><td><strong>검증 데이터</strong></td><td>10~20%</td><td>하이퍼파라미터 조정</td></tr>
+    <tr><td><strong>테스트 데이터</strong></td><td>10~20%</td><td>최종 성능 평가</td></tr></table>
     <div class="two-col">
-      <div class="info-box"><div class="label">과적합 (Overfitting)</div>
-      <ul>
-        <li>훈련 데이터에 <strong>너무 딱 맞게</strong> 학습</li>
-        <li>새 데이터 → 성능 낮음</li>
-        <li>해결: 데이터 추가, 정규화</li>
-      </ul></div>
-      <div class="info-box"><div class="label">과소적합 (Underfitting)</div>
-      <ul>
-        <li>훈련 데이터도 잘 못 맞춤</li>
-        <li>모델이 너무 단순</li>
-        <li>해결: 모델 복잡도 높임</li>
-      </ul></div>
-    </div></div></div>
-
-    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 딥러닝과 인공신경망</h3><span class="ico">›</span></div>
+      <div class="info-box"><div class="label">과적합 (Overfitting)</div><p>훈련 데이터엔 잘 맞지만 새 데이터에 성능이 낮은 상태.<br>해결: 데이터 추가, 정규화</p></div>
+      <div class="info-box"><div class="label">과소적합 (Underfitting)</div><p>훈련 데이터도 잘 못 맞춤. 모델이 너무 단순.<br>해결: 모델 복잡도 높임</p></div>
+    </div>
+    </div></div>
+    <div class="card"><div class="card-header" onclick="toggle(this)"><h3>🔹 딥러닝 & 인공신경망</h3><span class="ico">›</span></div>
     <div class="card-body">
     <p>인공신경망(ANN)은 <strong>인간의 뇌 신경세포(뉴런)를 모방</strong>한 구조입니다.</p>
-    <table>
-      <tr><th>층</th><th>역할</th></tr>
-      <tr><td><strong>입력층</strong></td><td>데이터 입력</td></tr>
-      <tr><td><strong>은닉층</strong></td><td>특성 추출 및 변환 (여러 층 = 딥러닝)</td></tr>
-      <tr><td><strong>출력층</strong></td><td>최종 예측값 출력</td></tr>
-    </table>
-    <div class="tip">✅ 딥러닝은 은닉층을 <strong>깊게(deep)</strong> 쌓아 복잡한 패턴을 학습합니다.</div></div></div>
+    <table><tr><th>층</th><th>역할</th></tr>
+    <tr><td><strong>입력층</strong></td><td>데이터 입력</td></tr>
+    <tr><td><strong>은닉층</strong></td><td>특성 추출 및 변환 (여러 층 = 딥러닝)</td></tr>
+    <tr><td><strong>출력층</strong></td><td>최종 예측값 출력</td></tr></table>
+    <div class="tip">💡 딥러닝은 은닉층을 <strong>깊게(deep)</strong> 쌓아 복잡한 패턴을 학습합니다.</div>
+    </div></div>
   </div>
 </div>
 
 </div><!-- end container -->
 
 <script>
-function switchTab(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  event.target.classList.add('active');
+/* ─── 탭·서브탭 전환 ───────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
 }
-
-function switchSub(tab, sub) {
-  const tabEl = document.getElementById('tab-' + tab);
-  tabEl.querySelectorAll('.subsection').forEach(s => s.classList.remove('active'));
-  tabEl.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tab + '-' + sub).classList.add('active');
-  event.target.classList.add('active');
+function switchSub(tab, sub, btn) {
+  const tabEl = document.getElementById('tab-'+tab);
+  tabEl.querySelectorAll('.subsection').forEach(s=>s.classList.remove('active'));
+  tabEl.querySelectorAll('.subtab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tab+'-'+sub).classList.add('active');
+  btn.classList.add('active');
 }
-
 function toggle(header) {
   header.classList.toggle('open');
-  const body = header.nextElementSibling;
-  body.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
 }
+
+/* ─── 시뮬레이션 공통 ───────────────────────────────── */
+const DATA = [5, 3, 8, 1, 9, 2, 7, 4, 6];
+const MAX_H = 120;
+
+function makeSimulator({prefix, buildSteps, renderFn}) {
+  let steps=[], idx=0, autoTimer=null;
+  function reset(){
+    clearAuto();
+    steps = buildSteps();
+    idx = 0;
+    renderFn(steps[0]);
+    updateUI();
+  }
+  function go(n){
+    clearAuto();
+    idx = Math.max(0,Math.min(steps.length-1,idx+n));
+    renderFn(steps[idx]);
+    updateUI();
+  }
+  function prev(){ go(-1); }
+  function next(){ go(1); }
+  function toggleAuto(){
+    if(autoTimer){ clearAuto(); document.getElementById(prefix+'-auto').textContent='▶▶ 자동'; return; }
+    document.getElementById(prefix+'-auto').textContent='⏸ 정지';
+    autoTimer=setInterval(()=>{
+      if(idx>=steps.length-1){ clearAuto(); document.getElementById(prefix+'-auto').textContent='▶▶ 자동'; return; }
+      idx++; renderFn(steps[idx]); updateUI();
+    },800);
+  }
+  function clearAuto(){ if(autoTimer){clearInterval(autoTimer);autoTimer=null;} }
+  function updateUI(){
+    document.getElementById(prefix+'-step-info').textContent=`${idx+1} / ${steps.length} 단계`;
+    document.getElementById(prefix+'-prev').disabled=(idx===0);
+    document.getElementById(prefix+'-next').disabled=(idx===steps.length-1);
+    const p=document.getElementById(prefix+'-prog');
+    if(p) p.style.width=((idx+1)/steps.length*100)+'%';
+  }
+  return {reset,prev,next,toggleAuto};
+}
+
+/* ─── 버블 정렬 ────────────────────────────────────── */
+function buildBubbleSteps(){
+  const arr=[...DATA]; const steps=[];
+  const n=arr.length; const sorted=new Set();
+  steps.push({arr:[...arr],compare:[-1,-1],swap:false,sorted:new Set(sorted),pass:0,log:'시작: 배열을 버블 정렬합니다.',phase:'init'});
+  for(let i=0;i<n-1;i++){
+    for(let j=0;j<n-1-i;j++){
+      steps.push({arr:[...arr],compare:[j,j+1],swap:false,sorted:new Set(sorted),pass:i+1,log:`<span class="step-num">패스 ${i+1}</span> arr[${j}](<strong>${arr[j]}</strong>)과 arr[${j+1}](<strong>${arr[j+1]}</strong>)을 비교합니다.`});
+      if(arr[j]>arr[j+1]){
+        [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+        steps.push({arr:[...arr],compare:[j,j+1],swap:true,sorted:new Set(sorted),pass:i+1,log:`<span class="step-num">교환!</span> ${arr[j+1]} > ${arr[j]} 이므로 두 값을 교환합니다. → [${arr}]`});
+      } else {
+        steps.push({arr:[...arr],compare:[j,j+1],swap:false,sorted:new Set(sorted),pass:i+1,log:`<span class="step-num">유지</span> ${arr[j]} ≤ ${arr[j+1]} 이므로 교환하지 않습니다.`});
+      }
+    }
+    sorted.add(n-1-i);
+    steps.push({arr:[...arr],compare:[-1,-1],swap:false,sorted:new Set(sorted),pass:i+1,log:`<span class="step-num">패스 ${i+1} 완료</span> 인덱스 ${n-1-i}의 값 <strong>${arr[n-1-i]}</strong>이(가) 제자리를 찾았습니다.`});
+  }
+  sorted.add(0);
+  steps.push({arr:[...arr],compare:[-1,-1],swap:false,sorted:new Set(Array.from({length:n},(_,i)=>i)),pass:n-1,log:'✅ 정렬 완료! 모든 원소가 오름차순으로 정렬되었습니다.'});
+  return steps;
+}
+function renderBubble(s){
+  const maxVal=Math.max(...s.arr);
+  const html=s.arr.map((v,i)=>{
+    let cls='bar';
+    if(s.sorted.has(i)) cls+=' sorted';
+    else if(s.compare[0]===i||s.compare[1]===i) cls+=s.swap?' swapping':' comparing';
+    else cls+=' default';
+    const h=Math.round((v/maxVal)*MAX_H)+20;
+    return `<div class="${cls}"><div class="bar-rect" style="height:${h}px">${v}</div><div class="bar-lbl">[${i}]</div></div>`;
+  }).join('');
+  document.getElementById('bubble-array').innerHTML=html;
+  document.getElementById('bubble-log').innerHTML=s.log;
+  const pi=document.getElementById('bubble-pass-info');
+  if(pi) pi.textContent=s.pass>0?`패스 ${s.pass} 진행 중`:'';
+}
+const bubbleSim = makeSimulator({prefix:'bubble',buildSteps:buildBubbleSteps,renderFn:renderBubble});
+
+/* ─── 선택 정렬 ────────────────────────────────────── */
+function buildSelSteps(){
+  const arr=[...DATA]; const steps=[];
+  const n=arr.length; const sorted=new Set();
+  steps.push({arr:[...arr],sorted:new Set(),minIdx:-1,checkIdx:-1,swapPair:[-1,-1],pass:0,log:'시작: 배열을 선택 정렬합니다.',phase:'init'});
+  for(let i=0;i<n-1;i++){
+    let minIdx=i;
+    steps.push({arr:[...arr],sorted:new Set(sorted),minIdx,checkIdx:-1,swapPair:[-1,-1],pass:i+1,log:`<span class="step-num">패스 ${i+1}</span> 인덱스 ${i}부터 끝까지 최솟값 탐색 시작. 현재 최솟값: arr[${minIdx}]=<strong>${arr[minIdx]}</strong>`});
+    for(let j=i+1;j<n;j++){
+      steps.push({arr:[...arr],sorted:new Set(sorted),minIdx,checkIdx:j,swapPair:[-1,-1],pass:i+1,log:`<span class="step-num">비교</span> arr[${j}](<strong>${arr[j]}</strong>) vs 현재 최솟값 arr[${minIdx}](<strong>${arr[minIdx]}</strong>)`});
+      if(arr[j]<arr[minIdx]){
+        minIdx=j;
+        steps.push({arr:[...arr],sorted:new Set(sorted),minIdx,checkIdx:j,swapPair:[-1,-1],pass:i+1,log:`<span class="step-num">갱신!</span> 새 최솟값 발견! arr[${minIdx}]=<strong>${arr[minIdx]}</strong>`});
+      }
+    }
+    [arr[i],arr[minIdx]]=[arr[minIdx],arr[i]];
+    sorted.add(i);
+    steps.push({arr:[...arr],sorted:new Set(sorted),minIdx:-1,checkIdx:-1,swapPair:[i,minIdx],pass:i+1,log:`<span class="step-num">교환!</span> arr[${i}]와 arr[${minIdx}]를 교환합니다. → [${arr}]`});
+  }
+  sorted.add(n-1);
+  steps.push({arr:[...arr],sorted:new Set(Array.from({length:n},(_,i)=>i)),minIdx:-1,checkIdx:-1,swapPair:[-1,-1],pass:n-1,log:'✅ 정렬 완료! 모든 원소가 오름차순으로 정렬되었습니다.'});
+  return steps;
+}
+function renderSel(s){
+  const maxVal=Math.max(...s.arr);
+  const html=s.arr.map((v,i)=>{
+    let cls='bar';
+    if(s.sorted.has(i)) cls+=' sorted';
+    else if(i===s.minIdx) cls+=' current-min';
+    else if(i===s.checkIdx) cls+=' comparing';
+    else cls+=' default';
+    const h=Math.round((v/maxVal)*MAX_H)+20;
+    return `<div class="${cls}"><div class="bar-rect" style="height:${h}px">${v}</div><div class="bar-lbl">[${i}]</div></div>`;
+  }).join('');
+  document.getElementById('sel-array').innerHTML=html;
+  document.getElementById('sel-log').innerHTML=s.log;
+  const pi=document.getElementById('sel-pass-info');
+  if(pi) pi.textContent=s.pass>0?`패스 ${s.pass} 진행 중`:'';
+}
+const selSim = makeSimulator({prefix:'sel',buildSteps:buildSelSteps,renderFn:renderSel});
+
+/* ─── 순차 탐색 ────────────────────────────────────── */
+const SEQ_DATA=[4,2,7,1,9,3,8,5,6];
+function buildSeqSteps(target){
+  const arr=SEQ_DATA; const steps=[];
+  steps.push({arr,check:-1,found:-1,past:new Set(),log:`탐색 시작: 배열에서 <strong>${target}</strong>을(를) 찾습니다.`});
+  for(let i=0;i<arr.length;i++){
+    const past=new Set(Array.from({length:i},(_,k)=>k));
+    steps.push({arr,check:i,found:-1,past,log:`<span class="step-num">인덱스 ${i}</span> arr[${i}]=<strong>${arr[i]}</strong>을(를) <strong>${target}</strong>과 비교합니다.`});
+    if(arr[i]===target){
+      steps.push({arr,check:-1,found:i,past,log:`✅ <span class="step-num">발견!</span> arr[${i}]=<strong>${arr[i]}</strong>. 인덱스 <strong>${i}</strong>에서 찾았습니다. (${i+1}번째 비교)`});
+      return steps;
+    } else {
+      const p2=new Set([...past,i]);
+      steps.push({arr,check:-1,found:-1,past:p2,log:`<span class="step-num">불일치</span> ${arr[i]} ≠ ${target}. 다음으로 넘어갑니다.`});
+    }
+  }
+  steps.push({arr,check:-1,found:-2,past:new Set(Array.from({length:arr.length},(_,i)=>i)),log:`❌ <span class="step-num">탐색 실패</span> 배열 전체를 탐색했지만 <strong>${target}</strong>을(를) 찾지 못했습니다. (-1 반환)`});
+  return steps;
+}
+function renderSeq(s){
+  const html=s.arr.map((v,i)=>{
+    let cls='s-cell';
+    if(s.found===i) cls+=' found';
+    else if(s.check===i) cls+=' checking';
+    else if(s.past.has(i)) cls+=' eliminated';
+    return `<div class="${cls}"><div class="val">${v}</div><div class="idx">[${i}]</div></div>`;
+  }).join('');
+  document.getElementById('seq-array').innerHTML=html;
+  document.getElementById('seq-log').innerHTML=s.log;
+}
+const seqSim=(()=>{
+  let steps=[],idx=0,autoTimer=null;
+  function reset(){
+    clearAuto();
+    const t=parseInt(document.getElementById('seq-target').value)||7;
+    steps=buildSeqSteps(t); idx=0;
+    renderSeq(steps[0]); updateUI();
+  }
+  function go(n){ clearAuto(); idx=Math.max(0,Math.min(steps.length-1,idx+n)); renderSeq(steps[idx]); updateUI(); }
+  function prev(){go(-1);}
+  function next(){go(1);}
+  function toggleAuto(){
+    if(autoTimer){clearAuto();document.getElementById('seq-auto').textContent='▶▶ 자동';return;}
+    document.getElementById('seq-auto').textContent='⏸ 정지';
+    autoTimer=setInterval(()=>{if(idx>=steps.length-1){clearAuto();document.getElementById('seq-auto').textContent='▶▶ 자동';return;}idx++;renderSeq(steps[idx]);updateUI();},900);
+  }
+  function clearAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+  function updateUI(){
+    document.getElementById('seq-step-info').textContent=`${idx+1} / ${steps.length} 단계`;
+    document.getElementById('seq-prev').disabled=(idx===0);
+    document.getElementById('seq-next').disabled=(idx===steps.length-1);
+  }
+  return {reset,prev,next,toggleAuto};
+})();
+
+/* ─── 이진 탐색 ────────────────────────────────────── */
+const BIN_DATA=[1,3,5,7,9,11,13,15,17];
+function buildBinSteps(target){
+  const arr=BIN_DATA; const steps=[];
+  let left=0,right=arr.length-1;
+  steps.push({arr,left,right,mid:-1,found:-1,elim:new Set(),log:`탐색 시작: 정렬된 배열에서 <strong>${target}</strong>을(를) 이진 탐색합니다. left=${left}, right=${right}`});
+  let iter=0;
+  while(left<=right){
+    iter++;
+    const mid=Math.floor((left+right)/2);
+    const elim=new Set();
+    for(let i=0;i<arr.length;i++) if(i<left||i>right) elim.add(i);
+    steps.push({arr,left,right,mid,found:-1,elim:new Set(elim),log:`<span class="step-num">비교 ${iter}</span> mid = (${left}+${right})//2 = <strong>${mid}</strong>. arr[mid]=<strong>${arr[mid]}</strong>을(를) <strong>${target}</strong>과 비교합니다.`});
+    if(arr[mid]===target){
+      steps.push({arr,left,right,mid:-1,found:mid,elim:new Set(elim),log:`✅ <span class="step-num">발견!</span> arr[${mid}]=<strong>${arr[mid]}</strong>. 인덱스 <strong>${mid}</strong>에서 찾았습니다! (${iter}번만에 탐색 완료)`});
+      return steps;
+    } else if(arr[mid]<target){
+      steps.push({arr,left:mid+1,right,mid:-1,found:-1,elim:new Set(elim),log:`<span class="step-num">오른쪽 탐색</span> ${arr[mid]} < ${target} → left를 ${mid+1}로 이동합니다.`});
+      left=mid+1;
+    } else {
+      steps.push({arr,left,right:mid-1,mid:-1,found:-1,elim:new Set(elim),log:`<span class="step-num">왼쪽 탐색</span> ${arr[mid]} > ${target} → right를 ${mid-1}로 이동합니다.`});
+      right=mid-1;
+    }
+  }
+  steps.push({arr,left,right,mid:-1,found:-2,elim:new Set(Array.from({length:arr.length},(_,i)=>i)),log:`❌ <span class="step-num">탐색 실패</span> left(${left}) > right(${right}). <strong>${target}</strong>을(를) 찾지 못했습니다. (-1 반환)`});
+  return steps;
+}
+function renderBin(s){
+  const html=s.arr.map((v,i)=>{
+    let cls='s-cell';
+    const ptrs=[];
+    if(s.found===i) cls+=' found';
+    else if(s.elim.has(i)) cls+=' eliminated';
+    if(i===s.left&&s.found<0&&!s.elim.has(i)){ cls+=' left-ptr'; ptrs.push(`<span class="ptr" style="background:#3b82f6;color:#fff">L</span>`); }
+    if(i===s.mid&&s.mid>=0){ cls+=' checking'; ptrs.push(`<span class="ptr" style="background:#8b5cf6;color:#fff;top:-38px">M</span>`); }
+    if(i===s.right&&s.found<0&&!s.elim.has(i)){ cls+=' right-ptr'; ptrs.push(`<span class="ptr" style="background:#ec4899;color:#fff;top:-54px">R</span>`); }
+    return `<div class="${cls}" style="position:relative;margin-top:60px">${ptrs.join('')}<div class="val">${v}</div><div class="idx">[${i}]</div></div>`;
+  }).join('');
+  document.getElementById('bin-array').innerHTML=html;
+  document.getElementById('bin-log').innerHTML=s.log;
+}
+const binSim=(()=>{
+  let steps=[],idx=0,autoTimer=null;
+  function reset(){
+    clearAuto();
+    const t=parseInt(document.getElementById('bin-target').value)||7;
+    if(!BIN_DATA.includes(t)){
+      const c=confirm(`${t}는 배열에 없습니다.\n배열: [${BIN_DATA}]\n\n탐색 실패 과정을 보여드릴까요?`);
+      if(!c) return;
+    }
+    steps=buildBinSteps(t); idx=0;
+    renderBin(steps[0]); updateUI();
+  }
+  function go(n){ clearAuto(); idx=Math.max(0,Math.min(steps.length-1,idx+n)); renderBin(steps[idx]); updateUI(); }
+  function prev(){go(-1);}
+  function next(){go(1);}
+  function toggleAuto(){
+    if(autoTimer){clearAuto();document.getElementById('bin-auto').textContent='▶▶ 자동';return;}
+    document.getElementById('bin-auto').textContent='⏸ 정지';
+    autoTimer=setInterval(()=>{if(idx>=steps.length-1){clearAuto();document.getElementById('bin-auto').textContent='▶▶ 자동';return;}idx++;renderBin(steps[idx]);updateUI();},900);
+  }
+  function clearAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+  function updateUI(){
+    document.getElementById('bin-step-info').textContent=`${idx+1} / ${steps.length} 단계`;
+    document.getElementById('bin-prev').disabled=(idx===0);
+    document.getElementById('bin-next').disabled=(idx===steps.length-1);
+  }
+  return {reset,prev,next,toggleAuto};
+})();
+
+/* 페이지 로드 시 시뮬레이션 초기화 */
+bubbleSim.reset();
+selSim.reset();
+seqSim.reset();
+binSim.reset();
 </script>
 </body>
 </html>
