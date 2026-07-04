@@ -55,6 +55,11 @@ body{
 .btn.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);color:#fff;}
 .btn.small{padding:6px 12px;font-size:12.5px;border-radius:8px;}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
+.sheet-url-input{
+  padding:9px 14px;border-radius:10px;border:1px solid var(--border);font-size:13.5px;font-family:inherit;
+  width:300px;max-width:60vw;background:var(--surface);color:var(--text);
+}
+.sheet-url-input:focus{outline:none;border-color:var(--accent);}
 
 .data-badge{
   display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-dark);
@@ -222,8 +227,8 @@ body{
       <div class="data-badge"><span class="dot"></span><span id="dataBadgeText">현재 예시(샘플) 데이터로 표시 중 — 실제 데이터를 불러오면 자동 반영됩니다</span></div>
     </div>
     <div class="header-actions">
-      <input type="file" id="fileInput" accept=".csv" style="display:none">
-      <button class="btn" id="loadDataBtn">📂 데이터 불러오기 (CSV)</button>
+      <input type="url" id="sheetUrlInput" class="sheet-url-input" placeholder="구글 시트 공유 링크를 붙여넣으세요">
+      <button class="btn primary" id="loadSheetBtn">🔗 링크로 불러오기</button>
       <button class="btn" id="formatHelpBtn">형식 안내</button>
     </div>
   </div>
@@ -960,40 +965,101 @@ document.querySelectorAll('.tabbtn').forEach(btn=>{
 });
 
 /* ============================================================
-   11. CSV 데이터 불러오기
+   11. 구글 시트 링크로 데이터 불러오기
 ============================================================ */
-document.getElementById('loadDataBtn').addEventListener('click', ()=>document.getElementById('fileInput').click());
+function buildCandidateCsvUrls(rawUrl){
+  const url = rawUrl.trim();
+  if(/output=csv|format=csv|tqx=out:csv/.test(url)) return [url];
+  const pubMatch = url.match(/\/d\/e\/([a-zA-Z0-9-_]+)/);
+  if(pubMatch) return [`https://docs.google.com/spreadsheets/d/e/${pubMatch[1]}/pub?output=csv`];
+  const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(!idMatch) return [];
+  const gidMatch = url.match(/[?#&]gid=([0-9]+)/);
+  const gid = gidMatch ? gidMatch[1] : '0';
+  const id = idMatch[1];
+  return [
+    `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&gid=${gid}`,
+    `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`
+  ];
+}
+
+const SHEET_URL_KEY = 'discDashboardSheetUrl';
+const sheetUrlInput = document.getElementById('sheetUrlInput');
+const loadSheetBtn = document.getElementById('loadSheetBtn');
+const savedSheetUrl = localStorage.getItem(SHEET_URL_KEY);
+if(savedSheetUrl) sheetUrlInput.value = savedSheetUrl;
+
 document.getElementById('formatHelpBtn').addEventListener('click', ()=>{
-  alert('CSV 형식 안내\n\n첫 줄(헤더) 예시:\n모둠,학번,이름,문항1,문항2,...,문항20\n\n- 모둠: 숫자 (예: 1, 2, 3)\n- 학번: 텍스트/숫자\n- 이름: 텍스트\n- 문항1~문항20: 1~5 점수\n\n인코딩은 UTF-8을 권장합니다.');
+  alert('구글 시트 불러오기 안내\n\n1) 시트 우측 상단 "공유" → "링크가 있는 모든 사용자"를 "뷰어"로 설정하세요.\n2) 주소창의 시트 링크(예: https://docs.google.com/spreadsheets/d/…/edit#gid=0)를 그대로 붙여넣고 [링크로 불러오기]를 누르세요.\n3) 첫 번째 행은 헤더로 취급되어 건너뜁니다.\n\n열 구성 (왼쪽부터 순서대로):\n모둠, 학번, 이름, 문항1, 문항2, … , 문항20\n\n- 모둠: 숫자 (예: 1, 2, 3)\n- 문항1~문항20: 1~5 점수');
 });
-document.getElementById('fileInput').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt)=>{
-    try{
-      const parsed = parseCSV(evt.target.result);
-      if(!parsed.length) throw new Error('empty');
-      DATA = parsed;
-      selectedStudentId = null;
-      currentGroup = 'all';
-      document.getElementById('dataBadgeText').textContent = `'${file.name}' 데이터 적용됨 (${DATA.length}명)`;
-      rebuildAll();
-    }catch(err){
-      alert('CSV 파일을 읽는 중 문제가 발생했습니다. 형식을 확인해주세요.');
+
+async function loadFromSheetUrl(){
+  const raw = sheetUrlInput.value;
+  if(!raw.trim()){ alert('구글 시트 링크를 입력해주세요.'); return; }
+  const candidates = buildCandidateCsvUrls(raw);
+  if(!candidates.length){ alert('구글 시트 링크 형식을 확인해주세요.'); return; }
+
+  loadSheetBtn.disabled = true;
+  const originalLabel = loadSheetBtn.textContent;
+  loadSheetBtn.textContent = '불러오는 중…';
+  try{
+    let text=null, lastErr=null;
+    for(const csvUrl of candidates){
+      try{
+        const res = await fetch(csvUrl, {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        text = await res.text();
+        break;
+      }catch(err){ lastErr = err; }
     }
-  };
-  reader.readAsText(file, 'UTF-8');
-});
+    if(text===null) throw lastErr || new Error('fetch failed');
+
+    const parsed = parseCSV(text);
+    if(!parsed.length) throw new Error('empty or invalid data');
+    DATA = parsed;
+    selectedStudentId = null;
+    currentGroup = 'all';
+    localStorage.setItem(SHEET_URL_KEY, raw.trim());
+    const now = new Date();
+    document.getElementById('dataBadgeText').textContent =
+      `구글 시트 데이터 적용됨 (${DATA.length}명) · ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} 기준`;
+    rebuildAll();
+  }catch(err){
+    alert('구글 시트를 불러오지 못했습니다.\n\n다음을 확인해주세요.\n1) 시트 공유 설정이 "링크가 있는 모든 사용자 - 뷰어"인지\n2) 링크 주소가 올바른지\n3) 열 구성이 [모둠, 학번, 이름, 문항1~20] 순서인지');
+  }finally{
+    loadSheetBtn.disabled = false;
+    loadSheetBtn.textContent = originalLabel;
+  }
+}
+loadSheetBtn.addEventListener('click', loadFromSheetUrl);
+sheetUrlInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') loadFromSheetUrl(); });
+
+function csvToRows(text){
+  const rows=[]; let row=[], field='', inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i++; } else inQuotes=false; }
+      else field+=c;
+    }else{
+      if(c==='"') inQuotes=true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\r'){ /* skip */ }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field+=c;
+    }
+  }
+  if(field.length>0 || row.length>0){ row.push(field); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==''));
+}
 function parseCSV(text){
-  const lines = text.split(/\r?\n/).filter(l=>l.trim().length>0);
-  if(lines.length<2) return [];
-  const rows = lines.slice(1).map(line=>line.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
-  return rows.map((cols,i)=>{
+  const rows = csvToRows(text);
+  if(rows.length<2) return [];
+  return rows.slice(1).map((cols,i)=>{
     const group = Number(cols[0]);
     const sid = cols[1];
     const name = cols[2];
-    const scores = cols.slice(3,23).map(Number);
+    const scores = cols.slice(3,23).map(n=>Number(String(n).trim()));
     return { id:'U'+i, sid, name, group, scores };
   }).filter(s=>s.name && s.scores.length===20 && s.scores.every(n=>!isNaN(n)));
 }
